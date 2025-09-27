@@ -10,7 +10,9 @@ from docx.shared import Mm
 import google.generativeai as genai
 from google.cloud import documentai_v1 as documentai
 import requests
-
+from docx import Document
+from docx2pdf import convert
+import os
 
 class InsuranceDataExtractor:
     def __init__(self):
@@ -118,7 +120,7 @@ class InsuranceDataExtractor:
         Return only valid JSON format.
 
         Text to analyze:
-        {text[:4000]}  # Limit text to avoid token limits
+        {text}  # Limit text to avoid token limits
         """
         
         try:
@@ -387,7 +389,7 @@ app = Flask(__name__)
 # Configuration
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', './uploads')
 TEMPLATE_FILE = os.getenv('TEMPLATE_FILE', './template.docx')
-OUTPUT_DOCX = os.getenv('OUTPUT_DOCX', './output.docx')
+OUTPUT_DOCX = os.getenv('OUTPUT_DOCX', './outputdata.docx')
 OUTPUT_PDF = os.getenv('OUTPUT_PDF', './output.pdf')
 MAPS_KEY = os.getenv('GOOGLE_MAPS_KEY') 
 
@@ -499,6 +501,20 @@ def process_files():
         doc_template.save(OUTPUT_DOCX)
         
         print(f"Document saved: {OUTPUT_DOCX}")
+        try:
+            import mammoth
+            with open(OUTPUT_DOCX, "rb") as docx_file:
+                result = mammoth.convert_to_html(docx_file)
+                html = result.value
+            
+            # Save as HTML file
+            with open("./templates/preview.html", "w", encoding="utf-8") as html_file:
+                html_file.write(html)
+    
+            
+        except:
+            import traceback
+            traceback.print_exc()
         
         return jsonify({
             "status": "success", 
@@ -513,66 +529,20 @@ def process_files():
         traceback.print_exc()
         return jsonify({"status": "error", "message": str(e)}), 500
 
-def convert_docx_to_pdf_linux(docx_path, pdf_path):
+def word_to_pdf(input_path, output_path=None):
     """
-    Convert DOCX to PDF on Linux using multiple fallback methods
+    Convert Word document to PDF
     """
-    try:
-        # Method 1: Try LibreOffice (most reliable on Linux)
-        cmd = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', 
-               os.path.dirname(pdf_path), docx_path]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        
-        # LibreOffice creates PDF with same name as DOCX
-        expected_pdf = docx_path.replace('.docx', '.pdf')
-        if os.path.exists(expected_pdf) and expected_pdf != pdf_path:
-            os.rename(expected_pdf, pdf_path)
-        
-        if os.path.exists(pdf_path):
-            print(f"PDF converted successfully with LibreOffice: {pdf_path}")
-            return True
-        
-    except subprocess.TimeoutExpired:
-        print("LibreOffice conversion timed out")
-    except FileNotFoundError:
-        print("LibreOffice not found, trying alternative methods...")
-    except Exception as e:
-        print(f"LibreOffice conversion error: {e}")
+    if output_path is None:
+        output_path = input_path.replace('.docx', '.pdf')
     
-    try:
-        # Method 2: Try unoconv (if available)
-        cmd = ['unoconv', '-f', 'pdf', '-o', pdf_path, docx_path]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        
-        if os.path.exists(pdf_path):
-            print(f"PDF converted successfully with unoconv: {pdf_path}")
-            return True
-        
-    except FileNotFoundError:
-        print("unoconv not found")
-    except Exception as e:
-        print(f"unoconv conversion error: {e}")
-    
-    try:
-        # Method 3: Try pandoc (limited formatting support)
-        cmd = ['pandoc', docx_path, '-o', pdf_path]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        
-        if os.path.exists(pdf_path):
-            print(f"PDF converted successfully with pandoc: {pdf_path}")
-            return True
-        
-    except FileNotFoundError:
-        print("pandoc not found")
-    except Exception as e:
-        print(f"pandoc conversion error: {e}")
-    
-    print("All PDF conversion methods failed")
-    return False
+    convert(input_path, output_path)
+    print(f"Converted {input_path} to {output_path}")
 
 @app.route('/preview_doc')
 def preview_doc():
-    return send_file(OUTPUT_DOCX)
+    # return send_file(OUTPUT_DOCX)
+    return send_file('./templates/preview.html')
     if os.path.exists(OUTPUT_PDF):
         return send_file(OUTPUT_PDF)
     elif os.path.exists(OUTPUT_DOCX):
