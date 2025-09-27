@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DSL OCR Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <h2>Process Flow</h2>
+    <ul id="process-steps">
+      <li class="step active" data-step="1"><span class="icon">📂</span>Upload Documents</li>
+      <li class="step" data-step="2"><span class="icon">🔍</span> OCR Extraction</li>
+      <li class="step" data-step="3"><span class="icon">✍️</span>  Autofill</li>
+	<li class="step" data-step="4"><span class="icon">👁️</span> Preview & Edit </li>
+      <li class="step" data-step="5"><span class="icon">🗺️</span> Accident Road Map</li>
+      <li class="step" data-step="6"><span class="icon">⬇️</span> Download</li>
+    </ul>
+  </aside>
+
+  <main class="content">
+    <section id="upload-section" class="card">
+      <h2>Upload Files</h2>
+      <form action="/upload" class="dropzone" id="myDropzone">
+        <div class="dz-message">Drag & Drop files or click to select</div>
+      </form>
+      <button id="startProcessBtn">Start Process</button>
+    </section>
+    <section id="preview-section" class="card hidden">
+      <h2>Preview & Edit</h2>
+      <iframe id="docPreview" class="preview-frame"></iframe>
+      <button id="confirmBtn">Confirm & Download</button>
+    </section>
+<!-- Add this inside <main class="content">, probably above Preview section -->
+<section id="map-canvas-section" class="card">
+  <h2>Accident Road Map</h2>
+
+  <div class="map-workbench">
+    <div class="palette">
+      <h3>Palette</h3>
+      <div id="icon-list">
+        <div class="icon-item" data-type="vehicle" draggable="true" data-icon="🚗">🚗 Vehicle</div>
+        <div class="icon-item" data-type="truck" draggable="true" data-icon="🚚">🚚 Truck</div>
+        <div class="icon-item" data-type="person" draggable="true" data-icon="🚶">🚶 Trespasser</div>
+        <div class="icon-item" data-type="signal" draggable="true" data-icon="🚦">🚦 Signal</div>
+        <div class="icon-item" data-type="roadblock" draggable="true" data-icon="🚧">🚧 Roadblock</div>
+        <div class="icon-item" data-type="collision" draggable="true" data-icon="💥">💥 Collision</div>
+      </div>
+
+      <div class="palette-controls">
+        <button id="clearMapBtn">Clear</button>
+        <button id="downloadSceneBtn">Download Scene</button>
+       </div>
+    </div>
+
+    <div class="map-container">
+      <!-- Map -->
+      <div id="map" style="width:100%;height:450px;border-radius:8px;"></div>
+      <!-- Overlay for icon markers (so html icons can be used) -->
+      <div id="marker-overlay" style="position:relative; top:-450px; pointer-events:none;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Load Google Maps JS API using injected key -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&libraries=places" async defer></script>
+<!-- Adding Async defer in the google api -->
+<script src="{{ url_for('static', filename='js/map_canvas.js') }}"></script>
+<!-- html2canvas for screenshot/download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+  <script src="{{ url_for('static', filename='js/ocr.js') }}"></script>
+</body>
+</html>

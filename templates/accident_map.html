@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accident Map</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <style>
+    body, html { height: 100%; margin: 0; padding: 0; }
+    .map-container { height: 90%; width: 100%; position: relative; }
+    #map { height: 100%; width: 100%; }
+    #marker-overlay { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+    .map-marker { position: absolute; cursor: pointer; font-size: 20px; user-select:none; }
+    .btn-container { margin: 10px; }
+    button { margin-right: 8px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="btn-container">
+    <button id="clearMapBtn">Clear Map</button>
+    <button id="downloadSceneBtn">Download Scene</button>
+  </div>
+
+  <div class="map-container">
+    <div id="map"></div>
+    <div id="marker-overlay"></div>
+  </div>
+
+  <!-- Google Maps JS -->
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&callback=initMap" async defer></script>
+  <script src="{{ url_for('static', filename='js/map_canvas.js') }}"></script>
+  <!-- html2canvas for screenshot -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</body>
+</html>
