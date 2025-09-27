@@ -45,15 +45,13 @@ startBtn.addEventListener("click", function () {
 
                 previewSection.classList.remove("hidden");
                 
-                // Option 1: Load HTML content directly
-                fetch("/preview_content")
-                    .then(response => response.json())
-                    .then(data => {
-                        docPreview.innerHTML = data.html;
-                    });
+                // fetch("/preview_content")
+                //     .then(response => response.json())
+                //     .then(data => {
+                //         docPreview.innerHTML = data.html;
+                //     });
                 
-                // Option 2: Use iframe for HTML file
-                // docPreview.src = "/preview_doc";
+                docPreview.src = "/preview_doc";
             });
     });
 });
