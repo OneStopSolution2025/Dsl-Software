@@ -1,0 +1,79 @@
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { RootState } from '@/store';
+import {
+  fetchUserProfileStart,
+  fetchUserProfileSuccess,
+  fetchUserProfileFailure,
+  logout,
+} from '@/store/slices/authSlice';
+import { API_ENDPOINTS } from '@/utils/constants';
+import api from '@/utils/axios.config';
+import { User } from '@/types/auth.types';
+
+export const useAuth = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated, token, user, loading } = useSelector(
+    (state: RootState) => state.auth
+  );
+
+  // Fetch user profile when token exists but no user data
+  const fetchUserProfile = async () => {
+    if (!token) return;
+
+    dispatch(fetchUserProfileStart());
+
+    try {
+      const response = await api.get<{ username: string; email: string }>(
+        API_ENDPOINTS.USER.ME,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const userData: User = {
+        id: response.data.username, // Using username as ID since backend might not provide ID
+        username: response.data.username,
+        email: response.data.email,
+      };
+
+      dispatch(fetchUserProfileSuccess(userData));
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to fetch user profile';
+      dispatch(fetchUserProfileFailure(message));
+    }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  // Check authentication on app load
+  useEffect(() => {
+    const storedToken = localStorage.getItem('auth_token');
+
+    if (storedToken && !user && !loading) {
+      // Token exists but no user data, fetch profile
+      fetchUserProfile();
+    } else if (!storedToken) {
+      // No token, redirect to login if not already there
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        navigate('/login');
+      }
+    }
+  }, [token, user, loading, navigate]);
+
+  return {
+    isAuthenticated,
+    user,
+    loading,
+    fetchUserProfile,
+    handleLogout,
+  };
+};

@@ -1,0 +1,92 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { FileState, UploadedFile } from '@/types/file.types';
+
+const initialState: FileState = {
+  uploadedFiles: [],
+  sessionId: null,
+  userName: null,
+  serverFileIds: [],
+  docxUrl: null,
+  finalDocxUrl: null,
+  isUploading: false,
+  uploadError: null,
+};
+
+const filesSlice = createSlice({
+  name: 'files',
+  initialState,
+  reducers: {
+    addFiles: (state, action: PayloadAction<UploadedFile[]>) => {
+      state.uploadedFiles.push(...action.payload);
+    },
+    removeFile: (state, action: PayloadAction<string>) => {
+      state.uploadedFiles = state.uploadedFiles.filter(
+        (file) => file.id !== action.payload
+      );
+    },
+    updateFileStatus: (
+      state,
+      action: PayloadAction<{ id: string; status: UploadedFile['status']; progress?: number }>
+    ) => {
+      const file = state.uploadedFiles.find((f) => f.id === action.payload.id);
+      if (file) {
+        file.status = action.payload.status;
+        if (action.payload.progress !== undefined) {
+          file.progress = action.payload.progress;
+        }
+      }
+    },
+    setUploadError: (state, action: PayloadAction<{ id: string; error: string }>) => {
+      const file = state.uploadedFiles.find((f) => f.id === action.payload.id);
+      if (file) {
+        file.error = action.payload.error;
+        file.status = 'error';
+      }
+    },
+    setSessionData: (
+      state,
+      action: PayloadAction<{ sessionId: string; userName: string; fileIds: string[] }>
+    ) => {
+      state.sessionId = action.payload.sessionId;
+      state.userName = action.payload.userName;
+      state.serverFileIds = action.payload.fileIds;
+    },
+    setDocxUrl: (state, action: PayloadAction<string>) => {
+      state.docxUrl = action.payload;
+    },
+    setFinalDocxUrl: (state, action: PayloadAction<string>) => {
+      state.finalDocxUrl = action.payload;
+    },
+    setIsUploading: (state, action: PayloadAction<boolean>) => {
+      state.isUploading = action.payload;
+    },
+    setUploadErrorMessage: (state, action: PayloadAction<string | null>) => {
+      state.uploadError = action.payload;
+    },
+    clearFiles: (state) => {
+      state.uploadedFiles = [];
+      state.sessionId = null;
+      state.userName = null;
+      state.serverFileIds = [];
+      state.docxUrl = null;
+      state.finalDocxUrl = null;
+      state.isUploading = false;
+      state.uploadError = null;
+    },
+  },
+});
+
+export const {
+  addFiles,
+  removeFile,
+  updateFileStatus,
+  setUploadError,
+  setSessionData,
+  setDocxUrl,
+  setFinalDocxUrl,
+  setIsUploading,
+  setUploadErrorMessage,
+  clearFiles,
+} = filesSlice.actions;
+
+export default filesSlice.reducer;
