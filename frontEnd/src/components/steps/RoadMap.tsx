@@ -101,14 +101,19 @@ export const RoadMap = () => {
         );
 
         if (latLng) {
+          console.log('Placing marker:', markerType, 'at', latLng.lat(), latLng.lng());
           handleAddMarker(markerType, latLng.lat(), latLng.lng());
           toast.success(`${markerType} marker placed at ${latLng.lat().toFixed(4)}, ${latLng.lng().toFixed(4)}`);
+        } else {
+          console.error('Could not convert screen coordinates to lat/lng');
+          toast.error('Failed to place marker - could not determine location');
         }
       } catch (error) {
         console.error('Error placing marker:', error);
         toast.error('Failed to place marker. Please try again.');
       }
     } else {
+      console.warn('Map not ready or invalid marker type:', { markerType, hasMap: !!mapRef.current });
       toast.error('Map not ready. Please wait for the map to load.');
     }
   };
@@ -218,24 +223,59 @@ export const RoadMap = () => {
         </div>
       </div>
 
-      {/* Draggable Marker Palette */}
+      {/* Alternative Marker Methods */}
       <div className="p-4 bg-neutral-50 rounded-lg border border-neutral-200">
-        <p className="font-medium text-neutral-700 mb-3">Drag markers to map:</p>
-        <div className="flex gap-3">
-          {MARKER_TYPES.map((type) => (
-            <div
-              key={type}
-              draggable
-              onDragStart={(e) => handleMarkerDragStart(e, type)}
-              className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-neutral-300 cursor-move hover:bg-neutral-50 transition-colors hover:shadow-md"
-              title={`Drag ${type} marker to map`}
-            >
-              <span className="text-lg">{markerIcons[type]}</span>
-              <span className="font-medium text-neutral-700 capitalize">
-                {type}
-              </span>
+        <p className="font-medium text-neutral-700 mb-3">Choose marker placement method:</p>
+        <div className="grid grid-cols-2 gap-4">
+          {/* Method 1: Drag and Drop */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-neutral-600">Method 1: Drag & Drop</p>
+            <div className="flex gap-2">
+              {MARKER_TYPES.map((type) => (
+                <div
+                  key={type}
+                  draggable
+                  onDragStart={(e) => handleMarkerDragStart(e, type)}
+                  className="flex items-center gap-1 px-3 py-2 bg-white rounded-lg border border-neutral-300 cursor-move hover:bg-neutral-50 transition-colors hover:shadow-md"
+                  title={`Drag ${type} marker to map`}
+                >
+                  <span className="text-lg">{markerIcons[type]}</span>
+                  <span className="text-sm font-medium text-neutral-700 capitalize">
+                    {type}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Method 2: Click to Place */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-neutral-600">Method 2: Select & Click</p>
+            <div className="flex gap-2">
+              {MARKER_TYPES.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setSelectedMarkerType(selectedMarkerType === type ? null : type)}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
+                    selectedMarkerType === type
+                      ? 'bg-primary-500 text-white border-primary-500'
+                      : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
+                  }`}
+                  title={`Select ${type} marker, then click on map`}
+                >
+                  <span className="text-lg">{markerIcons[type]}</span>
+                  <span className="text-sm font-medium capitalize">
+                    {type}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {selectedMarkerType && (
+              <p className="text-xs text-neutral-500">
+                Selected: {selectedMarkerType}. Click on map to place marker.
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -264,12 +304,25 @@ export const RoadMap = () => {
               onLoad={(map) => {
                 mapRef.current = map;
                 console.log('GoogleMap component loaded successfully');
+                // Force a re-render after map loads to ensure markers appear
+                setTimeout(() => {
+                  // Trigger a state update to force marker re-render
+                  setCenter(prev => ({ ...prev }));
+                }, 100);
               }}
               options={{
                 streetViewControl: false,
                 mapTypeControl: false,
               }}
             >
+              {markers.length > 0 && (
+                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'white', padding: '10px', borderRadius: '5px', zIndex: 1000 }}>
+                  <p>Markers: {markers.length}</p>
+                  {markers.map(marker => (
+                    <p key={marker.id}>📍 {marker.type} at {marker.lat.toFixed(4)}, {marker.lng.toFixed(4)}</p>
+                  ))}
+                </div>
+              )}
               {markers.map((marker) => (
                 <Marker
                   key={marker.id}
@@ -277,14 +330,45 @@ export const RoadMap = () => {
                   draggable={true}
                   onDragEnd={(e) => {
                     if (e.latLng) {
+                      console.log(`📍 Marker ${marker.id} moved to ${e.latLng.lat()}, ${e.latLng.lng()}`);
                       handleMarkerRelocate(marker.id, e.latLng.lat(), e.latLng.lng());
                     }
                   }}
+                  onLoad={() => {
+                    console.log(`✅ Marker ${marker.id} (${marker.type}) loaded at ${marker.lat}, ${marker.lng}`);
+                  }}
+                  onDragStart={() => {
+                    console.log(`🔄 Marker ${marker.id} drag started`);
+                  }}
+                  // Enhanced marker design - choose your preferred style
+                  icon={{
+                    // Option 1: Simple colored circle
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 18,
+                    fillColor: '#10b981', // Green
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 3,
+
+                    // Option 2: Custom shape (uncomment to use)
+                    // url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                    //   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    //     <path d="M16 2L20 12H28L22 18L24 28L16 22L8 28L10 18L4 12H12L16 2Z" fill="#f59e0b" stroke="white" stroke-width="2"/>
+                    //   </svg>
+                    // `)}`,
+                    // scaledSize: new google.maps.Size(32, 32),
+                    // anchor: new google.maps.Point(16, 16),
+
+                    // Option 3: Different color scheme
+                    // fillColor: '#ef4444', // Red
+                    // fillColor: '#8b5cf6', // Purple
+                    // fillColor: '#f59e0b', // Orange
+                  }}
                   label={{
                     text: markerIcons[marker.type],
-                    fontSize: '24px',
-                    color: '#2563eb',
+                    fontSize: '18px',
                     fontWeight: 'bold',
+                    color: '#ffffff',
                   }}
                 />
               ))}
