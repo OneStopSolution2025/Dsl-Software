@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addMarker, updateMarkerPosition, clearMarkers } from '@/store/slices/markersSlice';
+import { addMarker, updateMarkerPosition, clearMarkers, removeMarker } from '@/store/slices/markersSlice';
 import { RootState } from '@/store';
 import { MapMarker, MarkerType } from '@/types/map.types';
 import { generateMarkerId } from '@/utils/mapHelpers';
@@ -30,6 +30,13 @@ export const useMap = () => {
     [dispatch]
   );
 
+  const handleRemoveMarker = useCallback(
+    (id: string) => {
+      dispatch(removeMarker(id));
+    },
+    [dispatch]
+  );
+
   const handleClearMarkers = useCallback(() => {
     dispatch(clearMarkers());
   }, [dispatch]);
@@ -43,6 +50,7 @@ export const useMap = () => {
     mapType,
     handleAddMarker,
     handleUpdateMarkerPosition,
+    handleRemoveMarker,
     handleClearMarkers,
     toggleMapType,
   };

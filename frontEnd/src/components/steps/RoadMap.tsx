@@ -7,7 +7,7 @@ import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { GOOGLE_MAPS_API_KEY, MARKER_TYPES } from '@/utils/constants';
 import { MarkerType } from '@/types/map.types';
 import { Button } from '@/components/common/Button';
-import { Map as MapIcon, Satellite, Trash2, Download, MapPin } from 'lucide-react';
+import { Map as MapIcon, Satellite, Trash2, Download, MapPin, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const mapContainerStyle = {
@@ -22,51 +22,52 @@ const defaultCenter = {
 
 export const RoadMap = () => {
   const dispatch = useDispatch();
-  const { markers, mapType, handleAddMarker, handleClearMarkers, handleUpdateMarkerPosition, toggleMapType } = useMap();
+  const { markers, mapType, handleAddMarker, handleClearMarkers, handleUpdateMarkerPosition, handleRemoveMarker, toggleMapType } = useMap();
   const [center, setCenter] = useState(defaultCenter);
   const [selectedMarkerType, setSelectedMarkerType] = useState<MarkerType | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const locationRequestedRef = useRef(false);
 
   useEffect(() => {
-    // Get user's current location with improved error handling
-    const requestLocation = async () => {
-      try {
-        toast('Requesting location permission to show your current location on the map...', {
-          icon: '📍',
-          duration: 3000,
-        });
-        const location = await getCurrentLocation();
-        setCenter(location);
-        toast.success('Location detected! Map centered on your current location.');
-      } catch (error: any) {
-        console.warn('Geolocation failed:', error);
+    // Only request location once when component first mounts
+    if (!locationRequestedRef.current) {
+      locationRequestedRef.current = true;
 
-        // Provide specific error messages based on error type
-        let errorMessage = 'Could not get your location. Using Malaysia as default.';
-        if (error.code === 1) {
-          errorMessage = 'Location access denied. Please enable location permissions and refresh the page.';
-        } else if (error.code === 2) {
-          errorMessage = 'Location unavailable. Please check your GPS/network and try again.';
-        } else if (error.code === 3) {
-          errorMessage = 'Location request timed out. Using Malaysia as default.';
+      const requestLocation = async () => {
+        try {
+          toast('Requesting location permission to show your current location on the map...', {
+            icon: '📍',
+            duration: 3000,
+          });
+          const location = await getCurrentLocation();
+          setCenter(location);
+          toast.success('Location detected! Map centered on your current location.');
+        } catch (error: any) {
+          console.warn('Geolocation failed:', error);
+
+          // Provide specific error messages based on error type
+          let errorMessage = 'Could not get your location. Using Malaysia as default.';
+          if (error.code === 1) {
+            errorMessage = 'Location access denied. Please enable location permissions and refresh the page.';
+          } else if (error.code === 2) {
+            errorMessage = 'Location unavailable. Please check your GPS/network and try again.';
+          } else if (error.code === 3) {
+            errorMessage = 'Location request timed out. Using Malaysia as default.';
+          }
+
+          toast.error(errorMessage);
+          // Keep Malaysia as default center
         }
+      };
 
-        toast.error(errorMessage);
-        // Keep Malaysia as default center
+      // Only request location if geolocation is supported
+      if (navigator.geolocation) {
+        requestLocation();
+      } else {
+        toast.error('Geolocation not supported by your browser. Using Malaysia as default.');
       }
-    };
-
-    // Only request location if geolocation is supported
-    if (navigator.geolocation) {
-      requestLocation();
-    } else {
-      toast.error('Geolocation not supported by your browser. Using Malaysia as default.');
     }
   }, []);
-  useEffect(() => {
-    // Enable next button when at least one marker is added
-    dispatch(setCanProceed(markers.length > 0));
-  }, [markers.length, dispatch]);
 
   const handleMarkerRelocate = (markerId: string, lat: number, lng: number) => {
     handleUpdateMarkerPosition(markerId, lat, lng);
@@ -314,12 +315,20 @@ export const RoadMap = () => {
           </p>
           <div className="flex flex-wrap gap-2">
             {markers.map((marker) => (
-              <span
+              <div
                 key={marker.id}
-                className="px-3 py-1 bg-white rounded-full text-sm border border-neutral-300"
+                className="flex items-center gap-2 px-3 py-1 bg-white rounded-full text-sm border border-neutral-300"
               >
-                {markerIcons[marker.type]} {marker.type} ({marker.lat.toFixed(4)}, {marker.lng.toFixed(4)})
-              </span>
+                <span>{markerIcons[marker.type]} {marker.type}</span>
+                <span className="text-neutral-500">({marker.lat.toFixed(4)}, {marker.lng.toFixed(4)})</span>
+                <button
+                  onClick={() => handleRemoveMarker(marker.id)}
+                  className="ml-1 p-1 hover:bg-red-100 rounded-full transition-colors"
+                  title={`Remove ${marker.type} marker`}
+                >
+                  <X className="h-3 w-3 text-red-500" />
+                </button>
+              </div>
             ))}
           </div>
         </div>
