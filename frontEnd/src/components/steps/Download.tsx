@@ -2,54 +2,40 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setFinalDocxUrl } from '@/store/slices/filesSlice';
-import { API_ENDPOINTS } from '@/utils/constants';
 import { downloadFile } from '@/utils/fileHelpers';
-import api from '@/utils/axios.config';
 import { Button } from '@/components/common/Button';
 import { Download as DownloadIcon, CheckCircle, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const Download = () => {
   const dispatch = useDispatch();
-  const { sessionId, finalDocxUrl } = useSelector((state: RootState) => state.files);
+  const { docxUrl } = useSelector((state: RootState) => state.files);
   const [loading, setLoading] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
   const handleDownload = async () => {
-    if (!sessionId) {
-      toast.error('Session ID not found');
+    if (!docxUrl) {
+      toast.error('Document URL not found. Please complete the previous steps.');
       return;
     }
 
     setLoading(true);
     try {
-      // Get token from localStorage for Authorization header
-      const token = localStorage.getItem('auth_token');
+      // Use the same URL from Preview step
+      dispatch(setFinalDocxUrl(docxUrl));
 
-      const response = await api.get(`${API_ENDPOINTS.DOWNLOAD.LIST}/${sessionId}`, {
-        params: { session_id: sessionId },
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      // Download the file using the stored URL
+      downloadFile(docxUrl, 'insurance-claim-report.docx');
 
-      if (response.data.url) {
-        dispatch(setFinalDocxUrl(response.data.url));
-        
-        // Download the file
-        downloadFile(response.data.url, 'insurance-claim-report.docx');
-        
-        setDownloaded(true);
-        toast.success('Document downloaded successfully!');
-      }
+      setDownloaded(true);
+      toast.success('Document downloaded successfully!');
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Download failed. Please try again.';
+      const message = error.message || 'Download failed. Please try again.';
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
       <div className="text-center">
@@ -82,16 +68,16 @@ export const Download = () => {
         {downloaded ? 'Downloaded' : 'Download Document'}
       </Button>
 
-      {finalDocxUrl && (
+      {docxUrl && (
         <div className="mt-8 p-4 bg-neutral-50 rounded-lg border border-neutral-200 max-w-xl w-full">
           <p className="text-sm font-medium text-neutral-700 mb-2">Document URL:</p>
           <a
-            href={finalDocxUrl}
+            href={docxUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-primary-500 hover:underline break-all"
           >
-            {finalDocxUrl}
+            {docxUrl}
           </a>
         </div>
       )}

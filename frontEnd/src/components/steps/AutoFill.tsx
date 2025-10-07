@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
-import { nextStep } from '@/store/slices/stepperSlice';
 import { setDocxUrl } from '@/store/slices/filesSlice';
 import { API_ENDPOINTS } from '@/utils/constants';
 import api from '@/utils/axios.config';
 import { Loader2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { nextStep } from '@/store/slices/stepperSlice';
 
 export const AutoFill = () => {
   const dispatch = useDispatch();
