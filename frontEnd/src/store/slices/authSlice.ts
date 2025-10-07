@@ -24,6 +24,9 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.error = null;
       localStorage.setItem('auth_token', action.payload.token);
+
+      // Reset all app state to initial when user logs in
+      // This ensures fresh start for every login session
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -35,6 +38,8 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
       localStorage.removeItem('auth_token');
+
+      // Clear all app state when user logs out
     },
     clearError: (state) => {
       state.error = null;

@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
 import { loginSchema, LoginFormData } from '@/utils/validation';
-import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { GlassCard } from '@/components/common/GlassCard';
 import api from '@/utils/axios.config';
 import { API_ENDPOINTS } from '@/utils/constants';
 import { LoginResponse } from '@/types/auth.types';
+import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice';
+import { resetStepper } from '@/store/slices/stepperSlice';
+import { clearFiles } from '@/store/slices/filesSlice';
+import { clearMarkers } from '@/store/slices/markersSlice';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
@@ -66,6 +69,11 @@ export const LoginForm = () => {
         token,
         user,
       }));
+
+      // Reset all app state to ensure fresh start for every login session
+      dispatch(resetStepper());
+      dispatch(clearFiles());
+      dispatch(clearMarkers());
 
       toast.success('Login successful!');
       navigate('/');

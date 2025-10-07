@@ -28,13 +28,22 @@ export const AutoFill = () => {
       // Get token from localStorage for Authorization header
       const token = localStorage.getItem('auth_token');
 
-      const response = await api.post(
+      // First, get available template filenames
+      const templateResponse = await api.get('/template/dropdown', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      // Use the first available template filename, or fallback to default
+      const templateFilename = templateResponse.data?.[0] || 'template_with_placeholders.docx';
+
+      const response = await api.get(
         `${API_ENDPOINTS.PROCESS.AUTOFILL}/${sessionId}`,
         {
-          session_id: sessionId,
-          template_filename: 'default_template.docx',
-        },
-        {
+          params: {
+            template_filename: templateFilename,
+          },
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -44,7 +53,7 @@ export const AutoFill = () => {
       if (response.data.report_docx_gcs_uri) {
         dispatch(setDocxUrl(response.data.report_docx_gcs_uri));
         toast.success('Document processed successfully!');
-        
+
         // Auto-navigate to next step after 1 second
         setTimeout(() => {
           dispatch(nextStep());

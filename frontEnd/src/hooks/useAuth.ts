@@ -8,6 +8,9 @@ import {
   fetchUserProfileFailure,
   logout,
 } from '@/store/slices/authSlice';
+import { resetStepper } from '@/store/slices/stepperSlice';
+import { clearFiles } from '@/store/slices/filesSlice';
+import { clearMarkers } from '@/store/slices/markersSlice';
 import { API_ENDPOINTS } from '@/utils/constants';
 import api from '@/utils/axios.config';
 import { User } from '@/types/auth.types';
@@ -50,6 +53,11 @@ export const useAuth = () => {
 
   // Handle logout
   const handleLogout = () => {
+    // Clear all app state before logging out
+    dispatch(resetStepper());
+    dispatch(clearFiles());
+    dispatch(clearMarkers());
+
     dispatch(logout());
     navigate('/login');
   };

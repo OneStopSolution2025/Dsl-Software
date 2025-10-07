@@ -61,36 +61,44 @@ export const OCRExtraction = () => {
     // Get token from localStorage for Authorization header
     const token = localStorage.getItem('auth_token');
 
-    const response = await api.post(API_ENDPOINTS.FILES.UPLOAD, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`,
-      },
-      onUploadProgress: (progressEvent) => {
-        const progress = progressEvent.total
-          ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          : 0;
-        batch.forEach((file) => {
-          dispatch(updateFileStatus({ id: file.id, status: 'uploading', progress }));
-        });
-      },
-    });
+    try {
+      const response = await api.post(API_ENDPOINTS.FILES.UPLOAD, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`,
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = progressEvent.total
+            ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            : 0;
+          batch.forEach((file) => {
+            dispatch(updateFileStatus({ id: file.id, status: 'uploading', progress }));
+          });
+        },
+      });
 
-    // Update session data from the response
-    if (response.data.session_id) {
-      dispatch(
-        setSessionData({
-          sessionId: response.data.session_id,
-          userName: response.data.user_name || '',
-          fileIds: response.data.uploaded_files || [],
-        })
-      );
+      // Update session data from the response
+      if (response.data.session_id) {
+        dispatch(
+          setSessionData({
+            sessionId: response.data.session_id,
+            userName: response.data.user_name || '',
+            fileIds: response.data.uploaded_files || [],
+          })
+        );
+      }
+
+      // Mark files as success
+      batch.forEach((file) => {
+        dispatch(updateFileStatus({ id: file.id, status: 'success', progress: 100 }));
+      });
+    } catch (error: any) {
+      // Mark all files in batch as error when API fails
+      batch.forEach((file) => {
+        dispatch(updateFileStatus({ id: file.id, status: 'error', progress: 0 }));
+      });
+      throw error; // Re-throw to trigger main error handler
     }
-
-    // Mark files as success
-    batch.forEach((file) => {
-      dispatch(updateFileStatus({ id: file.id, status: 'success', progress: 100 }));
-    });
 
     // Wait a bit before next batch
     await new Promise((resolve) => setTimeout(resolve, 500));

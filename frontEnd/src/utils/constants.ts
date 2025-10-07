@@ -1,7 +1,7 @@
 import { MarkerType } from '@/types/map.types';
 
 export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Insurance Claims';
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://test.dfixcells.com';
 export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 export const MAX_FILE_SIZE = Number(import.meta.env.VITE_MAX_FILE_SIZE) || 10485760; // 10MB
 export const MAX_FILES = Number(import.meta.env.VITE_MAX_FILES) || 50;
@@ -42,13 +42,13 @@ export const API_ENDPOINTS = {
     ME: '/users/me',
   },
   FILES: {
-    UPLOAD: '/upload-files/', // Added trailing slash to match backend
+    UPLOAD: '/upload-files/',
   },
   PROCESS: {
-    AUTOFILL: '/document/process', // Will be used as /document/process/{session_id}
+    AUTOFILL: '/document/process',
   },
   DOWNLOAD: {
-    LIST: '/list', // Will be used as /list/{session_id}
+    LIST: '/list',
   },
 };
 
