@@ -1,6 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { setCanProceed } from '@/store/slices/stepperSlice';
 import { useMap } from '@/hooks/useMap';
 import { captureMapScreenshot, downloadMapImage, getCurrentLocation } from '@/utils/mapHelpers';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
@@ -21,7 +19,6 @@ const defaultCenter = {
 };
 
 export const RoadMap = () => {
-  const dispatch = useDispatch();
   const { markers, mapType, handleAddMarker, handleClearMarkers, handleUpdateMarkerPosition, handleRemoveMarker, toggleMapType } = useMap();
   const [center, setCenter] = useState(defaultCenter);
   const [selectedMarkerType, setSelectedMarkerType] = useState<MarkerType | null>(null);
