@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { addFiles, removeFile } from '@/store/slices/filesSlice';
+import {  addFiles, clearFiles, removeFile } from '@/store/slices/filesSlice';
 import { validateFile, generateFileId } from '@/utils/fileHelpers';
 import { UploadedFile } from '@/types/file.types';
 import toast from 'react-hot-toast';
@@ -51,8 +51,14 @@ export const useFileUpload = () => {
     [dispatch]
   );
 
+  const handleClearFiles = useCallback(() => {
+    dispatch(clearFiles());
+    toast.success('Files cleared');
+  }, [dispatch]);
+
   return {
     handleFilesAdded,
     handleFileRemoved,
+    handleClearFiles,
   };
 };

@@ -28,10 +28,13 @@ const markersSlice = createSlice({
     clearMarkers: (state) => {
       state.items = [];
     },
+    setMarkers: (state, action: PayloadAction<MapMarker[]>) => {
+      state.items = action.payload;
+    },
   },
 });
 
-export const { addMarker, updateMarkerPosition, removeMarker, clearMarkers } =
+export const { addMarker, updateMarkerPosition, removeMarker, clearMarkers, setMarkers } =
   markersSlice.actions;
 
 export default markersSlice.reducer;

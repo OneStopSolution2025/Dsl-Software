@@ -3,35 +3,52 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setCanProceed } from '@/store/slices/stepperSlice';
 import { FileText, Download, AlertCircle, Loader2 } from 'lucide-react';
+import { UploadMore } from '../common/UploadMore';
 
 export const Preview = () => {
   const dispatch = useDispatch();
-  const { docxUrl } = useSelector((state: RootState) => state.files);
+  const { docxUrl, htmlUrl } = useSelector((state: RootState) => state.files);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
+  // Use HTML URL if available, otherwise fallback to DOCX URL
+  const documentUrl = htmlUrl || docxUrl;
+  const isHtmlDocument = !!htmlUrl;
+
   useEffect(() => {
     // Enable proceed once document is loaded
-    if (docxUrl) {
+    if (documentUrl) {
       dispatch(setCanProceed(true));
       setIsLoading(false);
     }
-  }, [docxUrl, dispatch]);
+  }, [documentUrl, dispatch]);
 
   const handleIframeLoad = () => {
     setIsLoading(false);
     setHasError(false);
   };
 
+
+
   const handleIframeError = () => {
     setIsLoading(false);
     setHasError(true);
   };
 
-  // Generate Google Docs Viewer URL
-  const googleDocsUrl = docxUrl
-    ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docxUrl)}`
-    : null;
+  // Generate appropriate viewer URL based on document type
+  const getViewerUrl = () => {
+    if (!documentUrl) return null;
+
+    if (isHtmlDocument) {
+      // For HTML files, use directly
+      return documentUrl;
+    } else {
+      // For DOCX files, use Google Docs viewer
+      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(documentUrl)}`;
+    }
+  };
+
+  const viewerUrl = getViewerUrl();
 
   return (
     <div className="space-y-6">
@@ -84,7 +101,7 @@ export const Preview = () => {
                       Unable to preview the document. Please download it instead.
                     </p>
                     <a
-                      href={docxUrl}
+                      href={documentUrl || ''}
                       download
                       className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                     >
@@ -95,7 +112,7 @@ export const Preview = () => {
                 </div>
               ) : (
                 <iframe
-                  src={googleDocsUrl || undefined}
+                  src={viewerUrl || undefined}
                   width="100%"
                   height="600"
                   frameBorder="0"
@@ -118,6 +135,8 @@ export const Preview = () => {
         )}
       </div>
 
+
+
       {/* Info Message */}
       <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
@@ -125,6 +144,13 @@ export const Preview = () => {
           Please review the auto-filled document and click <strong>Next</strong> to proceed to the road map.
         </p>
       </div>
+
+      <UploadMore />
+
+    
     </div>
+
+
+
   );
 };

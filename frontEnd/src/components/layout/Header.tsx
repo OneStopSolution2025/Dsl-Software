@@ -4,11 +4,14 @@ import { Building2, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/common/Button';
 import { APP_NAME } from '@/utils/constants';
+import { useIdleTimer } from '@/hooks/useIdleTimer';
 
 export const Header = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, handleLogout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useIdleTimer();
 
   const getInitials = (name: string) => {
     return name

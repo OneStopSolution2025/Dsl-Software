@@ -14,20 +14,21 @@ export const ALLOWED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-export const FILE_TYPE_EXTENSIONS: Record<string, string> = {
-  'application/pdf': '.pdf',
-  'image/jpeg': '.jpg',
-  'image/jpg': '.jpg',
-  'image/png': '.png',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+
+
+export const FILE_TYPE_EXTENSIONS: Record<string, string[]> = {
+  'application/pdf': ['.pdf'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
 };
 
 export const STEPS = [
   { id: 1, name: 'Upload Documents', key: 'upload' },
   { id: 2, name: 'OCR Extraction', key: 'ocr' },
-  { id: 3, name: 'AutoFill', key: 'autofill' },
-  { id: 4, name: 'Preview', key: 'preview' },
-  { id: 5, name: 'Road Map', key: 'roadmap' },
+  { id: 3, name: 'Road Map', key: 'roadmap' },
+  { id: 4, name: 'AutoFill', key: 'autofill' },
+  { id: 5, name: 'Preview', key: 'preview' },
   { id: 6, name: 'Download', key: 'download' },
 ];
 
@@ -52,4 +53,5 @@ export const API_ENDPOINTS = {
   },
 };
 
-export const BATCH_UPLOAD_SIZE = 5; // Upload 5 files at a time
+export const BATCH_UPLOAD_SIZE = 7; // Upload 7 files at a time
+

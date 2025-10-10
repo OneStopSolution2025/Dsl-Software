@@ -5,12 +5,13 @@ import { RootState } from '@/store';
 import { setCanProceed } from '@/store/slices/stepperSlice';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { formatFileSize } from '@/utils/fileHelpers';
-import { Upload, X, FileText } from 'lucide-react';
+import { Upload, X, FileText, CheckCircle } from 'lucide-react';
 import clsx from 'clsx';
+import { FILE_TYPE_EXTENSIONS } from '@/utils/constants';
 
 export const UploadDocuments = () => {
   const dispatch = useDispatch();
-  const { uploadedFiles } = useSelector((state: RootState) => state.files);
+  const { uploadedFiles, serverFileIds } = useSelector((state: RootState) => state.files);
   const { handleFilesAdded, handleFileRemoved } = useFileUpload();
 
   const onDrop = useCallback(
@@ -22,12 +23,7 @@ export const UploadDocuments = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-    },
+    accept: FILE_TYPE_EXTENSIONS,
   });
 
   useEffect(() => {
@@ -65,24 +61,49 @@ export const UploadDocuments = () => {
       </div>
 
       {/* Uploaded Files List */}
-      {uploadedFiles.length > 0 && (
+      {(uploadedFiles.length > 0 || serverFileIds.length > 0) && (
         <div className="space-y-3">
           <h4 className="font-semibold text-neutral-900 text-sm sm:text-base">
-            Uploaded Files ({uploadedFiles.length})
+            Uploaded Files ({uploadedFiles.length + serverFileIds.length})
           </h4>
           <div className="space-y-2">
-            {uploadedFiles.map((file) => (
+
+            {serverFileIds.map((file: any) => (
               <div
                 key={file.id}
-                className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-lg border border-neutral-200 hover:border-primary-300 transition-colors"
+                className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200"
               >
                 <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                   <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-neutral-900 text-sm sm:text-base truncate" title={file.name}>
+                    <p className="font-medium text-neutral-900 text-xs sm:text-sm truncate" title={file.name}>
                       {file.name}
                     </p>
-                    <p className="text-xs sm:text-sm text-neutral-500 truncate">
+                    <p className="text-xs sm:text-sm text-neutral-500">
+                      {formatFileSize(file.size)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-accent-green" />
+                  <span className="text-xs sm:text-sm text-accent-green">Uploaded</span>
+                </div>
+              </div>
+            ))}
+
+
+            {uploadedFiles.map((file: any) => (
+              <div
+                key={file.id}
+                className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary-300 transition-colors"
+              >
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-neutral-900 text-xs sm:text-sm truncate" title={file.name}>
+                      {file.name}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 truncate">
                       {formatFileSize(file.size)}
                     </p>
                   </div>
@@ -95,9 +116,13 @@ export const UploadDocuments = () => {
                 </button>
               </div>
             ))}
+
           </div>
         </div>
       )}
+
+      {/* <UploadMore /> */}
+
     </div>
   );
 };

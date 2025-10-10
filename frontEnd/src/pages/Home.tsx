@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { nextStep, previousStep } from '@/store/slices/stepperSlice';
@@ -18,6 +19,7 @@ import { Download } from '@/components/steps/Download';
 export const Home = () => {
   const dispatch = useDispatch();
   const { currentStep, canProceed } = useSelector((state: RootState) => state.stepper);
+  const roadMapRef = useRef<{ handleNextWithScreenshot: () => Promise<void> } | null>(null);
 
   const renderStep = () => {
     switch (currentStep) {
@@ -26,11 +28,11 @@ export const Home = () => {
       case 2:
         return <OCRExtraction />;
       case 3:
-        return <AutoFill />;
+        return <RoadMap ref={roadMapRef} />;
       case 4:
-        return <Preview />;
+        return <AutoFill />;
       case 5:
-        return <RoadMap />;
+        return <Preview />;
       case 6:
         return <Download />;
       default:
@@ -38,10 +40,15 @@ export const Home = () => {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Special handling for road Map step (step 3) - capture screenshot first
+    if (currentStep === 3 && roadMapRef.current?.handleNextWithScreenshot) {
+      await roadMapRef.current.handleNextWithScreenshot();
+      return;
+    }
+
     dispatch(nextStep());
   };
-
   const handlePrevious = () => {
     dispatch(previousStep());
   };
@@ -55,8 +62,9 @@ export const Home = () => {
         {/* Step Indicator */}
         <StepIndicator />
 
+
         {/* Step Content */}
-        <GlassCard strong className="p-8 min-h-[500px]">
+        <GlassCard strong className="p-4 md:p-8 min-h-[500px]">
           {renderStep()}
         </GlassCard>
 

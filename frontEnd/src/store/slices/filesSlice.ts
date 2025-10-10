@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { FileState, UploadedFile } from '@/types/file.types';
+import { FileState, ServerFile, UploadedFile, UploadFilesResponse } from '@/types/file.types';
 
 const initialState: FileState = {
   uploadedFiles: [],
@@ -7,6 +7,7 @@ const initialState: FileState = {
   userName: null,
   serverFileIds: [],
   docxUrl: null,
+  htmlUrl: null,
   finalDocxUrl: null,
   isUploading: false,
   uploadError: null,
@@ -45,14 +46,25 @@ const filesSlice = createSlice({
     },
     setSessionData: (
       state,
-      action: PayloadAction<{ sessionId: string; userName: string; fileIds: string[] }>
+      action: PayloadAction<{ sessionId: string; userName: string; serverFileIds: ServerFile[], uploadedFiles?:UploadedFile[] }>
     ) => {
       state.sessionId = action.payload.sessionId;
       state.userName = action.payload.userName;
-      state.serverFileIds = action.payload.fileIds;
+      state.serverFileIds = action.payload.serverFileIds;
+      state.uploadedFiles = action.payload.uploadedFiles || [];
+    },
+    updateSessionFromUpload: (
+      state,
+      action: PayloadAction<UploadFilesResponse>
+    ) => {
+      state.sessionId = action.payload.session_id;
+      state.userName = action.payload.user_name;
     },
     setDocxUrl: (state, action: PayloadAction<string>) => {
       state.docxUrl = action.payload;
+    },
+    setHtmlUrl: (state, action: PayloadAction<string>) => {
+      state.htmlUrl = action.payload;
     },
     setFinalDocxUrl: (state, action: PayloadAction<string>) => {
       state.finalDocxUrl = action.payload;
@@ -69,6 +81,7 @@ const filesSlice = createSlice({
       state.userName = null;
       state.serverFileIds = [];
       state.docxUrl = null;
+      state.htmlUrl = null;
       state.finalDocxUrl = null;
       state.isUploading = false;
       state.uploadError = null;
@@ -82,7 +95,9 @@ export const {
   updateFileStatus,
   setUploadError,
   setSessionData,
+  updateSessionFromUpload,
   setDocxUrl,
+  setHtmlUrl,
   setFinalDocxUrl,
   setIsUploading,
   setUploadErrorMessage,

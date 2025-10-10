@@ -11,12 +11,13 @@ export const useMap = () => {
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
 
   const handleAddMarker = useCallback(
-    (type: MarkerType, lat: number, lng: number) => {
+    (type: MarkerType, lat: number, lng: number, iconUrl: string) => {
       const newMarker: MapMarker = {
         id: generateMarkerId(),
         type,
         lat,
         lng,
+        iconUrl,
       };
       dispatch(addMarker(newMarker));
     },

@@ -2,10 +2,16 @@ import { Provider } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { store } from '@/store';
 import { AppRoutes } from '@/routes';
+import { useSessionManager } from '@/hooks/useSessionManager';
+import { ResetOnPageLoad } from '@/components/common/ResetOnPageLoad';
 
-function App() {
+function AppContent() {
+  // Initialize session management within Redux Provider context
+  useSessionManager();
+
   return (
-    <Provider store={store}>
+    <>
+      <ResetOnPageLoad />
       <AppRoutes />
       <Toaster
         position="top-right"
@@ -30,6 +36,14 @@ function App() {
           },
         }}
       />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Provider store={store}>
+      <AppContent />
     </Provider>
   );
 }

@@ -15,17 +15,29 @@ const stepperSlice = createSlice({
       state.currentStep = action.payload;
     },
     nextStep: (state) => {
-      if (state.currentStep < 6) {
-        if (!state.completedSteps.includes(state.currentStep)) {
-          state.completedSteps.push(state.currentStep);
+      try {
+        if (state.currentStep < 6) {
+          if (!state.completedSteps.includes(state.currentStep)) {
+            state.completedSteps.push(state.currentStep);
+          }
+          state.currentStep = (state.currentStep + 1) as StepNumber;
+          state.canProceed = false;
+        } else {
+          console.warn('Cannot proceed: Already at the last step');
         }
-        state.currentStep = (state.currentStep + 1) as StepNumber;
-        state.canProceed = false;
+      } catch (error) {
+        console.error('Error in nextStep:', error);
       }
     },
     previousStep: (state) => {
-      if (state.currentStep > 1) {
-        state.currentStep = (state.currentStep - 1) as StepNumber;
+      try {
+        if (state.currentStep > 1) {
+          state.currentStep = (state.currentStep - 1) as StepNumber;
+        } else {
+          console.warn('Cannot go back: Already at the first step');
+        }
+      } catch (error) {
+        console.error('Error in previousStep:', error);
       }
     },
     setCanProceed: (state, action: PayloadAction<boolean>) => {

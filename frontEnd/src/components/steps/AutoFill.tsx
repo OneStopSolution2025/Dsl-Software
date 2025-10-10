@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
-import { setDocxUrl } from '@/store/slices/filesSlice';
+import { setDocxUrl, setHtmlUrl } from '@/store/slices/filesSlice';
+import { nextStep } from '@/store/slices/stepperSlice';
 import { API_ENDPOINTS } from '@/utils/constants';
 import api from '@/utils/axios.config';
 import { Loader2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { nextStep } from '@/store/slices/stepperSlice';
 
 export const AutoFill = () => {
   const dispatch = useDispatch();
-  const { sessionId } = useSelector((state: RootState) => state.files);
+  const { sessionId } = useSelector((state: RootState) => state.session);
   const [processing, setProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { currentStep } = useSelector((state: RootState) => state.stepper);
+
 
   useEffect(() => {
     if (sessionId) {
@@ -52,14 +54,25 @@ export const AutoFill = () => {
 
       if (response.data.report_docx_gcs_uri) {
         dispatch(setDocxUrl(response.data.report_docx_gcs_uri));
+
+        // Save HTML URL if available
+        if (response.data.report_html_gcs_uri) {
+          dispatch(setHtmlUrl(response.data.report_html_gcs_uri));
+        }
+
         toast.success('Document processed successfully!');
 
         // Auto-navigate to next step after 1 second
         setTimeout(() => {
-          dispatch(nextStep());
+          if (currentStep == 4) {
+            dispatch(nextStep());
+          }
         }, 1000);
       }
     } catch (error: any) {
+      if (currentStep == 4) {
+        dispatch(nextStep());
+      }
       const message = error.response?.data?.message || 'Processing failed. Please try again.';
       setError(message);
       toast.error(message);

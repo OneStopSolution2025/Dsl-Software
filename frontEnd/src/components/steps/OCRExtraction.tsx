@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setCanProceed } from '@/store/slices/stepperSlice';
+import { setSessionId } from '@/store/slices/sessionSlice';
 import {
   updateFileStatus,
   setSessionData,
@@ -13,17 +14,20 @@ import { BATCH_UPLOAD_SIZE, API_ENDPOINTS } from '@/utils/constants';
 import api from '@/utils/axios.config';
 import { FileText, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { ServerFile } from '@/types/file.types';
+
 
 export const OCRExtraction = () => {
   const dispatch = useDispatch();
-  const { uploadedFiles, isUploading } = useSelector((state: RootState) => state.files);
+  const { uploadedFiles, isUploading, serverFileIds } = useSelector((state: RootState) => state.files);
   const [uploadComplete, setUploadComplete] = useState(false);
+  const { sessionId } = useSelector((state: RootState) => state.session);
 
   useEffect(() => {
     if (uploadedFiles.length > 0 && !isUploading && !uploadComplete) {
       uploadFilesInBatches();
     }
-  }, []);
+  }, [isUploading]);
 
   const uploadFilesInBatches = async () => {
     dispatch(setIsUploading(true));
@@ -58,6 +62,8 @@ export const OCRExtraction = () => {
       dispatch(updateFileStatus({ id: file.id, status: 'uploading', progress: 0 }));
     });
 
+    formData.append('session_id', sessionId || '');
+
     // Get token from localStorage for Authorization header
     const token = localStorage.getItem('auth_token');
 
@@ -75,17 +81,49 @@ export const OCRExtraction = () => {
             dispatch(updateFileStatus({ id: file.id, status: 'uploading', progress }));
           });
         },
+        onDownloadProgress: (progressEvent) => {
+          const progress = progressEvent.total
+            ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            : 0;
+          batch.forEach((file) => {
+            dispatch(updateFileStatus({ id: file.id, status: 'uploading', progress }));
+          });
+        },
       });
 
       // Update session data from the response
       if (response.data.session_id) {
+        // const resposeFiles = response.data.uploaded_files.map((file: any, index:number) => [...file, {filename : response.data.uploaded_files[index].filename, gcs_path : response.data.uploaded_files[index].gcs_path, public_url:response.data.uploaded_files[index].public_url}]) || [];
+        const resFiles: ServerFile[] = [];
+        response.data.uploaded_files.forEach((file: any) => {
+          let upldFile = uploadedFiles.find((f) => f.name === file.filename);
+          if (upldFile) {
+            resFiles.push({
+              id: upldFile.id,
+              name: upldFile.name,
+              size: upldFile.size,
+              file,
+              status: 'pending',
+              progress: 0,
+              filename: file.filename,
+              gcs_path: file.gcs_path,
+              public_url: file.public_url
+            });
+          }
+        });
+
+        let updatedServerFiles = [...serverFileIds, ...resFiles];
+
         dispatch(
           setSessionData({
-            sessionId: response.data.session_id,
+            sessionId: sessionId || '',
             userName: response.data.user_name || '',
-            fileIds: response.data.uploaded_files || [],
+            serverFileIds: updatedServerFiles,
+            uploadedFiles: []
           })
         );
+
+        dispatch(setSessionId(response.data.session_id));
       }
 
       // Mark files as success
@@ -115,15 +153,41 @@ export const OCRExtraction = () => {
 
       {/* Files List with Progress */}
       <div className="space-y-2">
-        {uploadedFiles.map((file) => (
+
+
+        {serverFileIds.length > 0 && serverFileIds.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-lg border border-neutral-200"
+            className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200"
           >
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
               <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-neutral-900 text-sm sm:text-base truncate" title={file.name}>
+                <p className="font-medium text-neutral-900 text-xs sm:text-sm truncate" title={file.name}>
+                  {file.name}
+                </p>
+                <p className="text-[10px] sm:text-xs text-neutral-500 truncate">
+                  {formatFileSize(file.size)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-accent-green" />
+              <span className="text-xs sm:text-sm text-accent-green">Uploaded</span>
+            </div>
+          </div>
+        ))}
+
+
+        {uploadedFiles.map((file) => (
+          <div
+            key={file.id}
+            className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200"
+          >
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-neutral-900 text-xs sm:text-sm truncate" title={file.name}>
                   {file.name}
                 </p>
                 <p className="text-xs sm:text-sm text-neutral-500">
@@ -153,6 +217,7 @@ export const OCRExtraction = () => {
             </div>
           </div>
         ))}
+
       </div>
     </div>
   );
