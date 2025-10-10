@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { setCanProceed } from "@/store/slices/stepperSlice";
 import html2canvas from 'html2canvas';
-import { setSessionData, updateSessionFromUpload } from "@/store/slices/filesSlice";
+import { setSessionData } from "@/store/slices/filesSlice";
 import { uploadScreenshotAPI } from "@/utils/api/upload";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import Popup from "../common/Popup";
@@ -18,7 +18,7 @@ interface RoadMapRef {
   handleNextWithScreenshot: () => Promise<void>;
 }
 
-export const RoadMap = forwardRef<RoadMapRef>((props, ref) => {
+export const RoadMap = forwardRef<RoadMapRef>((_, ref) => {
   const dispatch = useDispatch();
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);

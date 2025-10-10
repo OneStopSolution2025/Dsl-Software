@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, ReactNode } from 'react';
+import React, { useState, useRef, ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -37,13 +37,7 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
   disabled = false,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState(0);
 
-  useEffect(() => {
-    if (contentRef.current) {
-      setContentHeight(isOpen ? contentRef.current.scrollHeight : 0);
-    }
-  }, [isOpen, children]);
 
   const IconComponent = isOpen ? ChevronUp : ChevronDown;
   const defaultIcon = <IconComponent className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />;
