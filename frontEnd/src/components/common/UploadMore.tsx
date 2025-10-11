@@ -181,9 +181,9 @@ const UploadContainer = () => {
                         Uploaded Files ({uploadedFiles.length + serverFileIds.length})
                     </h4>
                     <div className="space-y-2">
-                        {serverFileIds.map((file) => (
+                        {serverFileIds.map((file, index) => (
                             <div
-                                key={file.id}
+                                key={index}
                                 className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200"
                             >
                                 <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
@@ -204,9 +204,9 @@ const UploadContainer = () => {
                             </div>
                         ))}
 
-                        {uploadedFiles.map((file) => (
+                        {uploadedFiles.map((file, index) => (
                             <div
-                                key={file.id}
+                                key={index}
                                 className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary-300 transition-colors"
                             >
                                 <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">

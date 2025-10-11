@@ -36,13 +36,21 @@ export const RoadMap = forwardRef<RoadMapRef>((_, ref) => {
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
   const iconTypeCountRef = useRef<Record<string, number>>({});
 
+  // Import icons
+  const bikeIcon = new URL('@/assets/icons/bike.png', import.meta.url).href;
+  const carIcon = new URL('@/assets/icons/car.png', import.meta.url).href;
+  const truckIcon = new URL('@/assets/icons/truck.png', import.meta.url).href;
+  const blastIcon = new URL('@/assets/icons/blast.png', import.meta.url).href;
+  const roadblockIcon = new URL('@/assets/icons/roadblock.png', import.meta.url).href;
+  const trespasserIcon = new URL('@/assets/icons/trespasser.png', import.meta.url).href;
+
   const icons = [
-    { name: "Bike", type: 'bike' as MarkerType, icon: '/icons/bike.png' },
-    { name: "Car", type: 'car' as MarkerType, icon: '/icons/car.png' },
-    { name: "Truck", type: 'truck' as MarkerType, icon: '/icons/truck.png' },
-    { name: "Blast", type: 'blast' as MarkerType, icon: '/icons/blast.png' },
-    { name: "Roadblock", type: 'roadblock' as MarkerType, icon: '/icons/roadblock.png' },
-    { name: "Trespasser", type: 'trespasser' as MarkerType, icon: '/icons/trespasser.png' }
+    { name: "Bike", type: 'bike' as MarkerType, icon: bikeIcon },
+    { name: "Car", type: 'car' as MarkerType, icon: carIcon },
+    { name: "Truck", type: 'truck' as MarkerType, icon: truckIcon },
+    { name: "Blast", type: 'blast' as MarkerType, icon: blastIcon },
+    { name: "Roadblock", type: 'roadblock' as MarkerType, icon: roadblockIcon },
+    { name: "Trespasser", type: 'trespasser' as MarkerType, icon: trespasserIcon }
   ];
 
   // --- Load Google Maps script ---
@@ -193,7 +201,7 @@ export const RoadMap = forwardRef<RoadMapRef>((_, ref) => {
     if (!mapRef.current || !window.google) return;
 
     const mapInstance = new google.maps.Map(mapRef.current, {
-      center: { lat: 4.2105, lng: 101.9758 }, // Malaysia default
+      center: { lat: 3.1390, lng: 101.6869 }, // Kuala Lumpur city center
       zoom: 12,
       disableDefaultUI: true,
       mapTypeId: mapType,

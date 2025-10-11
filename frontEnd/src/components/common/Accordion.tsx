@@ -1,22 +1,22 @@
-import React, { useState, useRef, ReactNode } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import clsx from 'clsx';
 
 type AccordionItemProps = {
-  title: string | ReactNode;
-  children: ReactNode;
+  title: string | React.ReactNode;
+  children: React.ReactNode;
   isOpen?: boolean;
   onToggle?: () => void;
   className?: string;
   headerClassName?: string;
   contentClassName?: string;
-  icon?: ReactNode;
+  icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
   disabled?: boolean;
 };
 
 type AccordionProps = {
-  items: Omit<AccordionItemProps, 'isOpen' | 'onToggle'>[];
+  items: Omit<AccordionItemProps, 'isOpen' | 'onToggle' | 'aria-expanded'>[];
   allowMultiple?: boolean;
   defaultOpenIndexes?: number[];
   className?: string;
@@ -36,55 +36,97 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
   iconPosition = 'right',
   disabled = false,
 }) => {
-  const contentRef = useRef<HTMLDivElement>(null);
-
-
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = React.useState<number | string>(0);
   const IconComponent = isOpen ? ChevronUp : ChevronDown;
-  const defaultIcon = <IconComponent className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />;
+  const defaultIcon = (
+    <IconComponent 
+      className={clsx(
+        'w-5 h-5 transition-transform duration-300',
+        isOpen ? 'transform -rotate-180' : ''
+      )} 
+    />
+  );
+
+  // Update content height when isOpen or children change
+  React.useEffect(() => {
+    if (!contentRef.current) return;
+    
+    const updateHeight = () => {
+      if (!contentRef.current) return;
+      const height = isOpen ? contentRef.current.scrollHeight : 0;
+      setContentHeight(height);
+    };
+    
+    // Initial height update
+    updateHeight();
+    
+    // Add resize observer to handle dynamic content changes
+    const resizeObserver = new ResizeObserver(updateHeight);
+    if (contentRef.current.firstElementChild) {
+      resizeObserver.observe(contentRef.current.firstElementChild);
+    }
+    
+    // Cleanup
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [isOpen, children]);
 
   return (
-    <div className={clsx(
-      'border border-neutral-200 rounded-lg mb-4 overflow-hidden',
-      'hover:border-primary-500 hover:-translate-y-1',
-      'transition-all duration-300 ease-out',
-      className
-    )}>
+    <div 
+      className={clsx(
+        'border border-neutral-200 rounded-lg mb-4 overflow-hidden',
+        'hover:border-primary-500 transition-all duration-300',
+        className
+      )}
+    >
       <button
         type="button"
         className={clsx(
-          'w-full flex items-center justify-between p-2 text-left group',
-          'bg-gradient-to-r from-white/15 to-white/5 backdrop-blur-md',
-          'hover:from-white/25 hover:to-white/10 hover:shadow-lg',
-          'focus:outline-none focus:ring-4 focus:ring-primary-500/20',
-          'transition-all duration-300',
+          'w-full flex items-center justify-between p-4 text-left',
+          'bg-white hover:bg-gray-50',
+          'focus:outline-none focus:ring-2 focus:ring-primary-500',
+          'transition-colors duration-200',
           disabled && 'opacity-50 cursor-not-allowed',
           headerClassName
         )}
         onClick={onToggle}
         disabled={disabled}
         aria-expanded={isOpen}
+        aria-controls={`accordion-content-${React.useId()}`}
       >
-        {iconPosition === 'left' && (icon || defaultIcon)}
-        <div className="flex-1 px-3">
-          <h3 className="text-lg font-semibold text-neutral-900 group-hover:text-primary-700 transition-colors">
+        {iconPosition === 'left' && (
+          <span className="mr-3">
+            {icon || defaultIcon}
+          </span>
+        )}
+        <div className="flex-1">
+          <h3 className="text-base font-medium text-gray-900">
             {title}
           </h3>
         </div>
-        {iconPosition === 'right' && (icon || defaultIcon)}
+        {iconPosition === 'right' && (
+          <span className="ml-3">
+            {icon || defaultIcon}
+          </span>
+        )}
       </button>
 
       <div
+        id={`accordion-content-${React.useId()}`}
         className={clsx(
           'overflow-hidden transition-all duration-300 ease-in-out',
           contentClassName
         )}
-        // style={{ height: `${contentHeight}px` }}
+        style={{ height: contentHeight }}
         aria-hidden={!isOpen}
       >
-        <div ref={contentRef} className="p-4 bg-gradient-to-b from-transparent to-primary-50/30">
-          <div className="text-neutral-700 leading-relaxed">
-            {children}
-          </div>
+        <div 
+          ref={contentRef} 
+          className="p-4 text-gray-600"
+        >
+          {children}
         </div>
       </div>
     </div>
@@ -101,39 +143,41 @@ export const Accordion: React.FC<AccordionProps> = ({
 }) => {
   const [openIndexes, setOpenIndexes] = useState<number[]>(defaultOpenIndexes);
 
-  const handleItemClick = (index: number) => {
-    let newOpenIndexes: number[];
+  // Initialize with defaultOpenIndexes on first render
+  useEffect(() => {
+    setOpenIndexes(defaultOpenIndexes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    if (allowMultiple) {
-      newOpenIndexes = openIndexes.includes(index)
-        ? openIndexes.filter((i) => i !== index)
-        : [...openIndexes, index];
-    } else {
-      newOpenIndexes = openIndexes.includes(index) ? [] : [index];
-    }
+  const handleItemToggle = (index: number) => {
+    const newOpenIndexes = openIndexes.includes(index)
+      ? openIndexes.filter(i => i !== index)
+      : allowMultiple
+      ? [...openIndexes, index]
+      : [index];
 
     setOpenIndexes(newOpenIndexes);
     onChange?.(newOpenIndexes);
   };
 
   return (
-    <div className={clsx('w-full space-y-2', className)}>
-      {items.map((item, index) => (
-        <div
-          key={index}
-          className={clsx(
-            'animate-slide-up',
-            itemClassName
-          )}
-          style={{ animationDelay: `${index * 100}ms` }}
-        >
-          <AccordionItem
-            {...item}
-            isOpen={openIndexes.includes(index)}
-            onToggle={() => handleItemClick(index)}
-          />
-        </div>
-      ))}
+    <div className={clsx('space-y-2', className)}>
+      {items.map((item, index) => {
+        const isOpen = openIndexes.includes(index);
+        return (
+          <div 
+            key={index} 
+            className={clsx('animate-slide-up', itemClassName)}
+            style={{ '--delay': `${index * 100}ms` } as React.CSSProperties}
+          >
+            <AccordionItem
+              {...item}
+              isOpen={isOpen}
+              onToggle={() => handleItemToggle(index)}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };
