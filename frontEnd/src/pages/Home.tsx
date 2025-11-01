@@ -15,6 +15,7 @@ import { AutoFill } from '@/components/steps/AutoFill';
 import { Preview } from '@/components/steps/Preview';
 import { RoadMap } from '@/components/steps/RoadMap';
 import { Download } from '@/components/steps/Download';
+import { RoadMap2 } from '@/components/steps/RoadMap2';
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ export const Home = () => {
       case 2:
         return <OCRExtraction />;
       case 3:
-        return <RoadMap ref={roadMapRef} />;
+        return <RoadMap2 ref={roadMapRef} />;
       case 4:
         return <AutoFill />;
       case 5:

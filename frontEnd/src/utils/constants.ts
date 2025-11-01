@@ -3,7 +3,7 @@ import { MarkerType } from '@/types/map.types';
 export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Insurance Claims';
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://test.dfixcells.com';
 export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
-export const MAX_FILE_SIZE = Number(import.meta.env.VITE_MAX_FILE_SIZE) || 10485760; // 10MB
+export const MAX_FILE_SIZE = Number(import.meta.env.VITE_MAX_FILE_SIZE) || 5242880; // 5MB
 export const MAX_FILES = Number(import.meta.env.VITE_MAX_FILES) || 50;
 
 export const ALLOWED_FILE_TYPES = [
@@ -11,7 +11,6 @@ export const ALLOWED_FILE_TYPES = [
   'image/jpeg',
   'image/jpg',
   'image/png',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
 
@@ -20,7 +19,6 @@ export const FILE_TYPE_EXTENSIONS: Record<string, string[]> = {
   'application/pdf': ['.pdf'],
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
 };
 
 export const STEPS = [

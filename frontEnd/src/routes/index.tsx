@@ -3,6 +3,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { Register } from '@/pages/Register';
 import { Login } from '@/pages/Login';
 import { Home } from '@/pages/Home';
+import MapEditor from '@/pages/MapEditor';
 
 export const AppRoutes = () => {
   return (
@@ -18,6 +19,16 @@ export const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* POC Route */}
+        <Route
+          path="/map-editor"
+          element={
+            <ProtectedRoute>
+              <MapEditor />
             </ProtectedRoute>
           }
         />

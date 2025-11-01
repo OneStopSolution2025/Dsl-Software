@@ -1,22 +1,41 @@
-import { useCallback, useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useCallback, useEffect, useState } from 'react';
+import { useDropzone, FileRejection } from 'react-dropzone';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setCanProceed } from '@/store/slices/stepperSlice';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { formatFileSize } from '@/utils/fileHelpers';
-import { Upload, X, FileText, CheckCircle } from 'lucide-react';
+import { Upload, X, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
-import { FILE_TYPE_EXTENSIONS } from '@/utils/constants';
+import { FILE_TYPE_EXTENSIONS, MAX_FILE_SIZE } from '@/utils/constants';
 
 export const UploadDocuments = () => {
   const dispatch = useDispatch();
   const { uploadedFiles, serverFileIds } = useSelector((state: RootState) => state.files);
   const { handleFilesAdded, handleFileRemoved } = useFileUpload();
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      handleFilesAdded(acceptedFiles);
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      setUploadErrors([]); // Clear previous errors
+
+      if (acceptedFiles.length > 0) {
+        handleFilesAdded(acceptedFiles);
+      }
+
+      if (fileRejections.length > 0) {
+        const newErrors: string[] = fileRejections.map(rejection => {
+          const { file, errors } = rejection;
+          if (errors.some(e => e.code === 'file-too-large')) {
+            return `${file.name}: File is larger than the 5MB limit.`;
+          }
+          if (errors.some(e => e.code === 'file-invalid-type')) {
+            return `${file.name}: Invalid file type. Please upload PDF, JPG, or PNG files.`;
+          }
+          return `${file.name}: An unknown error occurred during upload.`;
+        });
+        setUploadErrors(newErrors);
+      }
     },
     [handleFilesAdded]
   );
@@ -24,18 +43,23 @@ export const UploadDocuments = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: FILE_TYPE_EXTENSIONS,
+    maxSize: MAX_FILE_SIZE, // 5MB
   });
 
   useEffect(() => {
     dispatch(setCanProceed(uploadedFiles.length > 0));
   }, [uploadedFiles.length, dispatch]);
 
+  const removeError = (index: number) => {
+    setUploadErrors(prev => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
         <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">Upload Documents</h3>
         <p className="text-sm sm:text-base text-neutral-600">
-          Upload your insurance claim documents. Supported formats: PDF, JPG, PNG, DOCX
+          Upload your insurance claim documents. Supported formats: PDF, JPG and PNG.
         </p>
       </div>
 
@@ -56,9 +80,32 @@ export const UploadDocuments = () => {
         </p>
         <p className="text-sm text-neutral-500">or click to browse</p>
         <p className="text-xs text-neutral-400 mt-3 sm:mt-4">
-          Supported: PDF, JPG, PNG • Max size: 10MB per file
+          Supported: PDF, JPG, PNG • Max size: 5MB per file
         </p>
       </div>
+
+      {/* Error Messages */}
+      {uploadErrors.length > 0 && (
+        <div className="space-y-2">
+          {uploadErrors.map((error, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between p-2.5 sm:p-3 bg-red-50 rounded-lg border border-red-200"
+            >
+              <div className="flex items-center gap-2 sm:gap-3">
+                <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                <p className="text-xs sm:text-sm text-red-800">{error}</p>
+              </div>
+              <button
+                onClick={() => removeError(index)}
+                className="p-1.5 hover:bg-red-100 rounded-md transition-colors group flex-shrink-0"
+              >
+                <X className="h-4 w-4 text-red-500" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Uploaded Files List */}
       {(uploadedFiles.length > 0 || serverFileIds.length > 0) && (
@@ -67,7 +114,6 @@ export const UploadDocuments = () => {
             Uploaded Files ({uploadedFiles.length + serverFileIds.length})
           </h4>
           <div className="space-y-2">
-
             {serverFileIds.map((file: any) => (
               <div
                 key={file.id}
@@ -90,8 +136,6 @@ export const UploadDocuments = () => {
                 </div>
               </div>
             ))}
-
-
             {uploadedFiles.map((file: any) => (
               <div
                 key={file.id}
@@ -116,13 +160,9 @@ export const UploadDocuments = () => {
                 </button>
               </div>
             ))}
-
           </div>
         </div>
       )}
-
-      {/* <UploadMore /> */}
-
     </div>
   );
 };

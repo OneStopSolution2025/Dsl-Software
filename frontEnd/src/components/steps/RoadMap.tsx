@@ -11,6 +11,7 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import Popup from "../common/Popup";
 import { ServerFile } from "@/types/file.types";
 import { generateFileId } from "@/utils/fileHelpers";
+import { RoadMap2 } from "./RoadMap2";
 
 type MarkerType = 'car' | 'bike' | 'blast' | 'trespasser' | 'truck' | 'roadblock';
 
@@ -512,165 +513,167 @@ export const RoadMap = forwardRef<RoadMapRef>((_, ref) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl text-neutral-900 mb-2">Road Map</h3>
-        <p className="text-neutral-600">
-          Mark incident locations on the map by selecting a marker type and clicking on the map
-        </p>
-      </div>
+    // <div className="space-y-6">
+    //   <div>
+    //     <h3 className="text-2xl text-neutral-900 mb-2">Road Map</h3>
+    //     <p className="text-neutral-600">
+    //       Mark incident locations on the map by selecting a marker type and clicking on the map
+    //     </p>
+    //   </div>
 
-      {/* Map Controls */}
-      <div className="flex md:flex-row flex-col md:items-center items-start justify-between gap-4">
+    //   {/* Map Controls */}
+    //   <div className="flex md:flex-row flex-col md:items-center items-start justify-between gap-4">
 
-        <div className="flex gap-2">
+    //     <div className="flex gap-2">
 
-          <Button
-            variant={mapType === 'roadmap' ? 'primary' : 'secondary'}
-            size="sm"
-            onClick={() => handleMapTypeChange('roadmap')}
-            className="flex items-center gap-2"
-          >
-            <MapIcon className="h-4 w-4" />
-            Normal
-          </Button>
+    //       <Button
+    //         variant={mapType === 'roadmap' ? 'primary' : 'secondary'}
+    //         size="sm"
+    //         onClick={() => handleMapTypeChange('roadmap')}
+    //         className="flex items-center gap-2"
+    //       >
+    //         <MapIcon className="h-4 w-4" />
+    //         Normal
+    //       </Button>
 
-          <Button
-            variant={mapType === 'satellite' ? 'primary' : 'secondary'}
-            size="sm"
-            onClick={() => handleMapTypeChange('satellite')}
-            className="flex items-center gap-2"
-          >
-            <Satellite className="h-4 w-4" />
-            Satellite
-          </Button>
+    //       <Button
+    //         variant={mapType === 'satellite' ? 'primary' : 'secondary'}
+    //         size="sm"
+    //         onClick={() => handleMapTypeChange('satellite')}
+    //         className="flex items-center gap-2"
+    //       >
+    //         <Satellite className="h-4 w-4" />
+    //         Satellite
+    //       </Button>
 
 
-        </div>
+    //     </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleClearMarkers}
-            disabled={markers.length === 0}
-            className="flex items-center gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            Clear
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={downloadMapScene}
-            disabled={markers.length === 0}
-            className="flex items-center gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Download Scene
-          </Button>
-        </div>
-      </div>
+    //     <div className="flex gap-2">
+    //       <Button
+    //         variant="outline"
+    //         size="sm"
+    //         onClick={handleClearMarkers}
+    //         disabled={markers.length === 0}
+    //         className="flex items-center gap-2"
+    //       >
+    //         <Trash2 className="h-4 w-4" />
+    //         Clear
+    //       </Button>
+    //       <Button
+    //         variant="outline"
+    //         size="sm"
+    //         onClick={downloadMapScene}
+    //         disabled={markers.length === 0}
+    //         className="flex items-center gap-2"
+    //       >
+    //         <Download className="h-4 w-4" />
+    //         Download Scene
+    //       </Button>
+    //     </div>
+    //   </div>
 
-      {/* Draggable Icons */}
-      <div className="space-y-4">
-        <div className="flex flex-col gap-3 p-3  rounded-lg border border-neutral-200">
-          <div style={{ marginBottom: 10 }}>
-            <h4>Drag an icon onto the map:</h4>
-          </div>
-          <div className="flex gap-2">
-            {icons.map((iconData) => (
-              <Popup content={iconData.name} position="bottom">
+    //   {/* Draggable Icons */}
+    //   <div className="space-y-4">
+    //     <div className="flex flex-col gap-3 p-3  rounded-lg border border-neutral-200">
+    //       <div style={{ marginBottom: 10 }}>
+    //         <h4>Drag an icon onto the map:</h4>
+    //       </div>
+    //       <div className="flex gap-2">
+    //         {icons.map((iconData) => (
+    //           <Popup content={iconData.name} position="bottom">
 
-                <div key={iconData.type} className="text-center border border-neutral-200 p-2 rounded w-14 aspect-square bg-white">
-                  <img
-                    src={iconData.icon}
-                    alt={`${iconData.name} marker`}
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData("iconUrl", iconData.icon);
-                      e.dataTransfer.setData("iconName", iconData.name);
-                    }}
-                    className="w-8 h-8 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform mx-auto mb-1"
-                    style={{
-                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-                    }}
-                  />
-                  {/* <span className="text-xs text-neutral-600 capitalize md:block hidden">{iconData.type}</span> */}
-                </div>
+    //             <div key={iconData.type} className="text-center border border-neutral-200 p-2 rounded w-14 aspect-square bg-white">
+    //               <img
+    //                 src={iconData.icon}
+    //                 alt={`${iconData.name} marker`}
+    //                 draggable
+    //                 onDragStart={(e) => {
+    //                   e.dataTransfer.setData("iconUrl", iconData.icon);
+    //                   e.dataTransfer.setData("iconName", iconData.name);
+    //                 }}
+    //                 className="w-8 h-8 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform mx-auto mb-1"
+    //                 style={{
+    //                   filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+    //                 }}
+    //               />
+    //               {/* <span className="text-xs text-neutral-600 capitalize md:block hidden">{iconData.type}</span> */}
+    //             </div>
 
-              </Popup>
-            ))}
-          </div>
-        </div>
-      </div>
+    //           </Popup>
+    //         ))}
+    //       </div>
+    //     </div>
+    //   </div>
 
-      {/* Google Map container */}
-      <div className="rounded-lg overflow-hidden border-2 border-neutral-200 h-[50vh] relative">
-        <div
-          ref={mapRef}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          style={{ width: "100%", height: "100%", position: "relative" }}
-        />
+    //   {/* Google Map container */}
+    //   <div className="rounded-lg overflow-hidden border-2 border-neutral-200 h-[50vh] relative">
+    //     <div
+    //       ref={mapRef}
+    //       onDrop={handleDrop}
+    //       onDragOver={handleDragOver}
+    //       style={{ width: "100%", height: "100%", position: "relative" }}
+    //     />
 
-        <div className="absolute bottom-2 right-2 flex flex-col gap-1">
-          <button className="bg-white shadow rounded aspect-square w-10 px-2 text-blue-500"
-            onClick={handleLocateMe}>
-            <LocateFixed size={'small'} />
-          </button>
+    //     <div className="absolute bottom-2 right-2 flex flex-col gap-1">
+    //       <button className="bg-white shadow rounded aspect-square w-10 px-2 text-blue-500"
+    //         onClick={handleLocateMe}>
+    //         <LocateFixed size={'small'} />
+    //       </button>
 
-          <button className="bg-white shadow rounded aspect-square w-10 px-2"
-            onClick={() => {
-              if (map) {
-                const currentZoom = map.getZoom() || 12;
-                map.setZoom(currentZoom + 1);
-              }
-            }}>
-            <Plus size={'small'} />
-          </button>
-          <button className="bg-white shadow rounded aspect-square w-10 px-2"
-            onClick={() => {
-              if (map) {
-                const currentZoom = map.getZoom() || 12;
-                map.setZoom(currentZoom - 1);
-              }
-            }}>
-            <Minus size={'small'} />
-          </button>
-        </div>
-      </div>
+    //       <button className="bg-white shadow rounded aspect-square w-10 px-2"
+    //         onClick={() => {
+    //           if (map) {
+    //             const currentZoom = map.getZoom() || 12;
+    //             map.setZoom(currentZoom + 1);
+    //           }
+    //         }}>
+    //         <Plus size={'small'} />
+    //       </button>
+    //       <button className="bg-white shadow rounded aspect-square w-10 px-2"
+    //         onClick={() => {
+    //           if (map) {
+    //             const currentZoom = map.getZoom() || 12;
+    //             map.setZoom(currentZoom - 1);
+    //           }
+    //         }}>
+    //         <Minus size={'small'} />
+    //       </button>
+    //     </div>
+    //   </div>
 
-      {/* Error Display */}
-      {captureError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{captureError}</p>
-        </div>
-      )}
+    //   {/* Error Display */}
+    //   {captureError && (
+    //     <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+    //       <p className="text-sm text-red-600">{captureError}</p>
+    //     </div>
+    //   )}
 
-      {/* Loading State for Screenshot */}
-      {isCapturing && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-600">Capturing screenshot...</p>
-        </div>
-      )}
+    //   {/* Loading State for Screenshot */}
+    //   {isCapturing && (
+    //     <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+    //       <p className="text-sm text-blue-600">Capturing screenshot...</p>
+    //     </div>
+    //   )}
 
-      {markers.length > 0 && (
-        <div className="flex flex-wrap gap-3 p-3 rounded-lg border border-neutral-200">
-          {markers.map(mark => (
-            <div key={mark.id} className="flex justify-between items-center gap-2 border border-neutral-200 rounded-full p-2 w-fit bg-white">
-              <img src={mark.iconUrl} alt={mark.type} width={20} />
-              <p className="text-xs text-neutral-600 leading-4">{mark.lat.toFixed(4)}</p>
-              <p className="text-xs text-neutral-600 leading-4">{mark.lng.toFixed(4)}</p>
+    //   {markers.length > 0 && (
+    //     <div className="flex flex-wrap gap-3 p-3 rounded-lg border border-neutral-200">
+    //       {markers.map(mark => (
+    //         <div key={mark.id} className="flex justify-between items-center gap-2 border border-neutral-200 rounded-full p-2 w-fit bg-white">
+    //           <img src={mark.iconUrl} alt={mark.type} width={20} />
+    //           <p className="text-xs text-neutral-600 leading-4">{mark.lat.toFixed(4)}</p>
+    //           <p className="text-xs text-neutral-600 leading-4">{mark.lng.toFixed(4)}</p>
 
-              <button onClick={() => removeMarker(mark.id)} className="text-red-500 text-xs w-4">
-                <X size={'small'} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+    //           <button onClick={() => removeMarker(mark.id)} className="text-red-500 text-xs w-4">
+    //             <X size={'small'} />
+    //           </button>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   )}
 
-    </div>
+    // </div>
+
+    <RoadMap2 />
   );
 });

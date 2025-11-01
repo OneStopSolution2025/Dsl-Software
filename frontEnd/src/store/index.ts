@@ -2,16 +2,19 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import stepperReducer from './slices/stepperSlice';
 import filesReducer from './slices/filesSlice';
-import markersReducer from './slices/markersSlice';
+import mapReducer from './slices/mapSlice';
 import sessionReducer from './slices/sessionSlice';
+import formReducer from './slices/formSlice';
+
 
 // Create the root reducer
 const combinedReducer = combineReducers({
   auth: authReducer,
   stepper: stepperReducer,
   files: filesReducer,
-  markers: markersReducer,
+  map: mapReducer,
   session: sessionReducer,
+  form: formReducer
 });
 
 
