@@ -1,5 +1,4 @@
 import { mapIcons } from './mapIcons';
-import bike from '@/assets/icons/bike.png'
 
 
 interface IconPaletteProps {
