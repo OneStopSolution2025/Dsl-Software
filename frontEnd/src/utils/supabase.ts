@@ -14,6 +14,6 @@ export interface MapMarker {
   rotation: number;
   flip_horizontal: boolean;
   flip_vertical: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }

@@ -15,7 +15,6 @@ import { LoginResponse } from '@/types/auth.types';
 import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice';
 import { resetStepper } from '@/store/slices/stepperSlice';
 import { clearFiles } from '@/store/slices/filesSlice';
-import { clearMarkers } from '@/store/slices/markersSlice';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
@@ -73,7 +72,6 @@ export const LoginForm = () => {
       // Reset all app state to ensure fresh start for every login session
       dispatch(resetStepper());
       dispatch(clearFiles());
-      dispatch(clearMarkers());
 
       toast.success('Login successful!');
       navigate('/');

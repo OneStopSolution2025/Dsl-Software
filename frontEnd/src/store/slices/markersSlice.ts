@@ -1,40 +1,45 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { MarkersState, MapMarker } from '@/types/map.types';
+
+export interface MapMarker {
+  id: string;
+  icon_type: string;
+  latitude: number;
+  longitude: number;
+  scale: number;
+  rotation: number;
+  flip_horizontal: boolean;
+  flip_vertical: boolean;
+}
+
+interface MarkersState {
+  markers: MapMarker[];
+}
 
 const initialState: MarkersState = {
-  items: [],
+  markers: [],
 };
 
-const markersSlice = createSlice({
+const markerSlice = createSlice({
   name: 'markers',
   initialState,
   reducers: {
     addMarker: (state, action: PayloadAction<MapMarker>) => {
-      state.items.push(action.payload);
+      state.markers.unshift(action.payload);
     },
-    updateMarkerPosition: (
-      state,
-      action: PayloadAction<{ id: string; lat: number; lng: number }>
-    ) => {
-      const marker = state.items.find((m) => m.id === action.payload.id);
+    updateMarker: (state, action: PayloadAction<{ id: string; updates: Partial<MapMarker> }>) => {
+      const marker = state.markers.find((m) => m.id === action.payload.id);
       if (marker) {
-        marker.lat = action.payload.lat;
-        marker.lng = action.payload.lng;
+        Object.assign(marker, action.payload.updates);
       }
     },
-    removeMarker: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter((m) => m.id !== action.payload);
-    },
-    clearMarkers: (state) => {
-      state.items = [];
+    deleteMarker: (state, action: PayloadAction<string>) => {
+      state.markers = state.markers.filter((m) => m.id !== action.payload);
     },
     setMarkers: (state, action: PayloadAction<MapMarker[]>) => {
-      state.items = action.payload;
+      state.markers = action.payload;
     },
   },
 });
 
-export const { addMarker, updateMarkerPosition, removeMarker, clearMarkers, setMarkers } =
-  markersSlice.actions;
-
-export default markersSlice.reducer;
+export const { addMarker, updateMarker, deleteMarker, setMarkers } = markerSlice.actions;
+export default markerSlice.reducer;

@@ -13,7 +13,6 @@ import { UploadDocuments } from '@/components/steps/UploadDocuments';
 import { OCRExtraction } from '@/components/steps/OCRExtraction';
 import { AutoFill } from '@/components/steps/AutoFill';
 import { Preview } from '@/components/steps/Preview';
-import { RoadMap } from '@/components/steps/RoadMap';
 import { Download } from '@/components/steps/Download';
 import { RoadMap2 } from '@/components/steps/RoadMap2';
 

@@ -1,198 +1,232 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { Stage, Layer, Image as KonvaImage, Transformer } from 'react-konva';
-import Konva from 'konva';
-import { useLoadScript, GoogleMap } from '@react-google-maps/api';
+import { useState, useCallback, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import IconPalette from '../components/map/IconPalette';
+import MarkerList from '../components/map/MarkerList';
+import CustomMarker from '../components/map/CustomMarker';
+import TransformControls from '../components/map/TransformControls';
+import MapContainer from '../components/map/MapContainer';
+import { addMarker, updateMarker, deleteMarker } from '../store/slices/markersSlice';
+import type { MapMarker } from '../store/slices/markersSlice';
+import { RootState } from '@/store';
 
-const LIBRARIES: ('drawing' | 'geometry' | 'localContext' | 'places' | 'visualization')[] = ['places'];
-const MAP_CONTAINER_STYLE = { width: '100%', height: '100vh' };
-const CENTER = { lat: 3.139, lng: 101.6869 };
-const ICONS = [
-    { name: 'Car', src: '/src/assets/icons/car.png' },
-    { name: 'Bike', src: '/src/assets/icons/bike.png' },
-    { name: 'Truck', src: '/src/assets/icons/truck.png' },
-    { name: 'Blast', src: '/src/assets/icons/blast.png' },
-    { name: 'Trespasser', src: '/src/assets/icons/trespasser.png' },
-];
 
-const KonvaOverlay = ({ map, images, setImages, selectedId, selectShape }) => {
-    const konvaContainer = useRef(document.createElement('div'));
-    const overlayView = useRef<google.maps.OverlayView>();
-    const stageRef = useRef<Konva.Stage>(null);
-    const trRef = useRef<Konva.Transformer>(null);
-    const [isDragging, setIsDragging] = useState(false);
+const GOOGLE_MAPS_API_KEY = 'AIzaSyCi1g0u1_0qSZ09q8bkkb-7J5cBhi7iK9s';
 
-    const getLatLngFromPixel = useCallback((pixel: { x: number; y: number; }) => {
-        if (!overlayView.current) return null;
-        const projection = overlayView.current.getProjection();
-        if (!projection) return null;
-        return projection.fromContainerPixelToLatLng(new window.google.maps.Point(pixel.x, pixel.y));
-    }, []);
-
-    useEffect(() => {
-        const container = konvaContainer.current;
-        const handleDragOver = (e: DragEvent) => e.preventDefault();
-        const handleDrop = (e: DragEvent) => {
-            e.preventDefault();
-            const imgSrc = e.dataTransfer?.getData('text/plain');
-            if (!imgSrc) return;
-
-            const latLng = getLatLngFromPixel({ x: e.clientX, y: e.clientY });
-            if (!latLng) return;
-
-            const newImage = new window.Image();
-            newImage.src = imgSrc;
-            newImage.onload = () => {
-                setImages((prev: any[]) => [...prev, {
-                    lat: latLng.lat(),
-                    lng: latLng.lng(),
-                    id: Date.now().toString(),
-                    image: newImage,
-                    rotation: 0,
-                    scaleX: 1,
-                    scaleY: 1,
-                }]);
-            };
-        };
-
-        container.addEventListener('dragover', handleDragOver);
-        container.addEventListener('drop', handleDrop);
-
-        const Overlay = class extends window.google.maps.OverlayView {
-            onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(container); }
-            onRemove() { container.parentElement?.removeChild(container); }
-            draw() {
-                const projection = this.getProjection();
-                if (!projection || !map) return;
-
-                Object.assign(container.style, {
-                    left: '0px', top: '0px', position: 'absolute',
-                    width: `${map.getDiv().clientWidth}px`,
-                    height: `${map.getDiv().clientHeight}px`
-                });
-                stageRef.current?.batchDraw();
-            }
-        };
-
-        overlayView.current = new Overlay();
-        overlayView.current.setMap(map);
-
-        return () => {
-            container.removeEventListener('dragover', handleDragOver);
-            container.removeEventListener('drop', handleDrop);
-            overlayView.current?.setMap(null);
-        };
-    }, [map, getLatLngFromPixel, setImages]);
-
-    useEffect(() => {
-        const stage = stageRef.current;
-        const selectedNode = stage?.findOne('#' + selectedId);
-        trRef.current?.nodes(selectedNode ? [selectedNode] : []);
-    }, [selectedId]);
-
-    const getPixelFromLatLng = useCallback((latLng: { lat: number; lng: number; }) => {
-        if (!overlayView.current) return { x: -1000, y: -1000 };
-        const projection = overlayView.current.getProjection();
-        const point = projection?.fromLatLngToDivPixel(new window.google.maps.LatLng(latLng.lat, latLng.lng));
-        return point || { x: -1000, y: -1000 };
-    }, []);
-
-    const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
-        setIsDragging(false);
-        const latLng = getLatLngFromPixel({ x: e.target.x(), y: e.target.y() });
-        if (latLng) {
-            const id = e.target.id();
-            setImages((imgs: any[]) => imgs.map((img) => (img.id === id ? { ...img, lat: latLng.lat(), lng: latLng.lng() } : img)));
-        }
-    };
-
-    useEffect(() => { map?.setOptions({ draggable: !isDragging }); }, [map, isDragging]);
-
-    return createPortal(
-        <Stage ref={stageRef} width={map?.getDiv().clientWidth} height={map?.getDiv().clientHeight} onMouseDown={(e) => e.target === e.target.getStage() && selectShape(null)}>
-            <Layer>
-                {images.map((image) => {
-                    const { x, y } = getPixelFromLatLng({ lat: image.lat, lng: image.lng });
-                    return (
-                        <KonvaImage
-                            key={image.id}
-                            id={image.id}
-                            image={image.image}
-                            x={x}
-                            y={y}
-                            offsetX={image.image.width / 2}
-                            offsetY={image.image.height / 2}
-                            rotation={image.rotation}
-                            scaleX={image.scaleX}
-                            scaleY={image.scaleY}
-                            draggable
-                            onDragStart={() => setIsDragging(true)}
-                            onDragEnd={handleDragEnd}
-                            onTransformEnd={(e) => {
-                                const node = e.target;
-                                const scaleX = node.scaleX();
-                                const scaleY = node.scaleY();
-                                const rotation = node.rotation();
-                                const latLng = getLatLngFromPixel({ x: node.x(), y: node.y() });
-                                if (latLng) {
-                                    setImages((imgs: any[]) =>
-                                        imgs.map((img) =>
-                                            img.id === image.id ? { ...img, lat: latLng.lat(), lng: latLng.lng(), scaleX, scaleY, rotation } : img
-                                        )
-                                    );
-                                }
-                            }}
-                            onClick={() => selectShape(image.id)}
-                            onTap={() => selectShape(image.id)}
-                        />
-                    );
-                })}
-                <Transformer
-                    ref={trRef}
-                    rotateEnabled={true}
-                    borderDash={[6, 2]}
-                    borderStroke="blue"
-                    anchorStroke="blue"
-                    anchorFill="lightblue"
-                    anchorSize={10}
-                    rotationSnaps={[0, 90, 180, 270]}
-                />
-            </Layer>
-        </Stage>,
-        konvaContainer.current
-    );
-};
 
 const MapEditor = () => {
-    const { isLoaded, loadError } = useLoadScript({ googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY, libraries: LIBRARIES });
-    const [map, setMap] = useState<google.maps.Map | null>(null);
-    const [images, setImages] = useState<any[]>([]);
-    const [selectedId, selectShape] = useState<string | null>(null);
+    const dispatch = useDispatch();
+    const markers = useSelector((state: RootState) => state.markers.markers);
+    const [selectedMarkerId, setSelectedMarkerId] = useState<string | undefined>();
+    const [draggingIconType, setDraggingIconType] = useState<string | null>(null);
+    const [transformControlPos, setTransformControlPos] = useState<{ x: number; y: number, h:number, w:number } | null>(null);
+    const mapRef = useRef<google.maps.Map | null>(null);
+    
+    const handleDragStart = (iconType: string) => {
+      setDraggingIconType(iconType);
+    };
+  
+    const handleMapReady = useCallback((map: google.maps.Map) => {
+      mapRef.current = map;
+    }, []);
+  
+    const handleMapDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    };
+  
+    const handleMapDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+  
+      if (!draggingIconType || !mapRef.current) return;
+  
+      const mapDiv = e.currentTarget as HTMLElement;
+      const rect = mapDiv.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+  
+      const bounds = mapRef.current.getBounds();
+      if (!bounds) return;
+  
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+  
+      const lat = sw.lat() + (ne.lat() - sw.lat()) * (1 - y / rect.height);
+      const lng = sw.lng() + (ne.lng() - sw.lng()) * (x / rect.width);
+  
+      const newMarker: MapMarker = {
+        id: crypto.randomUUID(),
+        icon_type: draggingIconType,
+        latitude: lat,
+        longitude: lng,
+        scale: 1.0,
+        rotation: 0,
+        flip_horizontal: false,
+        flip_vertical: false,
+      };
+  
+      dispatch(addMarker(newMarker));
+      setDraggingIconType(null);
+    };
+  
+    const handleMapClick = (e: google.maps.MapMouseEvent | any) => {
+      if (draggingIconType && e.latLng) {
+        const lat = e.latLng.lat();
+        const lng = e.latLng.lng();
+  
+        const newMarker: MapMarker = {
+          id: crypto.randomUUID(),
+          icon_type: draggingIconType,
+          latitude: lat,
+          longitude: lng,
+          scale: 1.0,
+          rotation: 0,
+          flip_horizontal: false,
+          flip_vertical: false,
+        };
+  
+        dispatch(addMarker(newMarker));
+        setDraggingIconType(null);
+      } else {
+        setSelectedMarkerId(undefined);
+        setTransformControlPos(null);
+      }
+    };
+  
+    const handleMarkerClick = useCallback((id: string, event?: any) => {
+      setSelectedMarkerId(id);
+      if (event && event.domEvent) {
+        let rect = event.domEvent.currentTarget.getBoundingClientRect();
+        setTransformControlPos({ 
+          x: event.domEvent.clientX + 10, 
+          y: event.domEvent.clientY - 50, 
+          h: rect.height,
+          w: rect.width
+        });
+      }
+    }, []);
+  
+    const handleMarkerDragEnd = (id: string, lat: number, lng: number) => {
+      dispatch(updateMarker({ id, updates: { latitude: lat, longitude: lng } }));
+    };
+  
+    const updateMarkerAction = (id: string, updates: Partial<MapMarker>) => {
+      dispatch(updateMarker({ id, updates }));
+    };
+  
+    const handleRotate = () => {
+      if (!selectedMarkerId) return;
+      const marker = markers.find((m) => m.id === selectedMarkerId);
+      if (marker) {
+        updateMarkerAction(selectedMarkerId, { rotation: (marker.rotation + 45) % 360 });
+      }
+    };
+  
+    const handleScaleUp = () => {
+      if (!selectedMarkerId) return;
+      const marker = markers.find((m) => m.id === selectedMarkerId);
+      if (marker && marker.scale < 3) {
+        updateMarkerAction(selectedMarkerId, { scale: marker.scale + 0.2 });
+      }
+    };
+  
+    const handleScaleDown = () => {
+      if (!selectedMarkerId) return;
+      const marker = markers.find((m) => m.id === selectedMarkerId);
+      if (marker && marker.scale > 0.4) {
+        updateMarkerAction(selectedMarkerId, { scale: marker.scale - 0.2 });
+      }
+    };
+  
+    const handleFlipHorizontal = () => {
+      if (!selectedMarkerId) return;
+      const marker = markers.find((m) => m.id === selectedMarkerId);
+      if (marker) {
+        updateMarkerAction(selectedMarkerId, { flip_horizontal: !marker.flip_horizontal });
+      }
+    };
+  
+    const handleFlipVertical = () => {
+      if (!selectedMarkerId) return;
+      const marker = markers.find((m) => m.id === selectedMarkerId);
+      if (marker) {
+        updateMarkerAction(selectedMarkerId, { flip_vertical: !marker.flip_vertical });
+      }
+    };
+  
+    const handleDelete = () => {
+      if (!selectedMarkerId) return;
+      dispatch(deleteMarker(selectedMarkerId));
+      setSelectedMarkerId(undefined);
+      setTransformControlPos(null);
+    };
+  
+    const handleMarkerListDelete = (id: string) => {
+      dispatch(deleteMarker(id));
+      if (selectedMarkerId === id) {
+        setSelectedMarkerId(undefined);
+        setTransformControlPos(null);
+      }
+    };
 
-    const onLoad = useCallback((mapInstance: google.maps.Map) => setMap(mapInstance), []);
-    const onUnmount = useCallback(() => setMap(null), []);
 
-    if (loadError) return <div>Error loading maps. Please ensure you have a valid Google Maps API key.</div>;
-    if (!isLoaded) return <div>Loading Maps...</div>;
-
+    
+  
     return (
-        <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
-            <div className="flex gap-2 p-4 bg-gray-100" style={{ position: 'absolute', zIndex: 1 }}>
-                {ICONS.map((icon, i) => (
-                    <img key={i} alt={icon.name} src={icon.src} draggable="true" onDragStart={(e) => e.dataTransfer.setData('text/plain', icon.src)} style={{ width: 50, height: 50, cursor: 'pointer' }} />
-                ))}
-            </div>
-            <GoogleMap
-                mapContainerStyle={MAP_CONTAINER_STYLE}
-                center={CENTER}
-                zoom={12}
-                onLoad={onLoad}
-                onUnmount={onUnmount}
-                options={{ disableDefaultUI: true, zoomControl: true }}
+      <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+        <div className="h-screen flex flex-col bg-gray-50">
+
+          <div className="flex-1 flex flex-col p-4 overflow-hidden">
+            <IconPalette onDragStart={handleDragStart} />
+  
+            <div
+              className="flex-1 rounded-lg overflow-hidden shadow-lg"
+              style={{ cursor: draggingIconType ? 'crosshair' : 'default' }}
+              onDragOver={handleMapDragOver}
+              onDrop={handleMapDrop}
             >
-                {map && <KonvaOverlay map={map} images={images} setImages={setImages} selectedId={selectedId} selectShape={selectShape} />}
-            </GoogleMap>
+              <Map
+                defaultCenter={{ lat: 37.7749, lng: -122.4194 }}
+                defaultZoom={12}
+                gestureHandling="greedy"
+                disableDefaultUI={false}
+                onClick={handleMapClick}
+                mapId="custom-marker-map"
+              >
+                <MapContainer onMapReady={handleMapReady} />
+                {markers.map((marker) => (
+                  <CustomMarker
+                    key={marker.id}
+                    marker={marker}
+                    isSelected={marker.id === selectedMarkerId}
+                    onClick={(e:any) => handleMarkerClick(marker.id, e)}
+                    onDragEnd={(lat, lng) => handleMarkerDragEnd(marker.id, lat, lng)}
+                  />
+                ))}
+              </Map>
+            </div>
+  
+            <MarkerList
+              markers={markers}
+              onMarkerClick={(id) => handleMarkerClick(id)}
+              onMarkerDelete={handleMarkerListDelete}
+              selectedMarkerId={selectedMarkerId}
+            />
+          </div>
+  
+          {transformControlPos && selectedMarkerId && (
+            <TransformControls
+              position={transformControlPos}
+              onRotate={handleRotate}
+              onScaleUp={handleScaleUp}
+              onScaleDown={handleScaleDown}
+              onFlipHorizontal={handleFlipHorizontal}
+              onFlipVertical={handleFlipVertical}
+              onDelete={handleDelete}
+            />
+          )}
         </div>
+      </APIProvider>
     );
 };
 

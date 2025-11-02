@@ -1,27 +1,26 @@
-import { MapMarker } from '@/utils/supabase';
+import { MapMarker } from '@/store/slices/markersSlice';
 import { AdvancedMarker } from '@vis.gl/react-google-maps';
-// import { Car, Bike, Truck, Bus, Ship, Plane } from 'lucide-react';
+import { Car, Bike, Truck, Bus, Ship, Plane } from 'lucide-react';
+
 
 interface CustomMarkerProps {
   marker: MapMarker;
   isSelected: boolean;
-  onClick: () => void;
+  onClick: (e:any) => void;
   onDragEnd: (lat: number, lng: number) => void;
 }
 
-const iconMap = {
-    car : '36738',
-    bike: '15130',
-    truck: '15196',
-    bus: '15158',
-    cycle: '15128',
-    trespasser: '16952',
-    roadblock: 'XzhtWsqJ3bNG',
-    blast: '17899',
-}
+const iconMap: Record<string, typeof Car> = {
+  car: Car,
+  bike: Bike,
+  truck: Truck,
+  bus: Bus,
+  ship: Ship,
+  plane: Plane,
+};
 
 export default function CustomMarker({ marker, isSelected, onClick, onDragEnd }: CustomMarkerProps) {
-  const Icon = iconMap[marker.icon_type] || iconMap.car;
+  const Icon = iconMap[marker.icon_type] || Car;
 
   const handleDragEnd = (e: google.maps.MapMouseEvent) => {
     if (e.latLng) {
@@ -44,8 +43,7 @@ export default function CustomMarker({ marker, isSelected, onClick, onDragEnd }:
         }}
       >
         <div className="bg-white rounded-full p-2 shadow-lg">
-          {/* <Icon className="w-6 h-6 text-gray-800" /> */}
-          <img src={`https://img.icons8.com/?size=100&id=${Icon}`} width="30" />
+          <Icon className="w-6 h-6 text-gray-800" />
         </div>
       </div>
     </AdvancedMarker>

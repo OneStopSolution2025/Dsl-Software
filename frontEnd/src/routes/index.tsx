@@ -3,7 +3,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { Register } from '@/pages/Register';
 import { Login } from '@/pages/Login';
 import { Home } from '@/pages/Home';
-import MapEditor from '@/pages/MapEditor';
+import MapEditor from '@/pages/MapEditor'; // Import the new MapEditor page
 
 export const AppRoutes = () => {
   return (
@@ -22,8 +22,7 @@ export const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-
-        {/* POC Route */}
+        
         <Route
           path="/map-editor"
           element={
@@ -32,6 +31,7 @@ export const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+
 
         {/* Redirect unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />

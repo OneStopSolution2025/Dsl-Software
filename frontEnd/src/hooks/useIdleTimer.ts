@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { resetStepper } from "@/store/slices/stepperSlice";
 import { clearFiles } from "@/store/slices/filesSlice";
-import { clearMarkers } from "@/store/slices/markersSlice";
 import { logout } from "@/store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -17,7 +16,6 @@ export const useIdleTimer = (timeout = 10 * 60 * 1000) => { // 10 minutes
      // Clear all app state before logging out
          dispatch(resetStepper());
          dispatch(clearFiles());
-         dispatch(clearMarkers());
      
          dispatch(logout());
          navigate('/login');
