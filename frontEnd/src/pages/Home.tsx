@@ -82,6 +82,7 @@ export const Home = () => {
               </Button>
             )}
           </div>
+          
           <div>
             {showNextButton && (
               <Button

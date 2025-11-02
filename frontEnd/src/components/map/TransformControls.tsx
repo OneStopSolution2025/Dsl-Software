@@ -23,8 +23,8 @@ export default function TransformControls({
     <div
       className="absolute bg-white shadow-lg rounded-lg p-2 flex gap-1 z-50"
       style={{
-        left: `${position.x - position.w - 20}px`,
-        top: `${position.y + position.h + 40}px`,
+        left: `${position.x}px`,
+        top: `${position.y }px`,
       }}
     >
       <button

@@ -1,7 +1,6 @@
 import { MapMarker } from '@/store/slices/markersSlice';
 import { AdvancedMarker } from '@vis.gl/react-google-maps';
-import { Car, Bike, Truck, Bus, Ship, Plane } from 'lucide-react';
-
+import { mapIcons } from './mapIcons';
 
 interface CustomMarkerProps {
   marker: MapMarker;
@@ -10,17 +9,9 @@ interface CustomMarkerProps {
   onDragEnd: (lat: number, lng: number) => void;
 }
 
-const iconMap: Record<string, typeof Car> = {
-  car: Car,
-  bike: Bike,
-  truck: Truck,
-  bus: Bus,
-  ship: Ship,
-  plane: Plane,
-};
 
 export default function CustomMarker({ marker, isSelected, onClick, onDragEnd }: CustomMarkerProps) {
-  const Icon = iconMap[marker.icon_type] || Car;
+  const Icon = mapIcons.filter((icon) => icon.type === marker.icon_type)[0]?.img || mapIcons[2].img;
 
   const handleDragEnd = (e: google.maps.MapMouseEvent) => {
     if (e.latLng) {
@@ -43,7 +34,7 @@ export default function CustomMarker({ marker, isSelected, onClick, onDragEnd }:
         }}
       >
         <div className="bg-white rounded-full p-2 shadow-lg">
-          <Icon className="w-6 h-6 text-gray-800" />
+          <img src={Icon} className="w-6 h-6 text-gray-800" />
         </div>
       </div>
     </AdvancedMarker>

@@ -1,6 +1,7 @@
 
 import { MapMarker } from '@/store/slices/markersSlice';
-import { Car, Bike, Truck, Bus, Ship, Plane, MapPin, Trash2 } from 'lucide-react';
+import { MapPin, Trash2 } from 'lucide-react';
+import { mapIcons } from './mapIcons';
 
 interface MarkerListProps {
   markers: MapMarker[];
@@ -9,14 +10,6 @@ interface MarkerListProps {
   selectedMarkerId?: string;
 }
 
-const iconMap: Record<string, typeof Car> = {
-  car: Car,
-  bike: Bike,
-  truck: Truck,
-  bus: Bus,
-  ship: Ship,
-  plane: Plane,
-};
 
 export default function MarkerList({ markers, onMarkerClick, onMarkerDelete, selectedMarkerId }: MarkerListProps) {
   return (
@@ -30,7 +23,7 @@ export default function MarkerList({ markers, onMarkerClick, onMarkerDelete, sel
       ) : (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {markers.map((marker) => {
-            const Icon = iconMap[marker.icon_type] || Car;
+            const Icon = mapIcons.filter(icon => icon.type == marker.icon_type)[0]?.img || mapIcons[2].img;
             return (
               <div
                 key={marker.id}
@@ -42,7 +35,7 @@ export default function MarkerList({ markers, onMarkerClick, onMarkerDelete, sel
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className="w-6 h-6 text-gray-700" />
+                  <img src={Icon} className="w-6 h-6 text-gray-700" />
                   <div className="flex-1">
                     <div className="font-medium text-gray-800 capitalize">{marker.icon_type}</div>
                     <div className="text-xs text-gray-600 mt-1">

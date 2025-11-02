@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useState, useCallback, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import IconPalette from '../../components/map/IconPalette';
@@ -14,6 +14,7 @@ import { uploadScreenshotAPI } from "@/utils/api/upload";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { generateFileId } from "@/utils/fileHelpers";
 import { ServerFile } from '@/types/file.types';
+import { setCanProceed } from '@/store/slices/stepperSlice';
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyCi1g0u1_0qSZ09q8bkkb-7J5cBhi7iK9s';
 
@@ -32,6 +33,10 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
   const { sessionId } = useSelector((state: RootState) => state.files);
   const { handleFilesAdded } = useFileUpload();
   const mapConRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() =>{
+      dispatch(setCanProceed(markers.length > 0))
+  },[dispatch, markers])
 
   const handleDragStart = (iconType: string) => {
     setDraggingIconType(iconType);
@@ -106,11 +111,12 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
   const handleMarkerClick = useCallback((id: string, event?: any) => {
     setSelectedMarkerId(id);
-    if (event && event.domEvent) {
+    if (event && event.domEvent && mapConRef && mapConRef.current) {
       let rect = event.domEvent.currentTarget.getBoundingClientRect();
+      let mapCont = mapConRef.current.getBoundingClientRect();
       setTransformControlPos({
-        x: event.domEvent.clientX + 10,
-        y: event.domEvent.clientY - 50,
+        x: event.domEvent.clientX - mapCont.x,
+        y: event.domEvent.clientY - mapCont.y + 32,
         h: rect.height,
         w: rect.width
       });
@@ -305,7 +311,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
           <IconPalette onDragStart={handleDragStart} />
 
           <div ref={mapConRef}
-            className="flex-1 rounded-lg overflow-hidden shadow-lg"
+            className="flex-1 rounded-lg overflow-hidden shadow-lg relative"
             style={{ cursor: draggingIconType ? 'crosshair' : 'default' }}
             onDragOver={handleMapDragOver}
             onDrop={handleMapDrop}
@@ -329,6 +335,18 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                 />
               ))}
             </Map>
+
+            {transformControlPos && selectedMarkerId && (
+              <TransformControls
+                position={transformControlPos}
+                onRotate={handleRotate}
+                onScaleUp={handleScaleUp}
+                onScaleDown={handleScaleDown}
+                onFlipHorizontal={handleFlipHorizontal}
+                onFlipVertical={handleFlipVertical}
+                onDelete={handleDelete}
+              />
+            )}
           </div>
 
           <MarkerList
@@ -339,17 +357,6 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
           />
         </div>
 
-        {transformControlPos && selectedMarkerId && (
-          <TransformControls
-            position={transformControlPos}
-            onRotate={handleRotate}
-            onScaleUp={handleScaleUp}
-            onScaleDown={handleScaleDown}
-            onFlipHorizontal={handleFlipHorizontal}
-            onFlipVertical={handleFlipVertical}
-            onDelete={handleDelete}
-          />
-        )}
       </div>
     </APIProvider>
   );
