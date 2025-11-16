@@ -8,7 +8,7 @@ export const StepIndicator = () => {
   const { currentStep, completedSteps } = useSelector((state: RootState) => state.stepper);
 
   return (
-    <div className="w-full py-8">
+    <div className="w-full pb-6">
       <div className="flex items-center justify-between max-w-4xl mx-auto">
         {STEPS.map((step, index) => {
           const isActive = currentStep === step.id;
@@ -21,7 +21,7 @@ export const StepIndicator = () => {
               <div className="flex flex-col items-center">
                 <div
                   className={clsx(
-                    'w-8 md:w-12 h-8 md:h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300',
+                    'w-8 md:w-10 h-8 md:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300',
                     isActive &&
                       'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/40 scale-110',
                     isCompleted && !isActive && 'bg-accent-green text-white',

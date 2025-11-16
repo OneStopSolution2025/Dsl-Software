@@ -8,9 +8,9 @@ interface IconPaletteProps {
 
 export default function IconPalette({ onDragStart }: IconPaletteProps) {
   return (
-    <div className="bg-white shadow-lg rounded-lg p-4 mb-4">
+    <div className="bg-white shadow-lg rounded-lg p-4 mb-4 h-full overflow-auto">
       <h2 className="text-lg font-semibold mb-3 text-gray-800">Vehicle Icons</h2>
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex flex-row md:flex-col gap-3 flex-wrap">
         {mapIcons.map(({ type, img, label }) => (
           <div
             key={type}

@@ -27,13 +27,13 @@ export default function CustomMarker({ marker, isSelected, onClick, onDragEnd }:
       onDragEnd={handleDragEnd}
     >
       <div
-        className={`relative ${isSelected ? 'ring-4 ring-blue-500 ring-opacity-50' : ''}`}
+        className={`relative ${isSelected ? 'border-2 border-dashed border-blue-500' : ''}`}
         style={{
           transform: `scale(${marker.scale}) rotate(${marker.rotation}deg) scaleX(${marker.flip_horizontal ? -1 : 1}) scaleY(${marker.flip_vertical ? -1 : 1})`,
           transition: 'transform 0.2s ease',
         }}
       >
-        <div className="bg-white rounded-full p-2 shadow-lg">
+        <div className="bg-transparent rounded-full p-2 shadow-xs">
           <img src={Icon} className="w-6 h-6 text-gray-800" />
         </div>
       </div>

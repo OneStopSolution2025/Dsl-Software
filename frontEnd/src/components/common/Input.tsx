@@ -7,6 +7,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
   glass?: boolean;
   rightIcon?: ReactNode;
+  className?:  string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(

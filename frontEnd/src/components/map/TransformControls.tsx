@@ -1,4 +1,4 @@
-import { RotateCw, ZoomIn, ZoomOut, FlipHorizontal, FlipVertical, Trash2 } from 'lucide-react';
+import { RotateCcw, RotateCw, ZoomIn, ZoomOut, FlipHorizontal, FlipVertical, Trash2 } from 'lucide-react';
 
 interface TransformControlsProps {
   onRotate: () => void;
@@ -27,6 +27,13 @@ export default function TransformControls({
         top: `${position.y }px`,
       }}
     >
+      <button
+        onClick={onRotate}
+        className="p-2 hover:bg-gray-100 rounded transition-colors"
+        title="Rotate"
+      >
+        <RotateCcw className="w-4 h-4" />
+      </button>
       <button
         onClick={onRotate}
         className="p-2 hover:bg-gray-100 rounded transition-colors"

@@ -15,6 +15,7 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import { generateFileId } from "@/utils/fileHelpers";
 import { ServerFile } from '@/types/file.types';
 import { setCanProceed } from '@/store/slices/stepperSlice';
+import { Input } from '@/components/common/Input';
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyCi1g0u1_0qSZ09q8bkkb-7J5cBhi7iK9s';
 
@@ -131,11 +132,13 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
     dispatch(updateMarker({ id, updates }));
   };
 
-  const handleRotate = () => {
+  const handleRotate = (e:'cw'|'ccw') => {
     if (!selectedMarkerId) return;
     const marker = markers.find((m) => m.id === selectedMarkerId);
     if (marker) {
-      updateMarkerAction(selectedMarkerId, { rotation: (marker.rotation + 45) % 360 });
+      let rotation = (marker.rotation + 45) % 360;
+      if(e == 'ccw') rotation = (marker.rotation - 45) % 360;
+      updateMarkerAction(selectedMarkerId, { rotation });
     }
   };
 
@@ -188,9 +191,12 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     handleNextWithScreenshot: async () => {
+      setTransformControlPos(null);
+
       if (markers.length === 0) return;
 
       try {
+
         // setIsCapturing(true);
         const screenshotFile = await captureMapScreenshot();
 
@@ -264,7 +270,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
       const canvas = await html2canvas(mapConRef.current, {
         useCORS: true,
         allowTaint: true,
-        scale: 2, // Higher resolution
+        scale: 1, // Higher resolution
         width: mapConRef.current.offsetWidth,
         height: mapConRef.current.offsetHeight,
         backgroundColor: '#ffffff',
@@ -306,19 +312,26 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
   return (
     <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-      <div className="h-screen flex flex-col bg-gray-50">
-        <div className="flex-1 flex flex-col p-4 overflow-hidden">
-          <IconPalette onDragStart={handleDragStart} />
+      <div className="h-full flex flex-col bg-gray-50">
+        <div className="h-full grid grid-cols-1 md:grid-cols-12 p-4 gap-4 overflow-hidden">
+          <div className='md:col-span-2 max-h-[500px] overflow-scroll'>
+            <IconPalette onDragStart={handleDragStart} />
+          </div>
 
           <div ref={mapConRef}
-            className="flex-1 rounded-lg overflow-hidden shadow-lg relative"
+            className="col-span-10 flex-1 rounded-lg overflow-hidden shadow-lg relative"
             style={{ cursor: draggingIconType ? 'crosshair' : 'default' }}
             onDragOver={handleMapDragOver}
             onDrop={handleMapDrop}
           >
+            <div className="flex items-center gap-2 mb-4 px-4">
+              <Input className='w-20' />
+              <Input />
+            </div>
             <Map
-              defaultCenter={{ lat: 37.7749, lng: -122.4194 }}
-              defaultZoom={12}
+              // defaultCenter={{ lat: 37.7749, lng: -122.4194 }}
+              center={{lat: 53.54992, lng: 10.00678}}
+              defaultZoom={20}
               gestureHandling="greedy"
               disableDefaultUI={false}
               onClick={handleMapClick}
@@ -349,12 +362,14 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
             )}
           </div>
 
-          <MarkerList
-            markers={markers}
-            onMarkerClick={(id) => handleMarkerClick(id)}
-            onMarkerDelete={handleMarkerListDelete}
-            selectedMarkerId={selectedMarkerId}
-          />
+          <div className='col-span-12'>
+            <MarkerList
+              markers={markers}
+              onMarkerClick={(id) => handleMarkerClick(id)}
+              onMarkerDelete={handleMarkerListDelete}
+              selectedMarkerId={selectedMarkerId}
+            />
+          </div>
         </div>
 
       </div>

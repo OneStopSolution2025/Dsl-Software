@@ -23,9 +23,9 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-white border-b border-neutral-200 shadow-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+    <header className="bg-white border-b border-neutral-200 shadow-sm h-[8vh]">
+      <div className="container flex items-center h-full mx-auto px-4">
+        <div className="w-full flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Building2 className="h-8 w-8 text-primary-500" />
@@ -43,7 +43,7 @@ export const Header = () => {
                   <div className="h-10 w-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold">
                     {getInitials(user.username)}
                   </div>
-                  <span className="text-sm font-medium text-neutral-700">
+                  <span className="hidden md:block text-sm font-medium text-neutral-700">
                     {user.username}
                   </span>
                 </button>
