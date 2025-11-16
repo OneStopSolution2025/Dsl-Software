@@ -1,7 +1,7 @@
 
 import { MapMarker } from '@/store/slices/markersSlice';
 import { MapPin, Trash2 } from 'lucide-react';
-import { mapIcons } from './mapIcons';
+import { getIconByType } from './enhancedMapIcons';
 
 interface MarkerListProps {
   markers: MapMarker[];
@@ -23,7 +23,9 @@ export default function MarkerList({ markers, onMarkerClick, onMarkerDelete, sel
       ) : (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {markers.map((marker) => {
-            const Icon = mapIcons.filter(icon => icon.type == marker.icon_type)[0]?.img || mapIcons[2].img;
+            const iconConfig = getIconByType(marker.icon_type);
+            const IconComponent = iconConfig?.icon;
+            
             return (
               <div
                 key={marker.id}
@@ -35,9 +37,18 @@ export default function MarkerList({ markers, onMarkerClick, onMarkerDelete, sel
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <img src={Icon} className="w-6 h-6 text-gray-700" />
+                  <div className="flex-shrink-0" style={{ color: marker.color }}>
+                    {IconComponent ? <IconComponent size={24} color={marker.color} /> : <MapPin className="w-6 h-6" />}
+                  </div>
                   <div className="flex-1">
-                    <div className="font-medium text-gray-800 capitalize">{marker.icon_type}</div>
+                    <div className="font-medium text-gray-800 capitalize flex items-center gap-2">
+                      {marker.icon_type}
+                      <span 
+                        className="w-4 h-4 rounded-full border border-gray-300"
+                        style={{ backgroundColor: marker.color }}
+                        title={marker.color}
+                      />
+                    </div>
                     <div className="text-xs text-gray-600 mt-1">
                       <span className="font-mono">
                         Lat: {marker.latitude.toFixed(6)}, Lng: {marker.longitude.toFixed(6)}

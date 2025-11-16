@@ -9,6 +9,7 @@ export interface MapMarker {
   rotation: number;
   flip_horizontal: boolean;
   flip_vertical: boolean;
+  color: string; // Hex color code for the icon
 }
 
 interface MarkersState {

@@ -25,62 +25,57 @@ export const Popup: React.FC<PopupProps> = ({
   const updatePosition = () => {
     if (!triggerRef.current || !popupRef.current) return;
     
-    const styles: Record<PopupPosition, React.CSSProperties> = {
-      'top': {
-        position: 'absolute',
-        bottom: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        marginBottom: '8px',
-      },
-      'right': {
-        position: 'absolute',
-        left: '100%',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        marginLeft: '8px',
-      },
-      'bottom': {
-        position: 'absolute',
-        top: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        marginTop: '8px',
-      },
-      'left': {
-        position: 'absolute',
-        right: '100%',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        marginRight: '8px',
-      },
-      'top-right': {
-        position: 'absolute',
-        bottom: '100%',
-        right: 0,
-        marginBottom: '8px',
-      },
-      'top-left': {
-        position: 'absolute',
-        bottom: '100%',
-        left: 0,
-        marginBottom: '8px',
-      },
-      'bottom-right': {
-        position: 'absolute',
-        top: '100%',
-        right: 0,
-        marginTop: '8px',
-      },
-      'bottom-left': {
-        position: 'absolute',
-        top: '100%',
-        left: 0,
-        marginTop: '8px',
-      },
-    };
-
-    setPositionStyle(styles[position]);
+    // Use requestAnimationFrame to ensure DOM is updated
+    requestAnimationFrame(() => {
+      if (!triggerRef.current || !popupRef.current) return;
+      
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const popupRect = popupRef.current.getBoundingClientRect();
+      
+      let top = 0;
+      let left = 0;
+      
+      switch (position) {
+        case 'top':
+          top = triggerRect.top - popupRect.height - 8;
+          left = triggerRect.left + (triggerRect.width / 2) - (popupRect.width / 2);
+          break;
+        case 'bottom':
+          top = triggerRect.bottom + 8;
+          left = triggerRect.left + (triggerRect.width / 2) - (popupRect.width / 2);
+          break;
+        case 'left':
+          top = triggerRect.top + (triggerRect.height / 2) - (popupRect.height / 2);
+          left = triggerRect.left - popupRect.width - 8;
+          break;
+        case 'right':
+          top = triggerRect.top + (triggerRect.height / 2) - (popupRect.height / 2);
+          left = triggerRect.right + 8;
+          break;
+        case 'top-left':
+          top = triggerRect.top - popupRect.height - 8;
+          left = triggerRect.left;
+          break;
+        case 'top-right':
+          top = triggerRect.top - popupRect.height - 8;
+          left = triggerRect.right - popupRect.width;
+          break;
+        case 'bottom-left':
+          top = triggerRect.bottom + 8;
+          left = triggerRect.left;
+          break;
+        case 'bottom-right':
+          top = triggerRect.bottom + 8;
+          left = triggerRect.right - popupRect.width;
+          break;
+      }
+      
+      setPositionStyle({
+        position: 'fixed',
+        top: `${top}px`,
+        left: `${left}px`,
+      });
+    });
   };
 
   useEffect(() => {
@@ -157,22 +152,22 @@ export const Popup: React.FC<PopupProps> = ({
       {isVisible && (
         <div
           ref={popupRef}
-          className={`z-50 bg-blue-50 rounded-lg shadow-lg p-3 text-sm text-neutral-800 border border-neutral-200 w-fit ${className}`}
+          className={`fixed z-[9999] bg-blue-50 rounded-lg shadow-lg p-3 text-sm text-neutral-800 border border-neutral-200 w-fit whitespace-nowrap ${className}`}
           style={positionStyle}
           onClick={(e) => e.stopPropagation()}
         >
           {content}
           <div 
-            className="absolute w-3 h-3 bg-blue-50 transform rotate-45 -z-10 border-t border-l"
+            className="absolute w-3 h-3 bg-blue-50 transform rotate-45 -z-10 border border-neutral-200"
             style={{
-              ...(position === 'top' && { bottom: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)' }),
-              ...(position === 'right' && { left: '-6px', top: '50%', transform: 'translateY(-50%) rotate(45deg)' }),
-              ...(position === 'bottom' && { top: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)' }),
-              ...(position === 'left' && { right: '-6px', top: '50%', transform: 'translateY(-50%) rotate(45deg)' }),
-              ...(position === 'top-right' && { bottom: '-6px', right: '10px', transform: 'rotate(45deg)' }),
-              ...(position === 'top-left' && { bottom: '-6px', left: '10px', transform: 'rotate(45deg)' }),
-              ...(position === 'bottom-right' && { top: '-6px', right: '10px', transform: 'rotate(45deg)' }),
-              ...(position === 'bottom-left' && { top: '-6px', left: '10px', transform: 'rotate(45deg)' }),
+              ...(position === 'top' && { bottom: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)', borderTop: 'none', borderLeft: 'none' }),
+              ...(position === 'right' && { left: '-6px', top: '50%', transform: 'translateY(-50%) rotate(45deg)', borderTop: 'none', borderRight: 'none' }),
+              ...(position === 'bottom' && { top: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)', borderBottom: 'none', borderRight: 'none' }),
+              ...(position === 'left' && { right: '-6px', top: '50%', transform: 'translateY(-50%) rotate(45deg)', borderBottom: 'none', borderLeft: 'none' }),
+              ...(position === 'top-right' && { bottom: '-6px', right: '10px', transform: 'rotate(45deg)', borderTop: 'none', borderLeft: 'none' }),
+              ...(position === 'top-left' && { bottom: '-6px', left: '10px', transform: 'rotate(45deg)', borderTop: 'none', borderLeft: 'none' }),
+              ...(position === 'bottom-right' && { top: '-6px', right: '10px', transform: 'rotate(45deg)', borderBottom: 'none', borderRight: 'none' }),
+              ...(position === 'bottom-left' && { top: '-6px', left: '10px', transform: 'rotate(45deg)', borderBottom: 'none', borderRight: 'none' }),
             }}
           />
         </div>

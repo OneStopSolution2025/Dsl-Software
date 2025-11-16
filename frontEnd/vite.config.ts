@@ -10,4 +10,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps:{
+    esbuildOptions: {
+      inject: ['./polyfill-crypto.js']
+    }
+  }
 })
