@@ -127,6 +127,7 @@ const LocationSearch = ({ mapRef }: { mapRef: React.RefObject<google.maps.Map | 
           value={searchInput}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="pl-10 pr-10 text-sm"
+          leftIcon={<Search className='text-neutral-600' />}
         />
         {searchInput && (
           <button
@@ -466,6 +467,10 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
     }
   };
 
+  const handleMarkerUpdate = (id: string, updates: Partial<MapMarker>) => {
+    dispatch(updateMarker({ id, updates }));
+  };
+
   useImperativeHandle(ref, () => ({
     handleNextWithScreenshot: async () => {
       setTransformControlPos(null);
@@ -590,13 +595,14 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
   return (
     <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
       <div className="h-full flex flex-col bg-gray-50">
+
         <div className="h-full grid grid-cols-1 md:grid-cols-12 p-4 gap-4 overflow-hidden">
           
-          <div className='md:col-span-3 max-h-[95vh] overflow-scroll'>
+          <div className='bg-white rounded-lg shadow-lg md:col-span-3 h-full overflow-scroll'>
             <IconPalette onDragStart={handleDragStart} />
           </div>
 
-          <div className='h-full col-span-9 flex-1'>
+          <div className='h-[80%] col-span-9 flex-1'>
 
             {/* Enhanced Location Search Bar */}
             <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
@@ -682,7 +688,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                     </div>
                     <Button
                       onClick={handleSearchByCoordinates}
-                      size="sm"
+                      size="md"
                       variant="primary"
                       className="flex-shrink-0 mt-0"
                     >
@@ -695,7 +701,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
             </div>
 
             <div ref={mapConRef}
-              className="h-[80vh] rounded-lg overflow-hidden shadow-lg relative"
+              className="h-full pb-4 rounded-lg overflow-hidden shadow-lg relative"
               style={{ cursor: draggingIconType ? 'crosshair' : 'default' }}
               onDragOver={handleMapDragOver}
               onDrop={handleMapDrop}
@@ -703,12 +709,14 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
 
               <Map
-                defaultCenter={{ lat: 3.1386741, lng: 101.6045879 }}
-                defaultZoom={15}
+                defaultCenter={{ lat: 3.1318355, lng: 101.682301 }}
+                defaultZoom={24}
                 gestureHandling="greedy"
                 disableDefaultUI={false}
                 onClick={handleMapClick}
                 mapId="custom-marker-map"
+                mapTypeId={'satellite'}
+                
               >
                 <MapContainer onMapReady={handleMapReady} />
                 {markers.map((marker) => (
@@ -740,17 +748,18 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
           </div>
 
-
+        </div>
 
           <div className='col-span-12'>
             <MarkerList
               markers={markers}
               onMarkerClick={(id) => handleMarkerClick(id)}
               onMarkerDelete={handleMarkerListDelete}
+              onMarkerUpdate={handleMarkerUpdate}
               selectedMarkerId={selectedMarkerId}
             />
           </div>
-        </div>
+        
 
       </div>
     </APIProvider>

@@ -8,7 +8,7 @@ export interface IconProps {
 
 // ==================== VEHICLES ====================
 export const CarIcon = ({ color = '#000000', size = 24 }: IconProps) => (
-  <svg width={size} height={size} version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 43.49" xml:space="preserve">
+  <svg width={size} height={size} version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 122.88 43.49" >
     <g>
       <path fill={color} fillRule="evenodd" className="st0" d="M103.94,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76c-5.39,0-9.76-4.37-9.76-9.76 C94.18,28.34,98.55,23.97,103.94,23.97L103.94,23.97z M23,29.07v3.51h3.51C26.09,30.86,24.73,29.49,23,29.07L23,29.07z M26.52,34.87H23v3.51C24.73,37.97,26.09,36.6,26.52,34.87L26.52,34.87z M20.71,38.39v-3.51H17.2 C17.62,36.6,18.99,37.96,20.71,38.39L20.71,38.39z M17.2,32.59h3.51v-3.51C18.99,29.49,17.62,30.86,17.2,32.59L17.2,32.59z M105.09,29.07v3.51h3.51C108.18,30.86,106.82,29.49,105.09,29.07L105.09,29.07z M108.6,34.87h-3.51v3.51 C106.82,37.97,108.18,36.6,108.6,34.87L108.6,34.87z M102.8,38.39v-3.51h-3.51C99.71,36.6,101.07,37.96,102.8,38.39L102.8,38.39z M99.28,32.59h3.51v-3.51C101.07,29.49,99.71,30.86,99.28,32.59L99.28,32.59z M49.29,12.79c-1.54-0.35-3.07-0.35-4.61-0.28 C56.73,6.18,61.46,2.07,75.57,2.9l-1.94,12.87L50.4,16.65c0.21-0.61,0.33-0.94,0.37-1.55C50.88,13.36,50.86,13.15,49.29,12.79 L49.29,12.79z M79.12,3.13L76.6,15.6l24.13-0.98c2.48-0.1,2.91-1.19,1.41-3.28c-0.68-0.95-1.44-1.89-2.31-2.82 C93.59,1.86,87.38,3.24,79.12,3.13L79.12,3.13z M0.46,27.28H1.2c0.46-2.04,1.37-3.88,2.71-5.53c2.94-3.66,4.28-3.2,8.65-3.99 l24.46-4.61c5.43-3.86,11.98-7.3,19.97-10.2C64.4,0.25,69.63-0.01,77.56,0c4.54,0.01,9.14,0.28,13.81,0.84 c2.37,0.15,4.69,0.47,6.97,0.93c2.73,0.55,5.41,1.31,8.04,2.21l9.8,5.66c2.89,1.67,3.51,3.62,3.88,6.81l1.38,11.78h1.43v6.51 c-0.2,2.19-1.06,2.52-2.88,2.52h-2.37c0.92-20.59-28.05-24.11-27.42,1.63H34.76c3.73-17.75-14.17-23.91-22.96-13.76 c-2.67,3.09-3.6,7.31-3.36,12.3H2.03c-0.51-0.24-0.91-0.57-1.21-0.98c-1.05-1.43-0.82-5.74-0.74-8.23 C0.09,27.55-0.12,27.28,0.46,27.28L0.46,27.28z M21.86,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76 c-5.39,0-9.76-4.37-9.76-9.76C12.1,28.34,16.47,23.97,21.86,23.97L21.86,23.97z"/>
     </g>
@@ -42,73 +42,24 @@ export const PickupTruckIcon = ({ color = '#000000', size = 24 }: IconProps) => 
 );
 
 export const LorryIcon = ({ color = '#000000', size = 24 }: IconProps) => (
-  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Container - solid */}
-    <rect x="1.5" y="6" width="12" height="7" rx="0.8" fill={color} />
-    {/* Container details */}
-    <line x1="4" y1="6" x2="4" y2="13" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-    <line x1="6.5" y1="6" x2="6.5" y2="13" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-    <line x1="9" y1="6" x2="9" y2="13" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-    <line x1="11.5" y1="6" x2="11.5" y2="13" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-    {/* Cab - solid */}
-    <path d="M13.5 8H16L18 10.5V13.5H13.5V8Z" fill={color} />
-    {/* Window */}
-    <path d="M14.5 9H15.5L17 10.5V12H14.5V9Z" fill="rgba(255,255,255,0.3)" />
-    {/* Wheels - solid */}
-    <circle cx="5" cy="13.5" r="1.8" fill="#2C2C2C" />
-    <circle cx="11" cy="13.5" r="1.8" fill="#2C2C2C" />
-    <circle cx="16" cy="13.5" r="1.8" fill="#2C2C2C" />
-    <circle cx="5" cy="13.5" r="0.8" fill="#5C5C5C" />
-    <circle cx="11" cy="13.5" r="0.8" fill="#5C5C5C" />
-    <circle cx="16" cy="13.5" r="0.8" fill="#5C5C5C" />
+  <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 73.14">
+    <path fill={color} fillRule="evenodd" d="M41.63,58.19a12.9,12.9,0,1,0,25.64,2,13.7,13.7,0,0,0-.16-2H89.28a14.22,14.22,0,0,0-.12,1.87,13.08,13.08,0,0,0,26.16,0,12.7,12.7,0,0,0-.21-2.33,8,8,0,0,0,7.77-7.93V24.14L106.61,6.64H84.32V45.51h-80A3.27,3.27,0,0,0,1,48.68V55A3.27,3.27,0,0,0,4.31,58.2H7.94a12.48,12.48,0,0,0-.16,2,12.9,12.9,0,1,0,25.79,0,13.7,13.7,0,0,0-.16-2h8.22ZM76.48,0H4.1A4.12,4.12,0,0,0,0,4.1V42.27H80.58V4.1A4.11,4.11,0,0,0,76.48,0ZM15.71,60.26c0,6.53,9.92,6.53,9.92,0,0-7-9.92-6.27-9.92,0Zm81.49-.21c0,6.61,10.06,6.61,10.06,0s-10.06-6.65-10.06,0Zm9.33-45.85L114.74,24v3.56H92.49V14.2ZM49.42,60.26c0,6.53,9.92,6.53,9.92,0s-9.92-6.52-9.92,0Z"/>
   </svg>
 );
 
 export const VanIcon = ({ color = '#000000', size = 24 }: IconProps) => (
-  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Body - solid */}
-    <rect x="2" y="6" width="14" height="7" rx="0.8" fill={color} />
-    {/* Windows */}
-    <rect x="3" y="7" width="2.5" height="2.5" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    <rect x="6" y="7" width="2.5" height="2.5" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    <rect x="9" y="7" width="2.5" height="2.5" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    <rect x="12" y="7" width="2.5" height="2.5" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    {/* Side detail line */}
-    <line x1="2" y1="10" x2="16" y2="10" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5"/>
-    {/* Cab extension */}
-    <path d="M16 9L18 10.5V13H16V9Z" fill={color} />
-    {/* Wheels - solid */}
-    <circle cx="5.5" cy="13.5" r="2" fill="#2C2C2C" />
-    <circle cx="14" cy="13.5" r="2" fill="#2C2C2C" />
-    <circle cx="5.5" cy="13.5" r="0.9" fill="#5C5C5C" />
-    <circle cx="14" cy="13.5" r="0.9" fill="#5C5C5C" />
-    {/* Headlight */}
-    <circle cx="17.5" cy="11" r="0.5" fill="#FFE57F" opacity="0.8" />
+  <svg width={size} height={size} version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 122.88 54.98">
+    <g>
+      <path fill={color} fillRule="evenodd" clipRule="evenodd" d="M120.11,5.33c-0.76-3.61-2.9-5.24-6.12-5.32H51.31c-4.31,0-11.56-0.28-15.03,2.64 c-5.9,4.21-10.49,11.67-15.47,16.53c-4.05,0.52-13.42,1.91-15.58,3.83c-2.49,2.22-2.46,9.37-2.43,12.4 c-4.63-0.09-2.76,11.12,0.24,11.76h6.45c-4.14-24.65,31-21.59,25.7,0h46.66c-5.43-20.67,29.19-25.49,25.86,0.26 c2.58-0.26,3.9-0.52,6.48-0.78c4.95-0.5,8.52-0.33,8.52-6.81C123.17,27,122.81,14.99,120.11,5.33L120.11,5.33z M95.01,39.37 c2.84,0,5.14,2.3,5.14,5.14c0,2.84-2.3,5.14-5.14,5.14c-2.84,0-5.14-2.3-5.14-5.14C89.87,41.68,92.17,39.37,95.01,39.37 L95.01,39.37z M47.68,4.47h-6.44c-4.27,0-9.97,6.17-13.2,12.25c-0.33,0.62-2.9,4.87-1.18,4.87h20.81v-0.65V5.12V4.47L47.68,4.47z M22.12,39.37c2.84,0,5.14,2.3,5.14,5.14c0,2.84-2.3,5.14-5.14,5.14c-2.84,0-5.14-2.3-5.14-5.14 C16.98,41.68,19.28,39.37,22.12,39.37L22.12,39.37z M22.12,34.05c5.78,0,10.46,4.68,10.46,10.46c0,5.78-4.68,10.46-10.46,10.46 s-10.46-4.68-10.46-10.46C11.66,38.74,16.35,34.05,22.12,34.05L22.12,34.05z M95.01,34.05c5.78,0,10.46,4.68,10.46,10.46 c0,5.78-4.68,10.46-10.46,10.46s-10.46-4.68-10.46-10.46C84.55,38.74,89.23,34.05,95.01,34.05L95.01,34.05z"/>
+    </g>
   </svg>
 );
 
 export const BusIcon = ({ color = '#000000', size = 24 }: IconProps) => (
-  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Body - solid */}
-    <rect x="3" y="4" width="14" height="10" rx="1.5" fill={color} />
-    {/* Windows - front row */}
-    <rect x="4" y="5" width="2.8" height="2.5" rx="0.4" fill="rgba(255,255,255,0.4)" />
-    <rect x="7.2" y="5" width="2.5" height="2.5" rx="0.4" fill="rgba(255,255,255,0.4)" />
-    <rect x="10.3" y="5" width="2.5" height="2.5" rx="0.4" fill="rgba(255,255,255,0.4)" />
-    <rect x="13.2" y="5" width="2.8" height="2.5" rx="0.4" fill="rgba(255,255,255,0.4)" />
-    {/* Side windows */}
-    <rect x="4" y="9" width="2" height="3" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    <rect x="6.5" y="9" width="2" height="3" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    <rect x="11" y="9" width="2" height="3" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    <rect x="13.5" y="9" width="2" height="3" rx="0.4" fill="rgba(255,255,255,0.3)" />
-    {/* Wheels - solid */}
-    <circle cx="6.5" cy="15" r="1.8" fill="#2C2C2C" />
-    <circle cx="13.5" cy="15" r="1.8" fill="#2C2C2C" />
-    <circle cx="6.5" cy="15" r="0.8" fill="#5C5C5C" />
-    <circle cx="13.5" cy="15" r="0.8" fill="#5C5C5C" />
-    {/* Headlights */}
-    <circle cx="4.5" cy="12" r="0.5" fill="#FFE57F" opacity="0.8" />
-    <circle cx="15.5" cy="12" r="0.5" fill="#FFE57F" opacity="0.8" />
+
+  <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 120.96">
+    <title>bus</title>
+    <path fill={color}  fillRule="evenodd" d="M105.5,104.64H99.44v9.53A6.81,6.81,0,0,1,92.65,121h-4a6.82,6.82,0,0,1-6.79-6.79v-9.53H40.82v9.53A6.82,6.82,0,0,1,34,121H30a6.81,6.81,0,0,1-6.78-6.79v-9.53H18.1c-3.54-.06-5.24-2-5.5-5.29V21.52c-2,.2-2.95.66-3.43,1.68V45.45H4.87A4.88,4.88,0,0,1,0,40.58V27.44a4.89,4.89,0,0,1,4.73-4.87c.41-3.82,2.06-4.93,8-5.21Q14,7.36,26.36,2.57C44.09-.68,77.73-1,96.52,2.57c8.28,3.19,12.8,8.12,13.62,14.79,6,.3,7.61,1.42,8,5.21a4.89,4.89,0,0,1,4.73,4.87V40.58A4.88,4.88,0,0,1,118,45.45h-4.3V23.14c-.48-1-1.47-1.44-3.43-1.63V98.59c0,4.46-1.44,6-4.78,6ZM16.13,84.87l.28-6.69c.16-1.17.78-1.69,1.89-1.5A129.9,129.9,0,0,1,34.39,86.85c1.09.72.66,2.11-.78,1.85L18.48,87.6a2.74,2.74,0,0,1-2.35-2.73ZM52,93.45H71.3a.94.94,0,0,1,.94.94v3.24a.94.94,0,0,1-.94.94H52a.94.94,0,0,1-.94-.94V94.39a.94.94,0,0,1,.94-.94Zm50.35,0A2.51,2.51,0,1,1,99.82,96a2.51,2.51,0,0,1,2.5-2.51Zm-82.65,0A2.51,2.51,0,1,1,17.16,96a2.51,2.51,0,0,1,2.51-2.51Zm87.08-8.63-.28-6.69c-.16-1.17-.78-1.69-1.88-1.5a129.28,129.28,0,0,0-16.1,10.17c-1.09.72-.66,2.11.78,1.85l15.13-1.1a2.73,2.73,0,0,0,2.35-2.73ZM48.19,6.11h26.5a1.63,1.63,0,0,1,1.62,1.62V12a1.63,1.63,0,0,1-1.62,1.62H48.19A1.63,1.63,0,0,1,46.57,12V7.73a1.63,1.63,0,0,1,1.62-1.62ZM20.32,18.91H102.2a2,2,0,0,1,2,2V64.09c0,1.08-.89,1.69-2,2-28.09,8.53-53.8,8.18-81.88,0-1.11-.3-2-.9-2-2V20.89a2,2,0,0,1,2-2Z"/>
   </svg>
 );
 
@@ -134,7 +85,7 @@ export const ChildIcon = ({ color = '#000000', size = 24 }: IconProps) => (
 );
 
 // ==================== DIRECTIONAL ARROWS ====================
-export const StraightArrowIcon = ({ color = '#059669', size = 24 }: IconProps) => (
+export const StraightArrowIcon = ({ size = 24 }: IconProps) => (
   <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88">
     <path fill="#d92d27" fillRule="evenodd" d="M118.22,38a61.53,61.53,0,1,1-13.34-20,61.29,61.29,0,0,1,13.34,20ZM61.44,12.08A49.36,49.36,0,1,1,12.08,61.44,49.36,49.36,0,0,1,61.44,12.08Z"/>
     <path fill="#fff" fillRule="evenodd" d="M61.44,12.08A49.36,49.36,0,1,1,12.08,61.44,49.36,49.36,0,0,1,61.44,12.08Z"/>
@@ -142,7 +93,7 @@ export const StraightArrowIcon = ({ color = '#059669', size = 24 }: IconProps) =
   </svg>
 );
 
-export const TurnArrowIcon = ({ color = '#DC2626', size = 24 }: IconProps) => (
+export const TurnArrowIcon = ({ size = 24 }: IconProps) => (
 
   <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88">
     <path className="cls-1" fill="#d92d27" fillRule="evenodd" d="M118.22,38a61.53,61.53,0,1,1-13.34-20,61.29,61.29,0,0,1,13.34,20ZM61.44,12.08A49.36,49.36,0,1,1,12.08,61.44,49.36,49.36,0,0,1,61.44,12.08Z"/>
@@ -152,7 +103,7 @@ export const TurnArrowIcon = ({ color = '#DC2626', size = 24 }: IconProps) => (
 
 );
 
-export const UTurnArrowIcon = ({ color = '#2563EB', size = 24 }: IconProps) => (
+export const UTurnArrowIcon = ({ size = 24 }: IconProps) => (
   <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88">
     <path fill="#d92d27" fillRule="evenodd" d="M118.22,38a61.53,61.53,0,1,1-13.34-20,61.29,61.29,0,0,1,13.34,20ZM61.44,12.08A49.36,49.36,0,1,1,12.08,61.44,49.36,49.36,0,0,1,61.44,12.08Z"/>
     <path fill="#fff" fillRule="evenodd" d="M61.44,12.08A49.36,49.36,0,1,1,12.08,61.44,49.36,49.36,0,0,1,61.44,12.08Z"/>
@@ -160,7 +111,7 @@ export const UTurnArrowIcon = ({ color = '#2563EB', size = 24 }: IconProps) => (
   </svg>
 )
 
-export const RailwayCrossingIcon = ({ color = '#000000', size = 24 }: IconProps) => (
+export const RailwayCrossingIcon = ({ size = 24 }: IconProps) => (
   <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 105.59">
     {/* <defs><style>.cls-1{fill:#fff;}.cls-2{fill:#d92d27;}.cls-3{fill-rule:evenodd;}</style></defs> */}
     <title>railway-crossing-sign</title>
@@ -170,7 +121,7 @@ export const RailwayCrossingIcon = ({ color = '#000000', size = 24 }: IconProps)
   </svg>
 )
 
-export const ImpactBlastIcon = ({ color = '#FF0000', size = 24 }: IconProps) => (
+export const ImpactBlastIcon = ({ size = 24 }: IconProps) => (
   <svg width={size} height={size} version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 122.88 109.14">
     <defs>
         <linearGradient id="grad3" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -186,7 +137,7 @@ export const ImpactBlastIcon = ({ color = '#FF0000', size = 24 }: IconProps) => 
 );
 
 // ==================== ENVIRONMENT ====================
-export const TreeIcon = ({ color = '#16A34A', size = 24 }: IconProps) => (
+export const TreeIcon = ({ size = 24 }: IconProps) => (
 
   <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 121.38">
     <path fill="#8c5d0f" d="M81.53,72.75l5,3.46c-.81,1.9-1.53,3.57-2.19,5.11-6.13,14.24-7.83,18.19-8.21,38l0,2.06H49.42v-2.09c0-19.82-.54-20.63-8-31.87-1.4-2.11-3.7-5.71-5.68-8.81,1.66-14.28,34.36-12.79,45.81-5.86Z"/>
@@ -197,7 +148,7 @@ export const TreeIcon = ({ color = '#16A34A', size = 24 }: IconProps) => (
   </svg>
 );
 
-export const GrassVergeIcon = ({ color = '#84CC16', size = 24 }: IconProps) => (
+export const GrassVergeIcon = ({ size = 24 }: IconProps) => (
 
   <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="grass">
     <path fill="#67bc46" d="m93.83 475.43 30.484-19.523a512.78 512.78 0 0 1-16.631-43.706 511.714 511.714 0 0 1-25.503-147.16 310.12 310.12 0 0 0-10.901 121.685l.055.52a323.485 323.485 0 0 0 13.048 62.097 329.61 329.61 0 0 0 9.449 26.088Z"></path>
@@ -272,7 +223,7 @@ export const TrafficLightIcon = ({ color: _color = '#EAB308', size = 24 }: IconP
     </svg>
 );
 
-export const CCTVIcon = ({ color = '#475569', size = 24 }: IconProps) => (
+export const CCTVIcon = ({ size = 24 }: IconProps) => (
 
   <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" id="cctv">
     <path fill="#7c7d7d" d="M9 35c0 8.23.2 8.71-.54 10C7 47.47 4.77 47 1 47V31h4a4 4 0 0 1 4 4Z"></path>

@@ -1,6 +1,6 @@
 import { iconCategories, getIconsByCategory } from './enhancedMapIcons';
 import { Accordion } from '../common/Accordion';
-import { Popup } from '../common/Popup';
+import { Map } from 'lucide-react';
 
 interface IconPaletteProps {
   onDragStart: (iconType: string) => void;
@@ -21,7 +21,7 @@ export default function IconPalette({ onDragStart }: IconPaletteProps) {
       ),
       children: (
         <div className="grid grid-cols-2 gap-2">
-          {icons.map(({ type, component: IconComponent, label, defaultColor, colorChangeable }) => (
+          {icons.map(({ type, component: IconComponent, label, defaultColor }) => (
               <div
                 draggable
                 onDragStart={() => onDragStart(type)}
@@ -49,15 +49,15 @@ export default function IconPalette({ onDragStart }: IconPaletteProps) {
   });
 
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50 shadow-lg rounded-lg p-3 h-full overflow-auto">
-      <h2 className="text-base font-semibold mb-3 text-gray-800 sticky top-0 bg-white pb-2 border-b-2 border-primary-200">
-        🗺️ Map Icons
+    <div className="bg-gradient-to-b from-white to-gray-50 shadow-lg rounded-lg px-3 pb-3 h-full overflow-auto">
+      <h2 className="text-base font-semibold mb-3 text-gray-800 sticky top-0 z-10 bg-white p-2 border-b-2 border-primary-200 flex item-center gap-2">
+        <span><Map/> </span> Map Icons
       </h2>
       
       <Accordion
         items={accordionItems}
         defaultOpenIndexes={[0]}
-        allowMultiple={true}
+        allowMultiple={false}
         className="space-y-2"
       />
     </div>

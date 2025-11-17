@@ -4,6 +4,7 @@ import { Register } from '@/pages/Register';
 import { Login } from '@/pages/Login';
 import { Home } from '@/pages/Home';
 import MapEditor from '@/pages/MapEditor'; // Import the new MapEditor page
+import TransformPOC from '@/pages/TransformPOC'; // Import Transform POC page
 
 export const AppRoutes = () => {
   return (
@@ -28,6 +29,16 @@ export const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <MapEditor />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* POC: Transform Controls */}
+        <Route
+          path="/transform-poc"
+          element={
+            <ProtectedRoute>
+              <TransformPOC />
             </ProtectedRoute>
           }
         />

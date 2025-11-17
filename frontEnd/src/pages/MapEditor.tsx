@@ -63,6 +63,7 @@ const MapEditor = () => {
         rotation: 0,
         flip_horizontal: false,
         flip_vertical: false,
+        color: '#3B82F6', // Default color
       };
   
       dispatch(addMarker(newMarker));
@@ -83,6 +84,7 @@ const MapEditor = () => {
           rotation: 0,
           flip_horizontal: false,
           flip_vertical: false,
+          color: '#3B82F6', // Default color
         };
   
         dispatch(addMarker(newMarker));
@@ -210,7 +212,9 @@ const MapEditor = () => {
               markers={markers}
               onMarkerClick={(id) => handleMarkerClick(id)}
               onMarkerDelete={handleMarkerListDelete}
+              onMarkerUpdate={updateMarkerAction}
               selectedMarkerId={selectedMarkerId}
+              
             />
           </div>
   

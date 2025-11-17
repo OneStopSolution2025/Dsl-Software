@@ -6,12 +6,13 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   helperText?: string;
   glass?: boolean;
+  leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   className?:  string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, glass = false, className, rightIcon, ...props }, ref) => {
+  ({ label, error, helperText, glass = false, className, leftIcon, rightIcon, ...props }, ref) => {
     return (
       <div className="w-full">
         {label && (
@@ -23,6 +24,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
         <div className="relative">
+          {leftIcon && (
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+              {leftIcon}
+            </div>
+          )}
           <input
             ref={ref}
             className={clsx(
@@ -30,6 +36,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               glass
                 ? 'glass-input'
                 : 'border border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10',
+              leftIcon && 'pl-12', // Add left padding for icon
               rightIcon && 'pr-12', // Add right padding for icon
               error && 'border-red-500 focus:border-red-500 focus:ring-red-500/10',
               className

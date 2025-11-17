@@ -2,7 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface MapMarker {
   id: string;
-  icon_type: string;
+  icon_type: string; // The actual icon type used for rendering
+  displayName?: string; // Custom display name for the marker
   latitude: number;
   longitude: number;
   scale: number;
