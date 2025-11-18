@@ -508,14 +508,14 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
               dispatch(
                 setSessionData({
-                  sessionId: sessionId || '',
+                  sessionId: sessionId || '', // Keep our existing session ID (don't update from API)
                   userName: uploadResponse.user_name || '',
                   serverFileIds: resFiles,
                   uploadedFiles: []
                 })
               );
 
-              console.log('Screenshot uploaded successfully, new session:', uploadResponse.session_id);
+              console.log('Screenshot uploaded successfully. Using session:', sessionId);
             } catch (uploadError) {
               console.error('Screenshot upload failed:', uploadError);
               // setCaptureError('Failed to upload screenshot. Please try again.');

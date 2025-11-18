@@ -1,7 +1,9 @@
 
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { setEditing } from '@/store/slices/formSlice';
+import { setDocxUrl, setHtmlUrl } from '@/store/slices/filesSlice';
 import { Button } from '@/components/common/Button';
 import { Tabs } from '@/components/common/Tabs';
 import { HeaderForm } from './forms/HeaderForm';
@@ -10,20 +12,71 @@ import { ParticipantForm } from './forms/ParticipantForm';
 import { ThirdPartyForm } from './forms/ThirdPartyForm';
 import { AccidentSiteForm } from './forms/AccidentSiteForm';
 import { WitnessForm } from './forms/WitnessForm';
+import { API_ENDPOINTS } from '@/utils/constants';
+import api from '@/utils/axios.config';
+import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export const EditForm = () => {
   const dispatch = useDispatch();
   const { data } = useSelector((state: RootState) => state.form);
+  const { sessionId } = useSelector((state: RootState) => state.session);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleCancel = () => {
     dispatch(setEditing(false));
   };
 
-  const handleSave = () => {
-    // Here you would typically handle the form submission,
-    // e.g., send data to a server to regenerate the document.
-    console.log('Saving form data...', data);
-    dispatch(setEditing(false));
+  const handleSave = async () => {
+    if (!sessionId) {
+      toast.error('Session not found. Please try again.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('Authentication token not found.');
+      }
+
+      // Send edited form data to the API
+      const response = await api.post(
+        `${API_ENDPOINTS.PROCESS.MAP_REPORT}/${sessionId}?template_path=template_with_placeholders.docx`,
+        JSON.stringify(data),
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 120000, // 2 minutes
+        }
+      );
+
+      // Update the document URLs with the regenerated document
+      if (response.data.report_docx_gcs_uri) {
+        dispatch(setDocxUrl(response.data.report_docx_gcs_uri));
+        if (response.data.report_html_gcs_uri) {
+          dispatch(setHtmlUrl(response.data.report_html_gcs_uri));
+        }
+        toast.success('Changes saved successfully! Document regenerated.');
+        dispatch(setEditing(false));
+      } else {
+        throw new Error('Document regeneration completed, but no document URL was returned.');
+      }
+    } catch (err: any) {
+      let message = 'Failed to save changes. Please try again.';
+      if (err.code === 'ECONNABORTED') {
+        message = 'The request timed out. Please try again.';
+      } else {
+        message = err.response?.data?.detail || err.message || message;
+      }
+      toast.error(message);
+      console.error('Save error:', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const tabs = [
@@ -42,8 +95,17 @@ export const EditForm = () => {
       <Tabs tabs={tabs} />
 
       <div className="flex justify-end gap-4 mt-8">
-        <Button variant="outline" onClick={handleCancel}>Cancel</Button>
-        <Button variant="primary" onClick={handleSave}>Save Changes</Button>
+        <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancel</Button>
+        <Button variant="primary" onClick={handleSave} disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            'Save Changes'
+          )}
+        </Button>
       </div>
     </div>
   );

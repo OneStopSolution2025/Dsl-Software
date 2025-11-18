@@ -5,34 +5,25 @@ import { clearFiles } from '@/store/slices/filesSlice';
 
 export const useSessionManager = () => {
   const dispatch = useDispatch();
-  
 
   useEffect(() => {
-
-    // Initialize session if none exists
+    // Initialize or restore session on mount (login or page refresh)
     dispatch(initializeSession());
 
-    // Handle tab close/logout cleanup
-    const handleBeforeUnload = () => {
-      // Clear session when tab is closed
-      dispatch(clearSession());
-      dispatch(clearFiles());
-    };
-
-    const handleUnload = () => {
-      // Additional cleanup if needed
-      dispatch(clearSession());
-      dispatch(clearFiles());
-    };
-
-    // Add event listeners for cleanup
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('unload', handleUnload);
-
-    // Cleanup event listeners on unmount
+    // Note: We DON'T clear session on beforeunload/unload anymore
+    // sessionStorage automatically clears when ALL tabs are closed
+    // This allows the session to persist across page refreshes
+    
+    // Only clear on component unmount (app logout)
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('unload', handleUnload);
+      // Cleanup happens naturally when user logs out via handleLogout in useAuth
     };
   }, [dispatch]);
+
+  return {
+    clearSession: () => {
+      dispatch(clearSession());
+      dispatch(clearFiles());
+    },
+  };
 };

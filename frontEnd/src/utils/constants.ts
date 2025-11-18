@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
   },
   PROCESS: {
     AUTOFILL: '/document/process',
+    MAP_REPORT: '/api/map_report',
   },
   DOWNLOAD: {
     LIST: '/list',

@@ -24,23 +24,33 @@ const sessionSlice = createSlice({
   initialState,
   reducers: {
     initializeSession: (state) => {
-      if (!state.sessionId) {
-        state.sessionId = generateComplexSessionId();
-        state.isInitialized = true;
-
-        // Store in sessionStorage for persistence across page reloads
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('userSessionId', state.sessionId);
-        }
+      // Prevent double initialization
+      if (state.isInitialized && state.sessionId) {
+        console.log('[Session] Already initialized, skipping:', state.sessionId);
+        return;
       }
-    },
-    setSessionId: (state, action: PayloadAction<string>) => {
-      state.sessionId = action.payload;
+
+      // Always create a new session on page load/refresh
+      state.sessionId = generateComplexSessionId();
       state.isInitialized = true;
 
-      // Update sessionStorage
+      // Store in sessionStorage (will be cleared when tab closes)
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('userSessionId', action.payload);
+        sessionStorage.setItem('userSessionId', state.sessionId);
+        console.log('[Session] Created new session:', state.sessionId);
+      }
+    },
+    // This should NOT be used for API responses anymore
+    setSessionId: (state, action: PayloadAction<string>) => {
+      console.warn('[Session] setSessionId called - session should not be changed after initialization');
+      // Only allow if no session exists yet
+      if (!state.sessionId) {
+        state.sessionId = action.payload;
+        state.isInitialized = true;
+
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('userSessionId', action.payload);
+        }
       }
     },
     clearSession: (state) => {
@@ -51,20 +61,12 @@ const sessionSlice = createSlice({
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('userSessionId');
         sessionStorage.removeItem('mapScreenshot');
+        console.log('[Session] Cleared session');
       }
     },
     resetSession: () => {
       // This will be handled by the root reducer
       return initialState;
-    },
-    restoreSessionFromStorage: (state) => {
-      if (typeof window !== 'undefined' && !state.sessionId) {
-        const storedSessionId = sessionStorage.getItem('userSessionId');
-        if (storedSessionId) {
-          state.sessionId = storedSessionId;
-          state.isInitialized = true;
-        }
-      }
     },
   },
 });
@@ -73,7 +75,7 @@ export const {
   initializeSession,
   setSessionId,
   clearSession,
-  restoreSessionFromStorage,
+  resetSession,
 } = sessionSlice.actions;
 
 export default sessionSlice.reducer;

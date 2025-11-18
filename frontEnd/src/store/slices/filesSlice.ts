@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { FileState, ServerFile, UploadedFile, UploadFilesResponse } from '@/types/file.types';
+import { FileState, ServerFile, UploadedFile } from '@/types/file.types';
 
 const initialState: FileState = {
   uploadedFiles: [],
@@ -53,13 +53,6 @@ const filesSlice = createSlice({
       state.serverFileIds = action.payload.serverFileIds;
       state.uploadedFiles = action.payload.uploadedFiles || [];
     },
-    updateSessionFromUpload: (
-      state,
-      action: PayloadAction<UploadFilesResponse>
-    ) => {
-      state.sessionId = action.payload.session_id;
-      state.userName = action.payload.user_name;
-    },
     setDocxUrl: (state, action: PayloadAction<string>) => {
       state.docxUrl = action.payload;
     },
@@ -95,7 +88,6 @@ export const {
   updateFileStatus,
   setUploadError,
   setSessionData,
-  updateSessionFromUpload,
   setDocxUrl,
   setHtmlUrl,
   setFinalDocxUrl,

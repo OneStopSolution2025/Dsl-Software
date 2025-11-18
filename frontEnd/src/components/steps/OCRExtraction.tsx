@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setCanProceed } from '@/store/slices/stepperSlice';
-import { setSessionId } from '@/store/slices/sessionSlice';
 import {
   updateFileStatus,
   setSessionData,
@@ -123,7 +122,7 @@ export const OCRExtraction = () => {
           })
         );
 
-        dispatch(setSessionId(response.data.session_id));
+        // dispatch(setSessionId(response.data.session_id));
       }
 
       // Mark files as success

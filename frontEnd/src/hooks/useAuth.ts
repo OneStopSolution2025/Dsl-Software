@@ -10,6 +10,7 @@ import {
 } from '@/store/slices/authSlice';
 import { resetStepper } from '@/store/slices/stepperSlice';
 import { clearFiles } from '@/store/slices/filesSlice';
+import { clearSession } from '@/store/slices/sessionSlice';
 import { API_ENDPOINTS } from '@/utils/constants';
 import api from '@/utils/axios.config';
 import { User } from '@/types/auth.types';
@@ -55,6 +56,7 @@ export const useAuth = () => {
     // Clear all app state before logging out
     dispatch(resetStepper());
     dispatch(clearFiles());
+    dispatch(clearSession()); // Clear session on logout
 
     dispatch(logout());
     navigate('/login');
