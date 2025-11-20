@@ -8,9 +8,7 @@ import { registerSchema, RegisterFormData } from '@/utils/validation';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { GlassCard } from '@/components/common/GlassCard';
-import api from '@/utils/axios.config';
-import { API_ENDPOINTS } from '@/utils/constants';
-import { RegisterResponse } from '@/types/auth.types';
+import apiService from '@/services/api.service';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
@@ -29,14 +27,7 @@ export const RegisterForm = () => {
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
     try {
-      await api.post<RegisterResponse>(
-        API_ENDPOINTS.AUTH.REGISTER,
-        {
-          username: data.username,
-          email: data.email,
-          password: data.password,
-        }
-      );
+      await apiService.auth.register(data.username, data.email, data.password);
 
       toast.success('Registration successful! Please login.');
       navigate('/login');

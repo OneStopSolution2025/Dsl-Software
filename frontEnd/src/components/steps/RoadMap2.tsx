@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useState, useCallback, useRef, forwardRef, useImperativeHandle, useEffect, createRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { APIProvider, Map, useMapsLibrary } from '@vis.gl/react-google-maps';
 import IconPalette from '../../components/map/IconPalette';
@@ -18,7 +18,7 @@ import { getIconByType, isIconColorChangeable } from '../../components/map/enhan
 import { setCanProceed } from '@/store/slices/stepperSlice';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
-import { Search, MapPin, Navigation, X } from 'lucide-react';
+import { Search, MapPin, Navigation, X, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyCi1g0u1_0qSZ09q8bkkb-7J5cBhi7iK9s';
@@ -177,6 +177,13 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
   const { sessionId } = useSelector((state: RootState) => state.files);
   const { handleFilesAdded } = useFileUpload();
   const mapConRef = useRef<HTMLDivElement | null>(null);
+  const markerRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
+  const [isDragging, setIsDragging] = useState(false);
+  const [boxDimensions, setBoxDimensions] = useState<{left: number; top: number; width: number; height: number; rotation: number} | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeStartPos, setResizeStartPos] = useState<{x: number; y: number; initialScale: number; handle: string} | null>(null);
+  const [isRotating, setIsRotating] = useState(false);
+  const [rotateStartPos, setRotateStartPos] = useState<{x: number; y: number; initialRotation: number} | null>(null);
 
   // Lat/Lng search state
   const [latitude, setLatitude] = useState<string>('');
@@ -188,6 +195,71 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
   useEffect(() => {
     dispatch(setCanProceed(markers.length > 0))
   }, [dispatch, markers])
+
+  // Initialize refs for each marker
+  useEffect(() => {
+    markers.forEach((marker) => {
+      if (!markerRefs.current[marker.id]) {
+        markerRefs.current[marker.id] = createRef<HTMLDivElement>();
+      }
+    });
+
+    // Clean up refs for removed markers
+    Object.keys(markerRefs.current).forEach((markerId) => {
+      if (!markers.find((m) => m.id === markerId)) {
+        delete markerRefs.current[markerId];
+      }
+    });
+  }, [markers]);
+
+  // Update box dimensions when selected marker or its transforms change
+  useEffect(() => {
+    if (!selectedMarkerId || (isDragging && !isResizing && !isRotating)) {
+      setBoxDimensions(null);
+      return;
+    }
+
+    const updateBoxDimensions = () => {
+      const markerElement = markerRefs.current[selectedMarkerId]?.current;
+      const mapElement = mapConRef.current;
+      const marker = markers.find(m => m.id === selectedMarkerId);
+      
+      if (!markerElement || !mapElement || !marker) {
+        setBoxDimensions(null);
+        return;
+      }
+
+      const rect = markerElement.getBoundingClientRect();
+      const mapRect = mapElement.getBoundingClientRect();
+      
+      // Base icon size is 36px + padding (16px each side = 32px)
+      const baseSize = 36 + 32;
+      
+      // Calculate actual dimensions with scale applied
+      const scaledWidth = baseSize * marker.scale;
+      const scaledHeight = baseSize * marker.scale;
+      
+      // Calculate center position
+      const centerX = rect.left - mapRect.left + (rect.width / 2);
+      const centerY = rect.top - mapRect.top + (rect.height / 2);
+      
+      setBoxDimensions({
+        left: centerX - (scaledWidth / 2),
+        top: centerY - (scaledHeight / 2),
+        width: scaledWidth,
+        height: scaledHeight,
+        rotation: marker.rotation,
+      });
+    };
+
+    // Update immediately
+    updateBoxDimensions();
+
+    // Update on animation frame for smooth updates during transforms
+    const animationFrame = requestAnimationFrame(updateBoxDimensions);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [selectedMarkerId, markers, isDragging]);
 
   // Validate latitude (-90 to 90)
   const validateLatitude = (value: string): boolean => {
@@ -377,7 +449,8 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
       dispatch(addMarker(newMarker));
       setDraggingIconType(null);
-    } else {
+    } else if (!isResizing && !isRotating) {
+      // Only deselect if not currently resizing or rotating
       setSelectedMarkerId(undefined);
       setTransformControlPos(null);
     }
@@ -430,6 +503,188 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
       updateMarkerAction(selectedMarkerId, { scale: marker.scale - 0.2 });
     }
   };
+
+  // Handle resize corner drag
+  const handleResizeStart = (e: React.MouseEvent, handle: string) => {
+    e.stopPropagation();
+    if (!selectedMarkerId) return;
+    
+    const marker = markers.find((m) => m.id === selectedMarkerId);
+    if (!marker) return;
+
+    setIsResizing(true);
+    setResizeStartPos({
+      x: e.clientX,
+      y: e.clientY,
+      initialScale: marker.scale,
+      handle: handle,
+    });
+  };
+
+  const handleResizeMove = useCallback((e: MouseEvent) => {
+    if (!isResizing || !resizeStartPos || !selectedMarkerId || !boxDimensions) return;
+
+    const marker = markers.find((m) => m.id === selectedMarkerId);
+    if (!marker) return;
+
+    const handle = resizeStartPos.handle;
+    const deltaX = e.clientX - resizeStartPos.x;
+    const deltaY = e.clientY - resizeStartPos.y;
+    
+    // Calculate center of the box
+    const centerX = boxDimensions.left + boxDimensions.width / 2;
+    const centerY = boxDimensions.top + boxDimensions.height / 2;
+    
+    // Get map container for relative positioning
+    const mapElement = mapConRef.current;
+    if (!mapElement) return;
+    const mapRect = mapElement.getBoundingClientRect();
+    
+    // Current mouse position relative to map
+    const currentMouseX = e.clientX - mapRect.left;
+    const currentMouseY = e.clientY - mapRect.top;
+    
+    // Vector from center to current mouse position
+    const vectorX = currentMouseX - centerX;
+    const vectorY = currentMouseY - centerY;
+    
+    let scaleDelta = 0;
+    
+    // Handle edge scaling (X or Y direction only)
+    if (handle === 'top' || handle === 'bottom' || handle === 'left' || handle === 'right') {
+      // For edge handles, calculate movement perpendicular to the edge
+      let movement = 0;
+      
+      if (handle === 'top') {
+        // Top edge: negative Y means outward (scale up)
+        movement = -deltaY;
+      } else if (handle === 'bottom') {
+        // Bottom edge: positive Y means outward (scale up)
+        movement = deltaY;
+      } else if (handle === 'left') {
+        // Left edge: negative X means outward (scale up)
+        movement = -deltaX;
+      } else if (handle === 'right') {
+        // Right edge: positive X means outward (scale up)
+        movement = deltaX;
+      }
+      
+      // Scale factor: 50px movement = 0.5 scale change
+      scaleDelta = (movement / 50) * 0.5;
+    } else {
+      // Corner handles: proportional scaling based on distance from center
+      const initialDistance = Math.sqrt(
+        Math.pow(resizeStartPos.x - mapRect.left - centerX, 2) +
+        Math.pow(resizeStartPos.y - mapRect.top - centerY, 2)
+      );
+      const currentDistance = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+      
+      // Calculate scale based on distance ratio
+      scaleDelta = ((currentDistance - initialDistance) / 100) * 0.5;
+    }
+    
+    const newScale = Math.max(0.4, Math.min(3, resizeStartPos.initialScale + scaleDelta));
+    updateMarkerAction(selectedMarkerId, { scale: newScale });
+  }, [isResizing, resizeStartPos, selectedMarkerId, markers, boxDimensions]);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+    setResizeStartPos(null);
+  }, []);
+
+  // Add mouse event listeners for resizing
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
+      };
+    }
+  }, [isResizing, handleResizeMove, handleResizeEnd]);
+
+  // Handle rotation
+  const handleRotateStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!selectedMarkerId || !boxDimensions) return;
+    
+    const marker = markers.find((m) => m.id === selectedMarkerId);
+    if (!marker) return;
+
+    setIsRotating(true);
+    setRotateStartPos({
+      x: e.clientX,
+      y: e.clientY,
+      initialRotation: marker.rotation,
+    });
+  };
+
+  const handleRotateMove = useCallback((e: MouseEvent) => {
+    if (!isRotating || !rotateStartPos || !selectedMarkerId || !boxDimensions) return;
+
+    const marker = markers.find((m) => m.id === selectedMarkerId);
+    if (!marker) return;
+
+    // Get map container for relative positioning
+    const mapElement = mapConRef.current;
+    if (!mapElement) return;
+    const mapRect = mapElement.getBoundingClientRect();
+
+    // Calculate center of the box
+    const centerX = boxDimensions.left + boxDimensions.width / 2;
+    const centerY = boxDimensions.top + boxDimensions.height / 2;
+
+    // Current mouse position relative to map
+    const currentMouseX = e.clientX - mapRect.left;
+    const currentMouseY = e.clientY - mapRect.top;
+
+    // Calculate current angle from center to mouse position
+    const currentAngle = Math.atan2(
+      currentMouseY - centerY,
+      currentMouseX - centerX
+    ) * (180 / Math.PI);
+
+    // Calculate initial angle from center to start position
+    const startMouseX = rotateStartPos.x - mapRect.left;
+    const startMouseY = rotateStartPos.y - mapRect.top;
+    const startAngle = Math.atan2(
+      startMouseY - centerY,
+      startMouseX - centerX
+    ) * (180 / Math.PI);
+
+    // Calculate the rotation delta (how much the mouse has rotated)
+    let angleDelta = currentAngle - startAngle;
+    
+    // Handle wraparound at 180/-180 boundary
+    if (angleDelta > 180) angleDelta -= 360;
+    if (angleDelta < -180) angleDelta += 360;
+
+    // Apply delta to initial rotation to maintain continuity
+    let newRotation = rotateStartPos.initialRotation + angleDelta;
+    
+    // Normalize to 0-360 range without losing precision
+    newRotation = ((newRotation % 360) + 360) % 360;
+
+    updateMarkerAction(selectedMarkerId, { rotation: newRotation });
+  }, [isRotating, rotateStartPos, selectedMarkerId, markers, boxDimensions]);
+
+  const handleRotateEnd = useCallback(() => {
+    setIsRotating(false);
+    setRotateStartPos(null);
+  }, []);
+
+  // Add mouse event listeners for rotation
+  useEffect(() => {
+    if (isRotating) {
+      document.addEventListener('mousemove', handleRotateMove);
+      document.addEventListener('mouseup', handleRotateEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleRotateMove);
+        document.removeEventListener('mouseup', handleRotateEnd);
+      };
+    }
+  }, [isRotating, handleRotateMove, handleRotateEnd]);
 
   const handleFlipHorizontal = () => {
     if (!selectedMarkerId) return;
@@ -719,15 +974,194 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                 
               >
                 <MapContainer onMapReady={handleMapReady} />
-                {markers.map((marker) => (
-                  <CustomMarker
-                    key={marker.id}
-                    marker={marker}
-                    isSelected={marker.id === selectedMarkerId}
-                    onClick={(e: any) => handleMarkerClick(marker.id, e)}
-                    onDragEnd={(lat, lng) => handleMarkerDragEnd(marker.id, lat, lng)}
-                  />
-                ))}
+                {markers.map((marker) => {
+                  if (!markerRefs.current[marker.id]) {
+                    markerRefs.current[marker.id] = createRef<HTMLDivElement>();
+                  }
+                  return (
+                    <CustomMarker
+                      key={marker.id}
+                      ref={markerRefs.current[marker.id]}
+                      marker={marker}
+                      isSelected={marker.id === selectedMarkerId}
+                      onClick={(e: any) => handleMarkerClick(marker.id, e)}
+                      onDragStart={() => setIsDragging(true)}
+                      onDragEnd={(lat, lng) => {
+                        setIsDragging(false);
+                        handleMarkerDragEnd(marker.id, lat, lng);
+                      }}
+                    />
+                  );
+                })}
+
+                {/* Rectangular box around selected marker */}
+                {!isDragging && boxDimensions && (
+                  <>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `${boxDimensions.left}px`,
+                        top: `${boxDimensions.top}px`,
+                        width: `${boxDimensions.width}px`,
+                        height: `${boxDimensions.height}px`,
+                        border: '2px dashed red',
+                        borderRadius: '4px',
+                        pointerEvents: 'none',
+                        zIndex: 1000,
+                        boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.2)',
+                        transition: 'all 0.1s ease',
+                        transform: `rotate(${boxDimensions.rotation}deg)`,
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                    
+                    {/* Resize handles at corners */}
+                    {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => {
+                      const isTopLeft = corner === 'top-left';
+                      const isTopRight = corner === 'top-right';
+                      const isBottomLeft = corner === 'bottom-left';
+                      const isBottomRight = corner === 'bottom-right';
+                      
+                      // Calculate corner positions considering rotation
+                      const centerX = boxDimensions.left + boxDimensions.width / 2;
+                      const centerY = boxDimensions.top + boxDimensions.height / 2;
+                      const halfWidth = boxDimensions.width / 2;
+                      const halfHeight = boxDimensions.height / 2;
+                      const angle = (boxDimensions.rotation * Math.PI) / 180;
+                      
+                      let offsetX = isTopLeft || isBottomLeft ? -halfWidth : halfWidth;
+                      let offsetY = isTopLeft || isTopRight ? -halfHeight : halfHeight;
+                      
+                      const rotatedX = offsetX * Math.cos(angle) - offsetY * Math.sin(angle);
+                      const rotatedY = offsetX * Math.sin(angle) + offsetY * Math.cos(angle);
+                      
+                      // Determine cursor based on corner
+                      const cursor = (isTopLeft || isBottomRight) ? 'nwse-resize' : 'nesw-resize';
+                      
+                      return (
+                        <div
+                          key={corner}
+                          onMouseDown={(e) => handleResizeStart(e, corner)}
+                          style={{
+                            position: 'absolute',
+                            left: `${centerX + rotatedX - 6}px`,
+                            top: `${centerY + rotatedY - 6}px`,
+                            width: '12px',
+                            height: '12px',
+                            backgroundColor: '#3B82F6',
+                            border: '2px solid white',
+                            borderRadius: '50%',
+                            cursor: cursor,
+                            zIndex: 1001,
+                            pointerEvents: 'auto',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          }}
+                        />
+                      );
+                    })}
+                    
+                    {/* Edge handles for X and Y direction scaling */}
+                    {['top', 'right', 'bottom', 'left'].map((edge) => {
+                      const centerX = boxDimensions.left + boxDimensions.width / 2;
+                      const centerY = boxDimensions.top + boxDimensions.height / 2;
+                      const halfWidth = boxDimensions.width / 2;
+                      const halfHeight = boxDimensions.height / 2;
+                      const angle = (boxDimensions.rotation * Math.PI) / 180;
+                      
+                      let offsetX = 0;
+                      let offsetY = 0;
+                      let cursor = 'ns-resize';
+                      
+                      if (edge === 'top') {
+                        offsetY = -halfHeight;
+                        cursor = 'ns-resize';
+                      } else if (edge === 'bottom') {
+                        offsetY = halfHeight;
+                        cursor = 'ns-resize';
+                      } else if (edge === 'left') {
+                        offsetX = -halfWidth;
+                        cursor = 'ew-resize';
+                      } else if (edge === 'right') {
+                        offsetX = halfWidth;
+                        cursor = 'ew-resize';
+                      }
+                      
+                      const rotatedX = offsetX * Math.cos(angle) - offsetY * Math.sin(angle);
+                      const rotatedY = offsetX * Math.sin(angle) + offsetY * Math.cos(angle);
+                      
+                      return (
+                        <div
+                          key={edge}
+                          onMouseDown={(e) => handleResizeStart(e, edge)}
+                          style={{
+                            position: 'absolute',
+                            left: `${centerX + rotatedX - 6}px`,
+                            top: `${centerY + rotatedY - 6}px`,
+                            width: '12px',
+                            height: '12px',
+                            backgroundColor: '#10B981',
+                            border: '2px solid white',
+                            borderRadius: '2px',
+                            cursor: cursor,
+                            zIndex: 1001,
+                            pointerEvents: 'auto',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          }}
+                        />
+                      );
+                    })}
+
+                    {/* Rotation handle - line and circle at top middle */}
+                    {(() => {
+                      const centerX = boxDimensions.left + boxDimensions.width / 2;
+                      const centerY = boxDimensions.top + boxDimensions.height / 2;
+                      const halfHeight = boxDimensions.height / 2;
+                      const angle = (boxDimensions.rotation * Math.PI) / 180;
+                      
+                      // Position 30px above the top edge
+                      const lineLength = 30;
+                      const offsetX = 0;
+                      const offsetY = -halfHeight - lineLength;
+                      
+                      const rotatedX = offsetX * Math.cos(angle) - offsetY * Math.sin(angle);
+                      const rotatedY = offsetX * Math.sin(angle) + offsetY * Math.cos(angle);
+                      
+                      // Line start position (top edge)
+                      const lineStartOffsetY = -halfHeight;
+                      const lineStartRotatedX = 0 * Math.cos(angle) - lineStartOffsetY * Math.sin(angle);
+                      const lineStartRotatedY = 0 * Math.sin(angle) + lineStartOffsetY * Math.cos(angle);
+                      
+                      return (
+                        <>
+
+                          {/* Rotation handle circle */}
+                          <div
+                            onMouseDown={handleRotateStart}
+                            style={{
+                              position: 'absolute',
+                              left: `${centerX + rotatedX - 8}px`,
+                              top: `${centerY + rotatedY - 8}px`,
+                              width: '16px',
+                              height: '16px',
+                              backgroundColor: '#6366F1',
+                              border: '2px solid white',
+                              borderRadius: '50%',
+                              cursor: 'grab',
+                              zIndex: 1002,
+                              pointerEvents: 'auto',
+                              boxShadow: '0 2px 6px rgba(99, 102, 241, 0.4)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <RefreshCw className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </>
+                )}
               </Map>
 
               {transformControlPos && selectedMarkerId && (

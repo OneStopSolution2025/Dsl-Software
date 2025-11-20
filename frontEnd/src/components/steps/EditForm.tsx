@@ -12,8 +12,7 @@ import { ParticipantForm } from './forms/ParticipantForm';
 import { ThirdPartyForm } from './forms/ThirdPartyForm';
 import { AccidentSiteForm } from './forms/AccidentSiteForm';
 import { WitnessForm } from './forms/WitnessForm';
-import { API_ENDPOINTS } from '@/utils/constants';
-import api from '@/utils/axios.config';
+import apiService from '@/services/api.service';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -36,29 +35,18 @@ export const EditForm = () => {
     try {
       setIsSaving(true);
 
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        throw new Error('Authentication token not found.');
-      }
-
       // Send edited form data to the API
-      const response = await api.post(
-        `${API_ENDPOINTS.PROCESS.MAP_REPORT}/${sessionId}?template_path=template_with_placeholders.docx`,
-        JSON.stringify(data),
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 120000, // 2 minutes
-        }
+      const response = await apiService.document.saveEditedForm(
+        sessionId,
+        data,
+        'template_with_placeholders.docx'
       );
 
       // Update the document URLs with the regenerated document
-      if (response.data.report_docx_gcs_uri) {
-        dispatch(setDocxUrl(response.data.report_docx_gcs_uri));
-        if (response.data.report_html_gcs_uri) {
-          dispatch(setHtmlUrl(response.data.report_html_gcs_uri));
+      if (response.report_docx_gcs_uri) {
+        dispatch(setDocxUrl(response.report_docx_gcs_uri));
+        if (response.report_html_gcs_uri) {
+          dispatch(setHtmlUrl(response.report_html_gcs_uri));
         }
         toast.success('Changes saved successfully! Document regenerated.');
         dispatch(setEditing(false));

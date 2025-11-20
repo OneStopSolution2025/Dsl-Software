@@ -1,6 +1,6 @@
 import { useDropzone } from "react-dropzone";
 import { Accordion } from "./Accordion";
-import { API_ENDPOINTS, BATCH_UPLOAD_SIZE, FILE_TYPE_EXTENSIONS } from "@/utils/constants";
+import { BATCH_UPLOAD_SIZE, FILE_TYPE_EXTENSIONS } from "@/utils/constants";
 import clsx from "clsx";
 import { AlertCircle, CheckCircle, FileText, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -12,7 +12,7 @@ import { Button } from "./Button";
 import { setIsUploading, setSessionData, setUploadErrorMessage, updateFileStatus } from "@/store/slices/filesSlice";
 import toast from "react-hot-toast";
 import { setCurrentStep } from "@/store/slices/stepperSlice";
-import api from "@/utils/axios.config";
+import apiService from "@/services/api.service";
 import { ServerFile } from "@/types/file.types";
 
 export const UploadMore = () => {
@@ -72,37 +72,27 @@ const UploadContainer = () => {
     };
 
     const uploadBatch = async (batch: typeof uploadedFiles) => {
-        const formData = new FormData();
-        batch.forEach((file) => {
-            formData.append('files', file.file);
-            dispatch(updateFileStatus({ id: file.id, status: 'uploading', progress: 0 }));
-        });
+        if (!sessionId) {
+            throw new Error('Session ID is required');
+        }
 
-        formData.append('session_id', sessionId || '')
-
-        // Get token from localStorage for Authorization header
-        const token = localStorage.getItem('auth_token');
-
+        const files = batch.map(f => f.file);
+        
         try {
-            const response = await api.post(API_ENDPOINTS.FILES.UPLOAD, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`,
-                },
-                onUploadProgress: (progressEvent) => {
-                    const progress = progressEvent.total
-                        ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                        : 0;
+            const response = await apiService.file.uploadFiles(
+                files,
+                sessionId,
+                (progress) => {
                     batch.forEach((file) => {
                         dispatch(updateFileStatus({ id: file.id, status: 'uploading', progress }));
                     });
-                },
-            });
+                }
+            );
 
             // Update session data from the response
-            if (response.data.session_id) {
+            if (response.session_id) {
                 const resFiles: ServerFile[] = [];
-                response.data.uploaded_files.forEach((file: any) => {
+                response.uploaded_files.forEach((file: any) => {
                     let upldFile = uploadedFiles.find((f) => f.name === file.filename);
                     if (upldFile) {
                         resFiles.push({
@@ -124,7 +114,7 @@ const UploadContainer = () => {
                 dispatch(
                     setSessionData({
                         sessionId: sessionId || '',
-                        userName: response.data.user_name || '',
+                        userName: response.user_name || '',
                         serverFileIds: updatedServerFiles,
                         uploadedFiles: []
                     })

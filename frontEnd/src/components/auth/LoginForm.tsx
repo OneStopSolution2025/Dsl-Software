@@ -9,8 +9,7 @@ import { loginSchema, LoginFormData } from '@/utils/validation';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { GlassCard } from '@/components/common/GlassCard';
-import api from '@/utils/axios.config';
-import { API_ENDPOINTS } from '@/utils/constants';
+import apiService from '@/services/api.service';
 import { LoginResponse } from '@/types/auth.types';
 import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice';
 import { resetStepper } from '@/store/slices/stepperSlice';
@@ -35,30 +34,13 @@ export const LoginForm = () => {
     dispatch(loginStart());
 
     try {
-      // Create URLSearchParams for form-urlencoded data
-      const formData = new URLSearchParams();
-      formData.append('grant_type', 'password');
-      formData.append('username', data.username);
-      formData.append('password', data.password);
-      formData.append('scope', '');
-      formData.append('client_id', 'string');
-      formData.append('client_secret', '********');
-
-      const response = await api.post<LoginResponse>(
-        API_ENDPOINTS.AUTH.LOGIN,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
-      );
+      const response = await apiService.auth.login(data.username, data.password);
 
       // Extract token from OAuth2 response (access_token) or fallback to token field
-      const token = response.data.access_token || response.data.token || '';
+      const token = response.access_token || response.token || '';
 
       // Create user object from response or use username from form
-      const user = response.data.user || {
+      const user = response.user || {
         id: data.username,
         username: data.username,
         email: '', // Email not provided in OAuth2 token response

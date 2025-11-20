@@ -11,8 +11,7 @@ import {
 import { resetStepper } from '@/store/slices/stepperSlice';
 import { clearFiles } from '@/store/slices/filesSlice';
 import { clearSession } from '@/store/slices/sessionSlice';
-import { API_ENDPOINTS } from '@/utils/constants';
-import api from '@/utils/axios.config';
+import apiService from '@/services/api.service';
 import { User } from '@/types/auth.types';
 
 export const useAuth = () => {
@@ -29,21 +28,7 @@ export const useAuth = () => {
     dispatch(fetchUserProfileStart());
 
     try {
-      const response = await api.get<{ username: string; email: string }>(
-        API_ENDPOINTS.USER.ME,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const userData: User = {
-        id: response.data.username, // Using username as ID since backend might not provide ID
-        username: response.data.username,
-        email: response.data.email,
-      };
-
+      const userData = await apiService.auth.getUserProfile();
       dispatch(fetchUserProfileSuccess(userData));
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to fetch user profile';

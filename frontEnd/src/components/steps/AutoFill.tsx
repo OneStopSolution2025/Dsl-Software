@@ -4,8 +4,7 @@ import { RootState } from '@/store';
 import { setDocxUrl, setHtmlUrl } from '@/store/slices/filesSlice';
 import { setFormData } from '@/store/slices/formSlice';
 import { nextStep } from '@/store/slices/stepperSlice';
-import { API_ENDPOINTS } from '@/utils/constants';
-import api from '@/utils/axios.config';
+import apiService from '@/services/api.service';
 import { Loader2, AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/common/Button';
@@ -27,33 +26,22 @@ export const AutoFill = () => {
       setProcessing(true);
       setError(null);
 
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        throw new Error('Authentication token not found.');
+      if (!sessionId) {
+        throw new Error('Session ID is required');
       }
 
-      const templateResponse = await api.get('/template/dropdown', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const templateList = await apiService.document.getTemplateList();
+      const templateFilename = templateList?.[0] || 'template_with_placeholders.docx';
 
-      const templateFilename = templateResponse.data?.[0] || 'template_with_placeholders.docx';
+      const response = await apiService.document.processDocuments(sessionId, templateFilename);
 
-      const response = await api.get(
-        `${API_ENDPOINTS.PROCESS.AUTOFILL}/${sessionId}`,
-        {
-          params: { template_filename: templateFilename },
-          headers: { 'Authorization': `Bearer ${token}` },
-          timeout: 180000, // 3 minutes
+      if (response.report_docx_gcs_uri) {
+        dispatch(setDocxUrl(response.report_docx_gcs_uri));
+        if (response.report_html_gcs_uri) {
+          dispatch(setHtmlUrl(response.report_html_gcs_uri));
         }
-      );
-
-      if (response.data.report_docx_gcs_uri) {
-        dispatch(setDocxUrl(response.data.report_docx_gcs_uri));
-        if (response.data.report_html_gcs_uri) {
-          dispatch(setHtmlUrl(response.data.report_html_gcs_uri));
-        }
-        if (response.data.out_json) {
-            dispatch(setFormData(response.data.out_json));
+        if (response.out_json) {
+            dispatch(setFormData(response.out_json));
         }
         toast.success('Document processed successfully!');
       } else {
