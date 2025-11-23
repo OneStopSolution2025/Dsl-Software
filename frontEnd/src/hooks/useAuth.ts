@@ -12,7 +12,6 @@ import { resetStepper } from '@/store/slices/stepperSlice';
 import { clearFiles } from '@/store/slices/filesSlice';
 import { clearSession } from '@/store/slices/sessionSlice';
 import apiService from '@/services/api.service';
-import { User } from '@/types/auth.types';
 
 export const useAuth = () => {
   const dispatch = useDispatch();

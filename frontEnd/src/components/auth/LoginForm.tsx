@@ -10,7 +10,6 @@ import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { GlassCard } from '@/components/common/GlassCard';
 import apiService from '@/services/api.service';
-import { LoginResponse } from '@/types/auth.types';
 import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice';
 import { resetStepper } from '@/store/slices/stepperSlice';
 import { clearFiles } from '@/store/slices/filesSlice';

@@ -1242,11 +1242,6 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                       const rotatedX = offsetX * Math.cos(angle) - offsetY * Math.sin(angle);
                       const rotatedY = offsetX * Math.sin(angle) + offsetY * Math.cos(angle);
                       
-                      // Line start position (top edge)
-                      const lineStartOffsetY = -halfHeight;
-                      const lineStartRotatedX = 0 * Math.cos(angle) - lineStartOffsetY * Math.sin(angle);
-                      const lineStartRotatedY = 0 * Math.sin(angle) + lineStartOffsetY * Math.cos(angle);
-                      
                       return (
                         <>
 

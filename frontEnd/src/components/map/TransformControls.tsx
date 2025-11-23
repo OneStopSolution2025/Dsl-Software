@@ -66,7 +66,6 @@ export default function TransformControls({
   onFontWeightChange,
   onCalloutStyleChange,
   onBackgroundColorChange,
-  onEditText,
 }: TransformControlsProps) {
   const [showColorPickerDropdown, setShowColorPickerDropdown] = useState(false);
   const [showBgColorPickerDropdown, setShowBgColorPickerDropdown] = useState(false);
