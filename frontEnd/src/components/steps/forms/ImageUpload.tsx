@@ -5,6 +5,7 @@ import { validateImageFile } from "@/utils/fileValidation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { updateImage, removeImage } from "@/store/slices/formSlice";
+import { Upload, X, AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 
 const ImageUpload: React.FC = () => {
     const dispatch = useDispatch();
@@ -12,7 +13,6 @@ const ImageUpload: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [fieldErrors, setFieldErrors] = useState<{ [fieldKey: string]: string }>({});
 
-    const [selectedCategory, setSelectedCategory] = useState<string>("");
     // key = ORIGINAL FIELD KEY from API (e.g. INSURED_NRIC_BACK)
     const [categoryFiles, setCategoryFiles] = useState<{
         [fieldKey: string]: { file: File | null; base64: string };
@@ -40,7 +40,6 @@ const ImageUpload: React.FC = () => {
                 setCategories(cats);
 
                 const firstCat = Object.keys(cats)[0] || "";
-                setSelectedCategory(firstCat);
 
                 // init file state for ALL original fields
                 const filesObj: { [fieldKey: string]: { file: File | null; base64: string } } = {};
@@ -74,7 +73,6 @@ const ImageUpload: React.FC = () => {
             ...prev,
             [cat]: !prev[cat],
         }));
-        setSelectedCategory(cat);
     };
 
     const handleFileChange = (fieldKey: string, file: File | null) => {
@@ -128,26 +126,33 @@ const ImageUpload: React.FC = () => {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto font-sans">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900">Upload Missing Images</h2>
-            <p className="text-sm text-gray-600 mb-4">
-                Upload images for each field. Click "Save Changes" at the bottom to save all your edits including images.
-            </p>
+        <div className="w-full space-y-6">
+            <div>
+                <h3 className="text-xl font-semibold text-neutral-900 mb-2">Upload Missing Images</h3>
+                <p className="text-sm text-neutral-600">
+                    Upload images for each required field. Click "Save Changes" at the bottom to save all your edits including images.
+                </p>
+            </div>
 
             {loading && (
-                <div className="mb-4">
-                    <span className="text-blue-600 font-medium">Loading...</span>
+                <div className="flex items-center gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-500"></div>
+                    <span className="text-sm font-medium text-blue-700">Loading image fields...</span>
                 </div>
             )}
 
             {error && (
-                <div className="mb-4 p-3 rounded bg-red-100 text-red-700 border border-red-400">
-                    {error}
+                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <h4 className="text-sm font-semibold text-red-800 mb-1">Error Loading Fields</h4>
+                        <p className="text-sm text-red-700">{error}</p>
+                    </div>
                 </div>
             )}
 
             {/* ACCORDION FOR EACH CATEGORY */}
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {Object.keys(categories).map((cat) => {
                     const isOpen = expandedCategories[cat];
                     const displayFields = categories[cat] || [];
@@ -157,32 +162,56 @@ const ImageUpload: React.FC = () => {
                         return key && fieldErrors[key];
                     });
 
+                    const uploadedCount = displayFields.filter((displayField) => {
+                        const key = getFieldKey(cat, displayField, allFields);
+                        return key && categoryFiles[key]?.base64;
+                    }).length;
+
                     return (
-                        <div key={cat} className="border rounded-lg bg-white shadow-sm">
+                        <div key={cat} className="border border-neutral-200 rounded-lg bg-white overflow-hidden">
                             {/* Header */}
                             <button
                                 type="button"
                                 onClick={() => toggleCategory(cat)}
-                                className="w-full flex items-center justify-between px-4 py-3 text-left"
+                                className="w-full flex items-center justify-between px-4 py-3 hover:bg-neutral-50 transition-colors"
                             >
-                                <span className="font-semibold text-gray-900">{cat}</span>
-                                <span className="text-sm text-gray-500">{isOpen ? "▲" : "▼"}</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-base font-semibold text-neutral-900">{cat}</span>
+                                    <span className="text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded-full">
+                                        {uploadedCount}/{displayFields.length}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {uploadedCount === displayFields.length && displayFields.length > 0 && (
+                                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                    )}
+                                    {categoryHasErrors && (
+                                        <AlertCircle className="h-5 w-5 text-red-500" />
+                                    )}
+                                    {expandedCategories[cat] ? (
+                                        <ChevronUp className="h-5 w-5 text-neutral-500" />
+                                    ) : (
+                                        <ChevronDown className="h-5 w-5 text-neutral-500" />
+                                    )}
+                                </div>
                             </button>
 
                             {isOpen && (
-                                <div className="px-4 pb-4 pt-1">
+                                <div className="px-4 pb-4 pt-2 bg-neutral-50/50">
                                     {/* category-level error list */}
                                     {categoryHasErrors && (
-                                        <div className="mb-3 p-3 rounded-lg border border-red-300 bg-red-50">
-                                            <div className="font-semibold text-red-700 mb-1">Validation Errors</div>
-                                            <ul className="list-disc pl-4 text-sm text-red-700">
+                                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <AlertCircle className="h-4 w-4 text-red-600" />
+                                                <span className="text-sm font-semibold text-red-800">Validation Errors</span>
+                                            </div>
+                                            <ul className="space-y-1 ml-6">
                                                 {displayFields.map((displayField) => {
                                                     const key = getFieldKey(cat, displayField, allFields);
                                                     if (!key || !fieldErrors[key]) return null;
                                                     return (
-                                                        <li key={key}>
-                                                            <span className="font-medium">{displayField}:</span>{" "}
-                                                            {fieldErrors[key]}
+                                                        <li key={key} className="text-sm text-red-700">
+                                                            <span className="font-medium">{displayField}:</span> {fieldErrors[key]}
                                                         </li>
                                                     );
                                                 })}
@@ -190,47 +219,32 @@ const ImageUpload: React.FC = () => {
                                         </div>
                                     )}
 
-                                    {/* smaller drop boxes */}
-                                    <div className="flex gap-4 flex-row flex-wrap">
+                                    {/* Upload boxes grid */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                         {displayFields.map((displayField) => {
                                             const fieldKey = getFieldKey(cat, displayField, allFields);
                                             if (!fieldKey) return null;
 
                                             const fileState = categoryFiles[fieldKey];
+                                            const hasError = fieldErrors[fieldKey];
 
                                             return (
                                                 <div
                                                     key={fieldKey}
-                                                    className="bg-white rounded-xl shadow-sm flex flex-col gap-2 border border-gray-200 w-44 min-h-[140px] justify-between"
+                                                    className="group relative bg-white rounded-lg border border-neutral-200 overflow-hidden hover:border-primary-300 transition-colors"
                                                 >
-                                                    <div className="font-semibold text-gray-800 text-[11px] uppercase tracking-wide px-3 pt-3 line-clamp-2">
-                                                        {displayField}
+                                                    {/* Field label */}
+                                                    <div className="px-3 py-2 bg-neutral-100 border-b border-neutral-200">
+                                                        <p className="text-xs font-semibold text-neutral-700 line-clamp-1" title={displayField}>
+                                                            {displayField}
+                                                        </p>
                                                     </div>
 
-                                                    <label className="w-full cursor-pointer flex-1 flex flex-col justify-center px-3 pb-3">
-                                                        <div
-                                                            className={`w-full h-20 flex items-center justify-center border-2 border-dashed rounded-lg text-center text-xs transition-colors duration-150 focus-within:ring-2 focus-within:ring-blue-400 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 ${fileState?.file
-                                                                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                                                                    : "border-gray-300 bg-white text-gray-500"
-                                                                }`}
-                                                        >
-                                                            {fileState?.file?.name ? (
-                                                                <span className="px-1 truncate">
-                                                                    {fileState.file.name}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="flex flex-col items-center justify-center">
-                                                                    <span className="text-2xl mb-0.5">☁️</span>
-                                                                    <span>
-                                                                        Drag &amp; drop or{" "}
-                                                                        <span className="text-blue-600 underline">browse</span>
-                                                                    </span>
-                                                                </span>
-                                                            )}
-                                                        </div>
+                                                    {/* Upload area */}
+                                                    <label className="block cursor-pointer">
                                                         <input
                                                             type="file"
-                                                            accept="image/*"
+                                                            accept="image/svg+xml,image/png,image/jpeg"
                                                             className="hidden"
                                                             onChange={(e) =>
                                                                 handleFileChange(
@@ -239,15 +253,47 @@ const ImageUpload: React.FC = () => {
                                                                 )
                                                             }
                                                         />
+                                                        
+                                                        {!fileState?.base64 ? (
+                                                            <div className={`h-32 flex flex-col items-center justify-center border-2 border-dashed rounded-b-lg transition-all ${
+                                                                hasError 
+                                                                    ? 'border-red-300 bg-red-50 hover:bg-red-100' 
+                                                                    : 'border-neutral-300 hover:border-primary-400 hover:bg-primary-50'
+                                                            }`}>
+                                                                <Upload className={`h-8 w-8 mb-2 ${hasError ? 'text-red-400' : 'text-neutral-400 group-hover:text-primary-500'}`} />
+                                                                <span className="text-xs text-neutral-500 text-center px-2">
+                                                                    Click to upload
+                                                                </span>
+                                                                <span className="text-xs text-neutral-400 mt-1">
+                                                                    SVG, PNG, JPG
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="relative h-32 bg-neutral-100">
+                                                                <img
+                                                                    src={fileState.base64}
+                                                                    alt={displayField}
+                                                                    className="w-full h-full object-contain p-2"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        handleFileChange(fieldKey, null);
+                                                                    }}
+                                                                    className="absolute top-2 right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+                                                                >
+                                                                    <X className="h-3 w-3" />
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </label>
 
-                                                    {fileState?.base64 && (
-                                                        <div className="mt-1 w-full flex justify-center pb-2">
-                                                            <img
-                                                                src={fileState.base64}
-                                                                alt="preview"
-                                                                className="max-h-16 rounded border border-gray-200 shadow-sm object-contain"
-                                                            />
+                                                    {/* Status indicator */}
+                                                    {fileState?.base64 && !hasError && (
+                                                        <div className="absolute top-2 left-2 bg-green-500 text-white rounded-full p-1">
+                                                            <CheckCircle2 className="h-3 w-3" />
                                                         </div>
                                                     )}
                                                 </div>
