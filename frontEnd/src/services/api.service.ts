@@ -1,7 +1,7 @@
 // ==================== Map Report API ====================
 export const mapReportAPI = {
-  uploadMapReport: async (sessionId: string, payload: any) => {
-    const response = await api.post(`/map_report/${sessionId}`, payload, {
+  uploadMapReport: async (sessionId: string, payload: any, templatePath = 'template_with_placeholders.docx') => {
+    const response = await api.post(`/map_report/${sessionId}?template_path=${templatePath}`, payload, {
       headers: { 'Content-Type': 'application/json' },
     });
     return response.data;

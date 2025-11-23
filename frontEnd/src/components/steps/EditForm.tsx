@@ -19,7 +19,7 @@ import ImageUpload from './forms/ImageUpload';
 
 export const EditForm = () => {
   const dispatch = useDispatch();
-  const { data } = useSelector((state: RootState) => state.form);
+  const { data, images } = useSelector((state: RootState) => state.form);
   const { sessionId } = useSelector((state: RootState) => state.session);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -36,28 +36,37 @@ export const EditForm = () => {
     try {
       setIsSaving(true);
 
-      // Send edited form data to the API
-      const response = await apiService.document.saveEditedForm(
-        sessionId,
-        data,
-        'template_with_placeholders.docx'
-      );
+      // Prepare payload with images and text
+      const payload = {
+        images: images,
+        text: data
+      };
 
-      // Update the document URLs with the regenerated document
-      if (response.report_docx_gcs_uri) {
-        dispatch(setDocxUrl(response.report_docx_gcs_uri));
-        if (response.report_html_gcs_uri) {
-          dispatch(setHtmlUrl(response.report_html_gcs_uri));
+      // Send edited form data with images to the API
+      const response = await apiService.mapReport.uploadMapReport(sessionId, payload, 'template_with_placeholders.docx');
+
+      // Update the document URLs with the response
+      if (response.docx_path) {
+        dispatch(setDocxUrl(response.docx_path));
+        if (response.html_path) {
+          dispatch(setHtmlUrl(response.html_path));
         }
-        toast.success('Changes saved successfully! Document regenerated.');
+        toast.success(`Changes saved successfully! ${response.images_processed || 0} image(s) processed.`);
         dispatch(setEditing(false));
       } else {
-        throw new Error('Document regeneration completed, but no document URL was returned.');
+        toast.success('Changes saved successfully!');
+        dispatch(setEditing(false));
       }
     } catch (err: any) {
       let message = 'Failed to save changes. Please try again.';
       if (err.code === 'ECONNABORTED') {
         message = 'The request timed out. Please try again.';
+      } else if (err.response?.status === 400) {
+        message = err.response?.data?.detail || 'Invalid data. Please check your inputs.';
+      } else if (err.response?.status === 404) {
+        message = 'Session not found. Please start over.';
+      } else if (err.response?.status === 500) {
+        message = 'Server error. Please try again later.';
       } else {
         message = err.response?.data?.detail || err.message || message;
       }

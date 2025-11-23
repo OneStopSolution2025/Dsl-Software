@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { apiService } from "@/services/api.service";
 import { extractCategoriesFromFields, getFieldKey } from "@/utils/categoryHelpers";
 import { validateImageFile } from "@/utils/fileValidation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
+import { updateImage, removeImage } from "@/store/slices/formSlice";
 
 const ImageUpload: React.FC = () => {
+    const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [fieldErrors, setFieldErrors] = useState<{ [fieldKey: string]: string }>({});
-    const [success, setSuccess] = useState<string | null>(null);
 
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     // key = ORIGINAL FIELD KEY from API (e.g. INSURED_NRIC_BACK)
@@ -23,7 +24,7 @@ const ImageUpload: React.FC = () => {
     // dropdown open/close state
     const [expandedCategories, setExpandedCategories] = useState<{ [category: string]: boolean }>({});
 
-    const { sessionId } = useSelector((state: RootState) => state.session);
+    const { images } = useSelector((state: RootState) => state.form);
 
     useEffect(() => {
         const fetchMapping = async () => {
@@ -44,7 +45,11 @@ const ImageUpload: React.FC = () => {
                 // init file state for ALL original fields
                 const filesObj: { [fieldKey: string]: { file: File | null; base64: string } } = {};
                 data.forEach((fieldKey) => {
-                    filesObj[fieldKey] = { file: null, base64: "" };
+                    // Check if image already exists in Redux store
+                    filesObj[fieldKey] = { 
+                        file: null, 
+                        base64: images[fieldKey] || "" 
+                    };
                 });
                 setCategoryFiles(filesObj);
 
@@ -85,6 +90,8 @@ const ImageUpload: React.FC = () => {
                 delete updated[fieldKey];
                 return updated;
             });
+            // Remove from Redux store
+            dispatch(removeImage(fieldKey));
             return;
         }
 
@@ -114,73 +121,18 @@ const ImageUpload: React.FC = () => {
                 ...prev,
                 [fieldKey]: { file, base64 },
             }));
+            // Update Redux store
+            dispatch(updateImage({ fieldKey, base64 }));
         };
         reader.readAsDataURL(file);
-    };
-
-    const handleSubmit = async () => {
-        setError(null);
-        setSuccess(null);
-
-        if (!selectedCategory) {
-            setError("Please select a category.");
-            return;
-        }
-
-        // map display fields -> original field keys for this category
-        const selectedFieldKeys = (categories[selectedCategory] || [])
-            .map((displayField) => getFieldKey(selectedCategory, displayField, allFields))
-            .filter((k) => !!k);
-
-        const missing = selectedFieldKeys.filter(
-            (key) => !categoryFiles[key]?.file || !categoryFiles[key]?.base64
-        );
-        const hasFieldErrors = selectedFieldKeys.some((key) => fieldErrors[key]);
-
-        if (missing.length > 0 || hasFieldErrors) {
-            setError(
-                hasFieldErrors
-                    ? "Please fix file type/size errors before uploading."
-                    : "Please select a file for each required image in this category."
-            );
-            return;
-        }
-
-        const imagesPayload: { [fieldKey: string]: { base64: string } } = {};
-        selectedFieldKeys.forEach((key) => {
-            imagesPayload[key] = { base64: categoryFiles[key].base64 };
-        });
-
-        const payload = {
-            images: imagesPayload,
-            text: {},
-        };
-
-        try {
-            setLoading(true);
-            if (sessionId) {
-                await apiService.mapReport.uploadMapReport(sessionId, payload);
-            }
-            setSuccess("Images uploaded successfully!");
-
-            // clear only this category's files
-            setCategoryFiles((prev) => {
-                const updated = { ...prev };
-                selectedFieldKeys.forEach((key) => {
-                    updated[key] = { file: null, base64: "" };
-                });
-                return updated;
-            });
-        } catch (e) {
-            setError("Failed to upload images. Please try again.");
-        } finally {
-            setLoading(false);
-        }
     };
 
     return (
         <div className="w-full max-w-5xl mx-auto font-sans">
             <h2 className="text-2xl font-bold mb-6 text-gray-900">Upload Missing Images</h2>
+            <p className="text-sm text-gray-600 mb-4">
+                Upload images for each field. Click "Save Changes" at the bottom to save all your edits including images.
+            </p>
 
             {loading && (
                 <div className="mb-4">
@@ -191,12 +143,6 @@ const ImageUpload: React.FC = () => {
             {error && (
                 <div className="mb-4 p-3 rounded bg-red-100 text-red-700 border border-red-400">
                     {error}
-                </div>
-            )}
-
-            {success && (
-                <div className="mb-4 p-3 rounded bg-green-100 text-green-700 border border-green-400">
-                    {success}
                 </div>
             )}
 
@@ -313,20 +259,6 @@ const ImageUpload: React.FC = () => {
                         </div>
                     );
                 })}
-            </div>
-
-            <div className="mt-6 flex justify-end">
-                <button
-                    className={`px-6 py-2.5 rounded-lg font-bold transition-colors text-base shadow-sm ${loading
-                            ? "bg-blue-300 text-white cursor-not-allowed"
-                            : "bg-blue-600 text-white hover:bg-blue-700"
-                        }`}
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    type="button"
-                >
-                    Upload Images
-                </button>
             </div>
         </div>
     );
