@@ -18,7 +18,7 @@ import { getIconByType, isIconColorChangeable } from '../../components/map/enhan
 import { setCanProceed } from '@/store/slices/stepperSlice';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
-import { Search, MapPin, Navigation, X, RefreshCw } from 'lucide-react';
+import { Search, MapPin, Navigation, X, RefreshCw, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyCi1g0u1_0qSZ09q8bkkb-7J5cBhi7iK9s';
@@ -184,6 +184,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
   const [resizeStartPos, setResizeStartPos] = useState<{x: number; y: number; initialScale: number; handle: string} | null>(null);
   const [isRotating, setIsRotating] = useState(false);
   const [rotateStartPos, setRotateStartPos] = useState<{x: number; y: number; initialRotation: number} | null>(null);
+  const [mapTypeId, setMapTypeId] = useState<'satellite' | 'roadmap' | 'hybrid' | 'terrain'>('terrain');
 
   // Lat/Lng search state
   const [latitude, setLatitude] = useState<string>('');
@@ -394,6 +395,12 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
   const handleMapReady = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+    
+    // Listen for map type changes
+    map.addListener('maptypeid_changed', () => {
+      const newMapTypeId = map.getMapTypeId() as 'satellite' | 'roadmap' | 'hybrid' | 'terrain';
+      setMapTypeId(newMapTypeId);
+    });
   }, []);
 
   const handleMapDragOver = (e: React.DragEvent) => {
@@ -854,6 +861,44 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
     }
   }));
 
+  // Download screenshot as PNG
+  const handleDownloadScreenshot = async () => {
+    try {
+      // Deselect any selected marker to hide dashed box and transform controls
+      setSelectedMarkerId(undefined);
+      setTransformControlPos(null);
+      setBoxDimensions(null);
+      
+      // Wait a brief moment for the UI to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      toast.loading('Capturing screenshot...');
+      const screenshotFile = await captureMapScreenshot();
+      
+      if (screenshotFile) {
+        // Create download link
+        const url = URL.createObjectURL(screenshotFile);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = screenshotFile.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast.dismiss();
+        toast.success('Screenshot downloaded successfully!');
+      } else {
+        toast.dismiss();
+        toast.error('Failed to capture screenshot');
+      }
+    } catch (error) {
+      console.error('Error downloading screenshot:', error);
+      toast.dismiss();
+      toast.error('Failed to download screenshot');
+    }
+  };
+
   // // --- Capture Map Screenshot ---
   const captureMapScreenshot = async (): Promise<File | null> => {
     if (!mapConRef.current || !mapRef) {
@@ -955,6 +1000,14 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                     <Navigation className="h-3.5 w-3.5 mr-1" />
                     My Location
                   </Button>
+                  <Button
+                    onClick={handleDownloadScreenshot}
+                    size="sm"
+                    variant="primary"
+                  >
+                    <Camera className="h-3.5 w-3.5 mr-1" />
+                    Take a Screenshot
+                  </Button>
                 </div>
 
                 {/* Address Search Tab */}
@@ -1032,7 +1085,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                 disableDefaultUI={false}
                 onClick={handleMapClick}
                 mapId="custom-marker-map"
-                mapTypeId={'satellite'}
+                mapTypeId={mapTypeId}
                 
               >
                 <MapContainer onMapReady={handleMapReady} />
