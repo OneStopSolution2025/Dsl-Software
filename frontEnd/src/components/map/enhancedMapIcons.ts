@@ -1,4 +1,5 @@
 import * as Icons from './MapIconsSVG';
+import { MessageSquareText, MessageSquare, MessageCircle } from 'lucide-react';
 
 export interface MapIcon {
   id: string;
@@ -50,6 +51,11 @@ export const enhancedMapIcons: MapIcon[] = [
   { id: 'b003', type: 'factory', component: Icons.FactoryIcon, label: 'Factory', category: 'Buildings', defaultColor: '#64748B', colorChangeable: true },
   { id: 'b004', type: 'bus-stop', component: Icons.BusStopIcon, label: 'Bus Stop', category: 'Buildings', defaultColor: '#0EA5E9', colorChangeable: true },
   { id: 'b005', type: 'office-building', component: Icons.OfficeBuildingIcon, label: 'Office Building', category: 'Buildings', defaultColor: '#334155', colorChangeable: true },
+
+  // ==================== ANNOTATIONS ====================
+  { id: 'a001', type: 'text-callout-speech', component: MessageSquareText as any, label: 'Speech Bubble', category: 'Annotations', defaultColor: '#000000', colorChangeable: true },
+  { id: 'a002', type: 'text-callout-rect', component: MessageSquare as any, label: 'Text Box', category: 'Annotations', defaultColor: '#000000', colorChangeable: true },
+  { id: 'a003', type: 'text-callout-cloud', component: MessageCircle as any, label: 'Cloud Note', category: 'Annotations', defaultColor: '#000000', colorChangeable: true },
 ];
 
 export const iconCategories = [
@@ -59,6 +65,7 @@ export const iconCategories = [
   'Environment',
   'Traffic',
   'Buildings',
+  'Annotations',
 ];
 
 export const getIconByType = (type: string) => {

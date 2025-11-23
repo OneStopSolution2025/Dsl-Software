@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { nextStep, previousStep } from '@/store/slices/stepperSlice';
+import { clearMarkers } from '@/store/slices/markersSlice';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StepIndicator } from '@/components/steps/StepIndicator';
 import { Button } from '@/components/common/Button';
@@ -50,6 +51,10 @@ export const Home = () => {
     dispatch(nextStep());
   };
   const handlePrevious = () => {
+    // If going back from step 2 to step 1, clear all markers to start fresh
+    if (currentStep === 2) {
+      dispatch(clearMarkers());
+    }
     dispatch(previousStep());
   };
 

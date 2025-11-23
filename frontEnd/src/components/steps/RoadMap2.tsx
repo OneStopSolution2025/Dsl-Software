@@ -229,6 +229,12 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
         return;
       }
 
+      // Don't show selection box for text callouts
+      if (marker.icon_type.startsWith('text-callout')) {
+        setBoxDimensions(null);
+        return;
+      }
+
       const rect = markerElement.getBoundingClientRect();
       const mapRect = mapElement.getBoundingClientRect();
       
@@ -414,6 +420,8 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
     const lat = sw.lat() + (ne.lat() - sw.lat()) * (1 - y / rect.height);
     const lng = sw.lng() + (ne.lng() - sw.lng()) * (x / rect.width);
 
+    const isTextCallout = draggingIconType.startsWith('text-callout');
+    
     const newMarker: MapMarker = {
       id: crypto.randomUUID(),
       icon_type: draggingIconType,
@@ -424,6 +432,19 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
       flip_horizontal: false,
       flip_vertical: false,
       color: getIconByType(draggingIconType)?.defaultColor || '#3B82F6',
+      // Initialize text callout properties
+      ...(isTextCallout && {
+        text: '',
+        fontSize: 16,
+        fontWeight: 'normal' as const,
+        backgroundColor: '#FFFFFF',
+        borderColor: undefined,
+        calloutStyle: (
+          draggingIconType === 'text-callout-speech' ? 'speech-bubble' :
+          draggingIconType === 'text-callout-cloud' ? 'cloud' :
+          'rectangular'
+        ) as 'speech-bubble' | 'rectangular' | 'cloud',
+      }),
     };
 
     dispatch(addMarker(newMarker));
@@ -435,6 +456,8 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
       const lat = e.latLng.lat();
       const lng = e.latLng.lng();
 
+      const isTextCallout = draggingIconType.startsWith('text-callout');
+
       const newMarker: MapMarker = {
         id: crypto.randomUUID(),
         icon_type: draggingIconType,
@@ -445,6 +468,19 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
         flip_horizontal: false,
         flip_vertical: false,
         color: getIconByType(draggingIconType)?.defaultColor || '#3B82F6',
+        // Initialize text callout properties
+        ...(isTextCallout && {
+          text: '',
+          fontSize: 16,
+          fontWeight: 'normal' as const,
+          backgroundColor: '#FFFFFF',
+          borderColor: undefined,
+          calloutStyle: (
+            draggingIconType === 'text-callout-speech' ? 'speech-bubble' :
+            draggingIconType === 'text-callout-cloud' ? 'cloud' :
+            'rectangular'
+          ) as 'speech-bubble' | 'rectangular' | 'cloud',
+        }),
       };
 
       dispatch(addMarker(newMarker));
@@ -707,6 +743,32 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
     updateMarkerAction(selectedMarkerId, { color });
   };
 
+  // Text callout specific handlers
+  const handleTextChange = (text: string) => {
+    if (!selectedMarkerId) return;
+    updateMarkerAction(selectedMarkerId, { text });
+  };
+
+  const handleFontSizeChange = (fontSize: number) => {
+    if (!selectedMarkerId) return;
+    updateMarkerAction(selectedMarkerId, { fontSize });
+  };
+
+  const handleFontWeightChange = (fontWeight: 'normal' | 'bold' | 'semibold') => {
+    if (!selectedMarkerId) return;
+    updateMarkerAction(selectedMarkerId, { fontWeight });
+  };
+
+  const handleCalloutStyleChange = (calloutStyle: 'speech-bubble' | 'rectangular' | 'cloud') => {
+    if (!selectedMarkerId) return;
+    updateMarkerAction(selectedMarkerId, { calloutStyle });
+  };
+
+  const handleBackgroundColorChange = (backgroundColor: string) => {
+    if (!selectedMarkerId) return;
+    updateMarkerAction(selectedMarkerId, { backgroundColor });
+  };
+
   const handleDelete = () => {
     if (!selectedMarkerId) return;
     dispatch(deleteMarker(selectedMarkerId));
@@ -956,7 +1018,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
             </div>
 
             <div ref={mapConRef}
-              className="h-full pb-4 rounded-lg overflow-hidden shadow-lg relative"
+              className="h-full pb-4 rounded-lg shadow-lg relative"
               style={{ cursor: draggingIconType ? 'crosshair' : 'default' }}
               onDragOver={handleMapDragOver}
               onDrop={handleMapDrop}
@@ -990,12 +1052,13 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                         setIsDragging(false);
                         handleMarkerDragEnd(marker.id, lat, lng);
                       }}
+                      onTextChange={handleTextChange}
                     />
                   );
                 })}
 
-                {/* Rectangular box around selected marker */}
-                {!isDragging && boxDimensions && (
+                {/* Rectangular box around selected marker - Not for text callouts */}
+                {!isDragging && boxDimensions && selectedMarkerId && !markers.find(m => m.id === selectedMarkerId)?.icon_type.startsWith('text-callout') && (
                   <>
                     <div
                       style={{
@@ -1176,6 +1239,18 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                   currentColor={markers.find(m => m.id === selectedMarkerId)?.color}
                   showColorPicker={isIconColorChangeable(markers.find(m => m.id === selectedMarkerId)?.icon_type || '')}
                   onDelete={handleDelete}
+                  // Text callout specific props
+                  isTextCallout={markers.find(m => m.id === selectedMarkerId)?.icon_type.startsWith('text-callout')}
+                  text={markers.find(m => m.id === selectedMarkerId)?.text}
+                  fontSize={markers.find(m => m.id === selectedMarkerId)?.fontSize}
+                  fontWeight={markers.find(m => m.id === selectedMarkerId)?.fontWeight}
+                  calloutStyle={markers.find(m => m.id === selectedMarkerId)?.calloutStyle}
+                  backgroundColor={markers.find(m => m.id === selectedMarkerId)?.backgroundColor}
+                  onTextChange={handleTextChange}
+                  onFontSizeChange={handleFontSizeChange}
+                  onFontWeightChange={handleFontWeightChange}
+                  onCalloutStyleChange={handleCalloutStyleChange}
+                  onBackgroundColorChange={handleBackgroundColorChange}
                 />
               )}
             </div>

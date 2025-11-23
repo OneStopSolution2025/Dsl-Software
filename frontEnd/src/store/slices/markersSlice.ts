@@ -11,6 +11,14 @@ export interface MapMarker {
   flip_horizontal: boolean;
   flip_vertical: boolean;
   color: string; // Hex color code for the icon
+  
+  // Text callout properties
+  text?: string; // The actual text content (max 500 chars)
+  fontSize?: number; // Font size (12-48px)
+  fontWeight?: 'normal' | 'bold' | 'semibold';
+  backgroundColor?: string; // Background color for the callout box
+  borderColor?: string; // Border color
+  calloutStyle?: 'speech-bubble' | 'rectangular' | 'cloud'; // Visual style
 }
 
 interface MarkersState {
@@ -40,8 +48,11 @@ const markerSlice = createSlice({
     setMarkers: (state, action: PayloadAction<MapMarker[]>) => {
       state.markers = action.payload;
     },
+    clearMarkers: (state) => {
+      state.markers = [];
+    },
   },
 });
 
-export const { addMarker, updateMarker, deleteMarker, setMarkers } = markerSlice.actions;
+export const { addMarker, updateMarker, deleteMarker, setMarkers, clearMarkers } = markerSlice.actions;
 export default markerSlice.reducer;
