@@ -1,3 +1,19 @@
+// ==================== Map Report API ====================
+export const mapReportAPI = {
+  uploadMapReport: async (sessionId: string, payload: any) => {
+    const response = await api.post(`/map_report/${sessionId}`, payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+  },
+};
+// ==================== Image Mapping API ====================
+export const imageMappingAPI = {
+  getImageMapping: async (): Promise<string[]> => {
+    const response = await api.get<string[]>('/get/image/mapping');
+    return response.data;
+  },
+};
 import api from '@/utils/axios.config';
 import { API_ENDPOINTS } from '@/utils/constants';
 import { LoginResponse, RegisterResponse, User } from '@/types/auth.types';
@@ -126,7 +142,7 @@ export const documentAPI = {
 
   processDocuments: async (sessionId: string, templateFilename?: string) => {
     const defaultTemplate = 'template_with_placeholders.docx';
-    
+
     const response = await api.get(
       `${API_ENDPOINTS.PROCESS.AUTOFILL}/${sessionId}`,
       {
@@ -141,7 +157,7 @@ export const documentAPI = {
 
   saveEditedForm: async (sessionId: string, formData: any, templatePath?: string) => {
     const defaultTemplate = 'template_with_placeholders.docx';
-    
+
     const response = await api.post(
       `${API_ENDPOINTS.PROCESS.MAP_REPORT}/${sessionId}?template_path=${templatePath || defaultTemplate}`,
       JSON.stringify(formData),
@@ -163,6 +179,8 @@ export const apiService = {
   auth: authAPI,
   file: fileAPI,
   document: documentAPI,
+  imageMapping: imageMappingAPI,
+  mapReport: mapReportAPI,
 };
 
 export default apiService;

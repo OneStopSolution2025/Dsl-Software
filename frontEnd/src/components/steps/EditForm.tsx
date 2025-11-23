@@ -15,6 +15,7 @@ import { WitnessForm } from './forms/WitnessForm';
 import apiService from '@/services/api.service';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ImageUpload from './forms/ImageUpload';
 
 export const EditForm = () => {
   const dispatch = useDispatch();
@@ -74,6 +75,7 @@ export const EditForm = () => {
     { label: 'Third Party', content: <ThirdPartyForm /> },
     { label: 'Accident Site', content: <AccidentSiteForm /> },
     { label: 'Witness', content: <WitnessForm /> },
+    { label: 'Image Upload', content: <ImageUpload /> },
   ];
 
   return (
