@@ -184,7 +184,7 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
   const [resizeStartPos, setResizeStartPos] = useState<{x: number; y: number; initialScale: number; handle: string} | null>(null);
   const [isRotating, setIsRotating] = useState(false);
   const [rotateStartPos, setRotateStartPos] = useState<{x: number; y: number; initialRotation: number} | null>(null);
-  const [mapTypeId, setMapTypeId] = useState<'satellite' | 'roadmap' | 'hybrid' | 'terrain'>('terrain');
+  const [mapTypeId, setMapTypeId] = useState<'satellite' | 'roadmap' | 'hybrid' | 'terrain'>('satellite');
 
   // Lat/Lng search state
   const [latitude, setLatitude] = useState<string>('');

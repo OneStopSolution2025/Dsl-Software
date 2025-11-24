@@ -25,6 +25,7 @@ const ImageUpload: React.FC = () => {
     const [expandedCategories, setExpandedCategories] = useState<{ [category: string]: boolean }>({});
 
     const { images } = useSelector((state: RootState) => state.form);
+    const serverFiles = useSelector((state: RootState) => state.files.serverFileIds);
 
     useEffect(() => {
         const fetchMapping = async () => {
@@ -67,6 +68,32 @@ const ImageUpload: React.FC = () => {
 
         fetchMapping();
     }, []);
+
+    // Pre-populate SKETCH_PLAN with roadmap screenshot
+    useEffect(() => {
+        if (serverFiles.length > 0 && allFields.includes('SKETCH_PLAN')) {
+            // Find the screenshot file (usually the first/only file in serverFileIds)
+            const screenshotFile = serverFiles.find(f => f.name.includes('map-screenshot'));
+            
+            if (screenshotFile && screenshotFile.file && !images['SKETCH_PLAN']) {
+                // Convert file to base64
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64 = reader.result as string;
+                    
+                    // Update local state
+                    setCategoryFiles((prev) => ({
+                        ...prev,
+                        ['SKETCH_PLAN']: { file: screenshotFile.file, base64 }
+                    }));
+                    
+                    // Update Redux store
+                    dispatch(updateImage({ fieldKey: 'SKETCH_PLAN', base64 }));
+                };
+                reader.readAsDataURL(screenshotFile.file);
+            }
+        }
+    }, [serverFiles, allFields, images, dispatch]);
 
     const toggleCategory = (cat: string) => {
         setExpandedCategories((prev) => ({
