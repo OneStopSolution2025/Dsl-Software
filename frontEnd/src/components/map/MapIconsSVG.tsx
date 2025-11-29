@@ -70,6 +70,47 @@ export const ChildIcon = ({ color = '#000000', size = 24 }: IconProps) => (
   </svg>
 );
 
+// ======================== ARROWAS ===========================
+export const UpArraowIcon = ({ size = 24, color='#ff0000' }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+      <g id="SVGRepo_iconCarrier"> 
+        <path d="M7.07615 7.38268C7.23093 7.75636 7.59557 8 8.00003 8H10.5V21C10.5 21.5523 10.9477 22 11.5 22H12.5C13.0523 22 13.5 21.5523 13.5 21V8H16C16.4045 8 16.7691 7.75636 16.9239 7.38268C17.0787 7.00901 16.9931 6.57889 16.7071 6.29289L12.7071 2.29289C12.3166 1.90237 11.6834 1.90237 11.2929 2.29289L7.29292 6.29289C7.00692 6.57889 6.92137 7.00901 7.07615 7.38268Z" fill={color}></path> 
+      </g>
+    </svg>
+)
+
+export const DownArraowIcon = ({ size = 24, color='#ff0000' }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+      <g id="SVGRepo_iconCarrier"> 
+        <path d="M7.07615 16.6173C7.23093 16.2436 7.59557 16 8.00003 16H10.5V3C10.5 2.44772 10.9477 2 11.5 2H12.5C13.0523 2 13.5 2.44772 13.5 3V16H16C16.4045 16 16.7691 16.2436 16.9239 16.6173C17.0787 16.991 16.9931 17.4211 16.7071 17.7071L12.7071 21.7071C12.3166 22.0976 11.6834 22.0976 11.2929 21.7071L7.29292 17.7071C7.00692 17.4211 6.92137 16.991 7.07615 16.6173Z" fill={color}></path> 
+      </g>
+    </svg>
+)
+
+export const LeftArraowIcon = ({ size = 24, color='#ff0000' }: IconProps) => ( 
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+    <g id="SVGRepo_iconCarrier"> 
+      <path d="M7.38268 16.9239C7.75636 16.7691 8 16.4045 8 16V13.5H21C21.5523 13.5 22 13.0523 22 12.5V11.5C22 10.9477 21.5523 10.5 21 10.5H8V8C8 7.59554 7.75636 7.2309 7.38268 7.07612C7.00901 6.92134 6.57889 7.00689 6.29289 7.29289L2.29289 11.2929C1.90237 11.6834 1.90237 12.3166 2.29289 12.7071L6.29289 16.7071C6.57889 16.9931 7.00901 17.0787 7.38268 16.9239Z" fill={color}></path> 
+    </g>
+  </svg>  
+)
+
+export const RightArraowIcon = ({ size = 24, color='#ff0000' }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+    <g id="SVGRepo_iconCarrier"> 
+      <path d="M16.6173 16.9239C16.2436 16.7691 16 16.4045 16 16V13.5H3C2.44772 13.5 2 13.0523 2 12.5V11.5C2 10.9477 2.44772 10.5 3 10.5H16V8C16 7.59554 16.2436 7.2309 16.6173 7.07612C16.991 6.92134 17.4211 7.00689 17.7071 7.29289L21.7071 11.2929C22.0976 11.6834 22.0976 12.3166 21.7071 12.7071L17.7071 16.7071C17.4211 16.9931 16.991 17.0787 16.6173 16.9239Z" fill={color}></path> 
+    </g>
+  </svg>
+)
+
 // ==================== DIRECTIONAL ARROWS ====================
 export const StraightArrowIcon = ({ size = 24 }: IconProps) => (
   <svg width={size} height={size} id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88">

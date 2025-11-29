@@ -25,6 +25,12 @@ export const enhancedMapIcons: MapIcon[] = [
   { id: 'p002', type: 'woman', component: Icons.WomanIcon, label: 'Woman', category: 'Pedestrians', defaultColor: '#F576AB', colorChangeable: true },
   { id: 'p003', type: 'child', component: Icons.ChildIcon, label: 'Child', category: 'Pedestrians', defaultColor: '#EAB308', colorChangeable: true },
 
+  // ==================== ARROWS ====================
+  { id: 'ar001', type: 'up-arrow', component: Icons.UpArraowIcon, label: 'Up', category: 'Arrows', defaultColor: '#ff0000', colorChangeable: true },
+  { id: 'ar001', type: 'down-arrow', component: Icons.DownArraowIcon, label: 'Down', category: 'Arrows', defaultColor: '#ff0000', colorChangeable: true },
+  { id: 'ar001', type: 'right-arrow', component: Icons.RightArraowIcon, label: 'Right', category: 'Arrows', defaultColor: '#ff0000', colorChangeable: true },
+  { id: 'ar001', type: 'left-arrow', component: Icons.LeftArraowIcon, label: 'Left', category: 'Arrows', defaultColor: '#ff0000', colorChangeable: true },
+
   // ==================== DIRECTIONAL ARROWS ====================
   { id: 'd001', type: 'straight-arrow', component: Icons.StraightArrowIcon, label: 'Straight', category: 'Direction', defaultColor: '#059669', colorChangeable: false },
   { id: 'd002', type: 'turn-arrow', component: Icons.TurnArrowIcon, label: 'Turn', category: 'Direction', defaultColor: '#DC2626', colorChangeable: false },
@@ -61,6 +67,7 @@ export const enhancedMapIcons: MapIcon[] = [
 export const iconCategories = [
   'Vehicles',
   'Pedestrians',
+  'Arrows',
   'Direction',
   'Environment',
   'Traffic',
