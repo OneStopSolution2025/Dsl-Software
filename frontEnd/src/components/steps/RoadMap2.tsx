@@ -821,7 +821,6 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                   id: generateFileId(),
                   name: screenshotFile.name,
                   size: screenshotFile.size,
-                  file: screenshotFile,
                   status: 'pending',
                   progress: 0,
                   filename: uploadResponse.filename,

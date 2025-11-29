@@ -99,7 +99,6 @@ const UploadContainer = () => {
                             id: upldFile.id,
                             name: upldFile.name,
                             size: upldFile.size,
-                            file,
                             status: 'pending',
                             progress: 0,
                             filename: file.filename,
