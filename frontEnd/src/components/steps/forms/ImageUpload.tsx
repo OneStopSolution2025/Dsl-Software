@@ -75,22 +75,32 @@ const ImageUpload: React.FC = () => {
             // Find the screenshot file (usually the first/only file in serverFileIds)
             const screenshotFile = serverFiles.find(f => f.name.includes('map-screenshot'));
             
-            if (screenshotFile && screenshotFile.file && !images['SKETCH_PLAN']) {
-                // Convert file to base64
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const base64 = reader.result as string;
-                    
-                    // Update local state
-                    setCategoryFiles((prev) => ({
-                        ...prev,
-                        ['SKETCH_PLAN']: { file: screenshotFile.file, base64 }
-                    }));
-                    
-                    // Update Redux store
-                    dispatch(updateImage({ fieldKey: 'SKETCH_PLAN', base64 }));
-                };
-                reader.readAsDataURL(screenshotFile.file);
+            if (screenshotFile && screenshotFile.public_url && !images['SKETCH_PLAN']) {
+                // Fetch the image from the public URL and convert to base64
+                fetch(screenshotFile.public_url)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64 = reader.result as string;
+                            
+                            // Create a File object from the blob for consistency
+                            const file = new File([blob], screenshotFile.name, { type: blob.type });
+                            
+                            // Update local state
+                            setCategoryFiles((prev) => ({
+                                ...prev,
+                                ['SKETCH_PLAN']: { file, base64 }
+                            }));
+                            
+                            // Update Redux store
+                            dispatch(updateImage({ fieldKey: 'SKETCH_PLAN', base64 }));
+                        };
+                        reader.readAsDataURL(blob);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching screenshot:', error);
+                    });
             }
         }
     }, [serverFiles, allFields, images, dispatch]);

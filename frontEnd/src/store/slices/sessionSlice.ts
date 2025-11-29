@@ -61,7 +61,7 @@ const sessionSlice = createSlice({
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('userSessionId');
         sessionStorage.removeItem('mapScreenshot');
-        console.log('[Session] Cleared session');
+        // console.log('[Session] Cleared session');
       }
     },
     resetSession: () => {
