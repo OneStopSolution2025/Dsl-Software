@@ -1,0 +1,60 @@
+{
+  "name": "Rapid Reportz - Insurance Claims Processing",
+  "short_name": "Rapid Reportz",
+  "description": "AI-powered insurance claims processing platform with automated OCR, document processing, and intelligent mapping tools.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10B981",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "insurance"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/brand-green-sm.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "label": "Rapid Reportz Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Login",
+      "short_name": "Login",
+      "description": "Access your Rapid Reportz account",
+      "url": "/login",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Register",
+      "short_name": "Sign Up",
+      "description": "Create a new Rapid Reportz account",
+      "url": "/register",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
