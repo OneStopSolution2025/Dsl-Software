@@ -26,7 +26,7 @@ const sessionSlice = createSlice({
     initializeSession: (state) => {
       // Prevent double initialization
       if (state.isInitialized && state.sessionId) {
-        console.log('[Session] Already initialized, skipping:', state.sessionId);
+        // console.log('[Session] Already initialized, skipping:', state.sessionId);
         return;
       }
 
@@ -37,7 +37,7 @@ const sessionSlice = createSlice({
       // Store in sessionStorage (will be cleared when tab closes)
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('userSessionId', state.sessionId);
-        console.log('[Session] Created new session:', state.sessionId);
+        // console.log('[Session] Created new session:', state.sessionId);
       }
     },
     // This should NOT be used for API responses anymore
