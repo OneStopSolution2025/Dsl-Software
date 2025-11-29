@@ -123,8 +123,8 @@ export const OCRExtraction = () => {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">OCR Extraction</h3>
-        <p className="text-sm sm:text-base text-neutral-600">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">OCR Extraction</h3>
+        <p className="text-sm sm:text-base text-gray-600">
           Uploading files to server for processing...
         </p>
       </div>
@@ -136,22 +136,22 @@ export const OCRExtraction = () => {
         {serverFileIds.length > 0 && serverFileIds.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200"
+            className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-gray-200 shadow-sm"
           >
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 flex-shrink-0" />
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-neutral-900 text-xs sm:text-sm truncate" title={file.name}>
+                <p className="font-medium text-gray-900 text-xs sm:text-sm truncate" title={file.name}>
                   {file.name}
                 </p>
-                <p className="text-[10px] sm:text-xs text-neutral-500 truncate">
+                <p className="text-[10px] sm:text-xs text-gray-500 truncate">
                   {formatFileSize(file.size)}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
-              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-accent-green" />
-              <span className="text-xs sm:text-sm text-accent-green">Uploaded</span>
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
+              <span className="text-xs sm:text-sm text-emerald-500">Uploaded</span>
             </div>
           </div>
         ))}
@@ -160,15 +160,15 @@ export const OCRExtraction = () => {
         {uploadedFiles.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-neutral-200"
+            className="flex items-center justify-between p-2 sm:p-3 bg-white rounded-lg border border-gray-200 shadow-sm"
           >
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 flex-shrink-0" />
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-neutral-900 text-xs sm:text-sm truncate" title={file.name}>
+                <p className="font-medium text-gray-900 text-xs sm:text-sm truncate" title={file.name}>
                   {file.name}
                 </p>
-                <p className="text-xs sm:text-sm text-neutral-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   {formatFileSize(file.size)}
                 </p>
               </div>
@@ -176,14 +176,14 @@ export const OCRExtraction = () => {
             <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
               {file.status === 'uploading' && (
                 <>
-                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 animate-spin" />
-                  <span className="text-xs sm:text-sm text-neutral-600">{file.progress}%</span>
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600 animate-spin" />
+                  <span className="text-xs sm:text-sm text-gray-600">{file.progress}%</span>
                 </>
               )}
               {file.status === 'success' && (
                 <>
-                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-accent-green" />
-                  <span className="text-xs sm:text-sm text-accent-green">Uploaded</span>
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
+                  <span className="text-xs sm:text-sm text-emerald-500">Uploaded</span>
                 </>
               )}
               {file.status === 'error' && (

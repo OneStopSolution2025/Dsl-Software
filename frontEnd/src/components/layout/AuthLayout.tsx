@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
-import { Building2 } from 'lucide-react';
-import { APP_NAME } from '@/utils/constants';
+import { AuthSidebar } from '@/components/auth/AuthSidebar';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -8,18 +7,28 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <Building2 className="h-12 w-12 text-white" />
-            <h1 className="text-4xl font-bold text-white">{APP_NAME}</h1>
-          </div>
-        </div>
+    <div className="min-h-screen flex">
+      {/* Left Panel - Branding & Features (Desktop Only) */}
+      <AuthSidebar />
 
-        {/* Content */}
-        {children}
+      {/* Right Panel - Auth Form */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50 p-4 sm:p-6 lg:p-12">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo (visible only on mobile/tablet) */}
+          <div className="lg:hidden text-center mb-8">
+            <img 
+              src="/images/brand-green.png" 
+              alt="Rapid Reportz" 
+              className="h-16 mx-auto mb-4"
+            />
+            {/* <h1 className="text-2xl font-bold text-gray-900">
+              Rapid Reportz
+            </h1> */}
+          </div>
+
+          {/* Auth Form Content */}
+          {children}
+        </div>
       </div>
     </div>
   );

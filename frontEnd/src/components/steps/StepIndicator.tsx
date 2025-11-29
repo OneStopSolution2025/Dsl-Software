@@ -23,9 +23,9 @@ export const StepIndicator = () => {
                   className={clsx(
                     'w-8 md:w-10 h-8 md:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300',
                     isActive &&
-                      'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/40 scale-110',
-                    isCompleted && !isActive && 'bg-accent-green text-white',
-                    !isActive && !isCompleted && 'bg-white/20 border-2 border-neutral-300 text-neutral-500'
+                      'bg-teal-600 text-white shadow-lg shadow-teal-600/30 scale-110',
+                    isCompleted && !isActive && 'bg-emerald-500 text-white',
+                    !isActive && !isCompleted && 'bg-white border-2 border-gray-300 text-gray-500'
                   )}
                 >
                   {isCompleted && !isActive ? (
@@ -37,7 +37,7 @@ export const StepIndicator = () => {
                 <span
                   className={clsx(
                     'md:block hidden mt-2 text-xs font-medium text-center max-w-[80px]',
-                    isActive ? 'text-primary-600' : 'text-neutral-600'
+                    isActive ? 'text-teal-600' : 'text-gray-600'
                   )}
                 >
                   {step.name}
@@ -50,7 +50,7 @@ export const StepIndicator = () => {
                   <div
                     className={clsx(
                       'h-full transition-all duration-300',
-                      isCompleted ? 'bg-accent-green' : 'bg-neutral-300'
+                      isCompleted ? 'bg-emerald-500' : 'bg-gray-300'
                     )}
                   />
                 </div>

@@ -71,18 +71,18 @@ export const AutoFill = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
-      <h3 className="text-2xl font-bold text-neutral-900 text-center">AutoFill</h3>
+      <h3 className="text-2xl font-bold text-gray-900 text-center">AutoFill</h3>
 
       {processing && (
         <>
           <div className="relative">
-            <Loader2 className="h-24 w-24 text-primary-500 animate-spin" />
+            <Loader2 className="h-24 w-24 text-teal-600 animate-spin" />
           </div>
           <div className="text-center">
-            <p className="text-lg font-medium text-neutral-700 mb-2">
+            <p className="text-lg font-medium text-gray-700 mb-2">
               Processing your documents...
             </p>
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-gray-500">
               This process may take a few moments. Please wait. Until then, don't click back or refresh the browser tab.
             </p>
           </div>
@@ -94,7 +94,7 @@ export const AutoFill = () => {
           <AlertCircle className="h-16 w-16 text-red-500" />
           <div className="text-center">
             <p className="text-lg font-medium text-red-600 mb-2">Processing Failed</p>
-            <p className="text-sm text-neutral-600 max-w-md">{error}</p>
+            <p className="text-sm text-gray-600 max-w-md">{error}</p>
           </div>
           <Button onClick={handleRetry} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -105,12 +105,12 @@ export const AutoFill = () => {
 
       {!processing && !error && (
         <div className="flex flex-col items-center gap-4 py-8">
-          <CheckCircle className="h-16 w-16 text-accent-green" />
+          <CheckCircle className="h-16 w-16 text-emerald-500" />
           <div className="text-center">
-            <p className="text-lg font-medium text-neutral-800 mb-2">
+            <p className="text-lg font-medium text-gray-800 mb-2">
               Ready for Preview
             </p>
-            <p className="text-sm text-neutral-600 max-w-sm">
+            <p className="text-sm text-gray-600 max-w-sm">
               Your insurance claiming document has been processed and is ready to preview.
             </p>
           </div>

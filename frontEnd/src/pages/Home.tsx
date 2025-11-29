@@ -6,7 +6,6 @@ import { clearMarkers } from '@/store/slices/markersSlice';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StepIndicator } from '@/components/steps/StepIndicator';
 import { Button } from '@/components/common/Button';
-import { GlassCard } from '@/components/common/GlassCard';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 // Import step components (we'll create these next)
@@ -69,9 +68,9 @@ export const Home = () => {
 
 
         {/* Step Content */}
-        <GlassCard strong className="p-4 md:p-8 min-h-[500px]">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 md:p-8 min-h-[500px]">
           {renderStep()}
-        </GlassCard>
+        </div>
 
         {/* Navigation */}
         <div className="flex items-center justify-between mt-6">

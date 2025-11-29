@@ -22,7 +22,7 @@ export default function IconPalette({ onDragStart }: IconPaletteProps) {
       children: (
         <div className="grid grid-cols-2 gap-2">
           {icons.map(({ type, component: IconComponent, label, defaultColor }) => (
-              <div
+              <div key={type}
                 draggable
                 onDragStart={() => onDragStart(type)}
                 className="group flex flex-col items-center p-3 border-2 border-gray-200 rounded-xl cursor-grab 

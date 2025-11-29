@@ -12,7 +12,7 @@ export const GlassCard = ({ children, className, strong = false }: GlassCardProp
     <div
       className={clsx(
         strong ? 'glass-card-strong' : 'glass-card',
-        className
+        className, 'bg-gradient-primary'
       )}
     >
       {children}

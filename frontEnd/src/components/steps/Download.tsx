@@ -39,17 +39,17 @@ export const Download = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 mb-6">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-teal-600 shadow-lg shadow-teal-600/30 mb-6">
           {downloaded ? (
             <CheckCircle className="h-10 w-10 text-white" />
           ) : (
             <FileText className="h-10 w-10 text-white" />
           )}
         </div>
-        <h3 className="text-3xl font-bold text-neutral-900 mb-3">
+        <h3 className="text-3xl font-bold text-gray-900 mb-3">
           {downloaded ? 'Download Complete!' : 'Ready to Download'}
         </h3>
-        <p className="text-neutral-600 max-w-md">
+        <p className="text-gray-600 max-w-md">
           {downloaded
             ? 'Your insurance claim report has been downloaded successfully.'
             : 'All steps completed! Click the button below to download your final document.'}
@@ -69,13 +69,13 @@ export const Download = () => {
       </Button>
 
       {docxUrl && (
-        <div className="mt-8 p-4 bg-neutral-50 rounded-lg border border-neutral-200 max-w-xl w-full">
-          <p className="text-sm font-medium text-neutral-700 mb-2">Document URL:</p>
+        <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200 max-w-xl w-full">
+          <p className="text-sm font-medium text-gray-700 mb-2">Document URL:</p>
           <a
             href={docxUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-primary-500 hover:underline break-all"
+            className="text-sm text-teal-600 hover:underline break-all"
           >
             {docxUrl}
           </a>
@@ -84,7 +84,7 @@ export const Download = () => {
 
       {downloaded && (
         <div className="text-center mt-6">
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-gray-500">
             You can close this window or start a new claim.
           </p>
         </div>

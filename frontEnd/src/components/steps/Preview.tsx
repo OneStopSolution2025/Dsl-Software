@@ -49,19 +49,19 @@ export const Preview = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold text-neutral-900 mb-2">Preview Document</h3>
-        <p className="text-neutral-600">Review the auto-filled document before proceeding</p>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">Preview Document</h3>
+        <p className="text-gray-600">Review the auto-filled document before proceeding</p>
       </div>
 
-      <div className="bg-white rounded-lg border-2 border-neutral-200 overflow-hidden">
+      <div className="bg-white rounded-lg border-2 border-gray-200 shadow-lg overflow-hidden">
         {docxUrl ? (
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <div className="flex items-center gap-3">
-                <FileText className="h-6 w-6 text-primary-500" />
+                <FileText className="h-6 w-6 text-teal-600" />
                 <div>
-                  <p className="font-semibold text-neutral-900">Insurance Claim Report</p>
-                  <p className="text-sm text-neutral-500">Auto-generated document</p>
+                  <p className="font-semibold text-gray-900">Insurance Claim Report</p>
+                  <p className="text-sm text-gray-500">Auto-generated document</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export const Preview = () => {
                 <a
                   href={docxUrl}
                   download
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-primary-500 text-white text-sm rounded-lg hover:bg-primary-600 transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 transition-colors shadow-md hover:shadow-lg"
                 >
                   <Download className="h-4 w-4" />
                   <span>Download</span>
@@ -85,8 +85,8 @@ export const Preview = () => {
                 {isLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
                     <div className="flex items-center gap-3">
-                      <Loader2 className="h-6 w-6 text-primary-500 animate-spin" />
-                      <span className="text-sm text-neutral-600">Loading document...</span>
+                      <Loader2 className="h-6 w-6 text-teal-600 animate-spin" />
+                      <span className="text-sm text-gray-600">Loading document...</span>
                     </div>
                   </div>
                 )}
