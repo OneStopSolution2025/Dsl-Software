@@ -6,9 +6,10 @@ import MarkerList from '../../components/map/MarkerList';
 import CustomMarker from '../../components/map/CustomMarker';
 import TransformControls from '../../components/map/TransformControls';
 import MapContainer from '../../components/map/MapContainer';
-import { setSessionData } from "@/store/slices/filesSlice";
+import { addServerFile } from "@/store/slices/filesSlice";
 import { RootState } from '@/store';
 import { addMarker, deleteMarker, MapMarker, updateMarker } from '@/store/slices/markersSlice';
+import { updateImage } from '@/store/slices/formSlice';
 import html2canvas from 'html2canvas';
 import { uploadScreenshotAPI } from "@/utils/api/upload";
 import { useFileUpload } from "@/hooks/useFileUpload";
@@ -807,6 +808,13 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
         const screenshotFile = await captureMapScreenshot();
 
         if (screenshotFile) {
+          // Convert screenshot to base64 and save to form.images
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            dispatch(updateImage({ fieldKey: 'SKETCH_PLAN', base64 }));
+          };
+          reader.readAsDataURL(screenshotFile);
 
           if (sessionId) {
             try {
@@ -815,9 +823,8 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
 
               const uploadResponse = await uploadScreenshotAPI(screenshotFile, sessionId);
 
-              const resFiles: ServerFile[] = [];
               if (uploadResponse) {
-                resFiles.push({
+                const serverFile: ServerFile = {
                   id: generateFileId(),
                   name: screenshotFile.name,
                   size: screenshotFile.size,
@@ -826,17 +833,10 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
                   filename: uploadResponse.filename,
                   gcs_path: uploadResponse.gcs_path,
                   public_url: uploadResponse.public_url
-                });
+                };
+                
+                dispatch(addServerFile(serverFile));
               }
-
-              dispatch(
-                setSessionData({
-                  sessionId: sessionId || '', // Keep our existing session ID (don't update from API)
-                  userName: uploadResponse.user_name || '',
-                  serverFileIds: resFiles,
-                  uploadedFiles: []
-                })
-              );
 
               console.log('Screenshot uploaded successfully. Using session:', sessionId);
             } catch (uploadError) {

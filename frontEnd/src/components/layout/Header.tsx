@@ -4,11 +4,22 @@ import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/common/Button';
 import { useIdleTimer } from '@/hooks/useIdleTimer';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store';
+import { resetState } from '@/store';
 
 export const Header = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isAuthenticated, user, handleLogout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+
+  // Get state to check if there's any data
+  const { uploadedFiles, serverFileIds } = useSelector((state: RootState) => state.files);
+  const { currentStep } = useSelector((state: RootState) => state.stepper);
+  const { markers } = useSelector((state: RootState) => state.markers);
+  const { data, images } = useSelector((state: RootState) => state.form);
 
   useIdleTimer();
 
@@ -21,6 +32,36 @@ export const Header = () => {
       .slice(0, 2);
   };
 
+  const hasActiveData = () => {
+    return (
+      uploadedFiles.length > 0 ||
+      serverFileIds.length > 0 ||
+      currentStep > 1 ||
+      markers.length > 0 ||
+      (data && Object.keys(data).length > 0) ||
+      Object.keys(images).length > 0
+    );
+  };
+
+  const handleLogoClick = () => {
+    if (hasActiveData()) {
+      setShowResetDialog(true);
+    } else {
+      navigate('/');
+    }
+  };
+
+  const handleConfirmReset = () => {
+    // Reset all state except auth
+    dispatch(resetState());
+    setShowResetDialog(false);
+    navigate('/');
+  };
+
+  const handleCancelReset = () => {
+    setShowResetDialog(false);
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 h-16">
       <div className="container flex items-center h-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,7 +69,7 @@ export const Header = () => {
           {/* Logo */}
           <div 
             className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={() => navigate('/')}
+            onClick={handleLogoClick}
           >
             <img 
               src="/images/brand-green.png" 
@@ -119,6 +160,53 @@ export const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Reset Confirmation Dialog */}
+      {showResetDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                  <svg 
+                    className="h-6 w-6 text-amber-600" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Are you sure?</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Your modified data will be deleted and it will start from the first step.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={handleCancelReset}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleConfirmReset}
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                >
+                  Yes, Reset
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

@@ -68,6 +68,9 @@ const filesSlice = createSlice({
     setUploadErrorMessage: (state, action: PayloadAction<string | null>) => {
       state.uploadError = action.payload;
     },
+    addServerFile: (state, action: PayloadAction<ServerFile>) => {
+      state.serverFileIds.push(action.payload);
+    },
     clearFiles: (state) => {
       state.uploadedFiles = [];
       state.sessionId = null;
@@ -93,6 +96,7 @@ export const {
   setFinalDocxUrl,
   setIsUploading,
   setUploadErrorMessage,
+  addServerFile,
   clearFiles,
 } = filesSlice.actions;
 

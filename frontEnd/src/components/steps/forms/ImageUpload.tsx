@@ -25,7 +25,6 @@ const ImageUpload: React.FC = () => {
     const [expandedCategories, setExpandedCategories] = useState<{ [category: string]: boolean }>({});
 
     const { images } = useSelector((state: RootState) => state.form);
-    const serverFiles = useSelector((state: RootState) => state.files.serverFileIds);
 
     useEffect(() => {
         const fetchMapping = async () => {
@@ -68,42 +67,6 @@ const ImageUpload: React.FC = () => {
 
         fetchMapping();
     }, []);
-
-    // Pre-populate SKETCH_PLAN with roadmap screenshot
-    useEffect(() => {
-        if (serverFiles.length > 0 && allFields.includes('SKETCH_PLAN')) {
-            // Find the screenshot file (usually the first/only file in serverFileIds)
-            const screenshotFile = serverFiles.find(f => f.name.includes('map-screenshot'));
-            
-            if (screenshotFile && screenshotFile.public_url && !images['SKETCH_PLAN']) {
-                // Fetch the image from the public URL and convert to base64
-                fetch(screenshotFile.public_url)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            const base64 = reader.result as string;
-                            
-                            // Create a File object from the blob for consistency
-                            const file = new File([blob], screenshotFile.name, { type: blob.type });
-                            
-                            // Update local state
-                            setCategoryFiles((prev) => ({
-                                ...prev,
-                                ['SKETCH_PLAN']: { file, base64 }
-                            }));
-                            
-                            // Update Redux store
-                            dispatch(updateImage({ fieldKey: 'SKETCH_PLAN', base64 }));
-                        };
-                        reader.readAsDataURL(blob);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching screenshot:', error);
-                    });
-            }
-        }
-    }, [serverFiles, allFields, images, dispatch]);
 
     const toggleCategory = (cat: string) => {
         setExpandedCategories((prev) => ({
