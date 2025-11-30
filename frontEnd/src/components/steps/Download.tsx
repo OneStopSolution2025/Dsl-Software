@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setFinalDocxUrl } from '@/store/slices/filesSlice';
+import { markStepComplete } from '@/store/slices/stepperSlice';
 import { downloadFile } from '@/utils/fileHelpers';
 import { Button } from '@/components/common/Button';
 import { Download as DownloadIcon, CheckCircle, FileText } from 'lucide-react';
@@ -28,6 +29,7 @@ export const Download = () => {
       downloadFile(docxUrl, 'insurance-claim-report.docx');
 
       setDownloaded(true);
+      dispatch(markStepComplete(6)); // Mark step 6 as completed
       toast.success('Document downloaded successfully!');
     } catch (error: any) {
       const message = error.message || 'Download failed. Please try again.';

@@ -33,6 +33,7 @@ const UploadContainer = () => {
     const { uploadedFiles, isUploading, serverFileIds } = useSelector((state: RootState) => state.files);
     const { sessionId } = useSelector((state: RootState) => state.session);
     const [showGenerateCTA, setShowGenerateCTA] = useState(false);
+    const [isUploadingMore, setIsUploadingMore] = useState(false);
 
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
@@ -47,6 +48,13 @@ const UploadContainer = () => {
     });
 
     const uploadFilesInBatches = async () => {
+        // Guard against empty files or already uploading
+        if (uploadedFiles.length === 0 || isUploadingMore) {
+            console.log('No files to upload or upload already in progress');
+            return;
+        }
+
+        setIsUploadingMore(true);
         dispatch(setIsUploading(true));
         dispatch(setUploadErrorMessage(null));
 
@@ -67,6 +75,7 @@ const UploadContainer = () => {
             setShowGenerateCTA(false);
             toast.error(message);
         } finally {
+            setIsUploadingMore(false);
             dispatch(setIsUploading(false));
         }
     };
@@ -74,6 +83,12 @@ const UploadContainer = () => {
     const uploadBatch = async (batch: typeof uploadedFiles) => {
         if (!sessionId) {
             throw new Error('Session ID is required');
+        }
+
+        // Guard against empty batch
+        if (batch.length === 0) {
+            console.log('Empty batch in UploadMore, skipping...');
+            return;
         }
 
         const files = batch.map(f => f.file);

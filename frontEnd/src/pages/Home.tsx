@@ -1,12 +1,13 @@
 import { useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
+import { RootState, resetState } from '@/store';
 import { nextStep, previousStep } from '@/store/slices/stepperSlice';
 import { clearMarkers } from '@/store/slices/markersSlice';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StepIndicator } from '@/components/steps/StepIndicator';
 import { Button } from '@/components/common/Button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home as HomeIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Import step components (we'll create these next)
 import { UploadDocuments } from '@/components/steps/UploadDocuments';
@@ -18,6 +19,7 @@ import { RoadMap2 } from '@/components/steps/RoadMap2';
 
 export const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { currentStep, canProceed } = useSelector((state: RootState) => state.stepper);
   const roadMapRef = useRef<{ handleNextWithScreenshot: () => Promise<void> } | null>(null);
 
@@ -57,8 +59,14 @@ export const Home = () => {
     dispatch(previousStep());
   };
 
-  const showBackButton = currentStep > 1;
+  const handleHome = () => {
+    dispatch(resetState());
+    navigate('/');
+  };
+
+  const showBackButton = currentStep > 1 && currentStep < 6;
   const showNextButton = currentStep < 6 && canProceed;
+  const showHomeButton = currentStep === 6;
 
   return (
     <MainLayout>
@@ -73,32 +81,39 @@ export const Home = () => {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-6">
-          <div>
-            {showBackButton && (
-              <Button
-                variant="secondary"
-                onClick={handlePrevious}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
-            )}
-          </div>
+        <div className="flex items-center mt-6">
+          {showBackButton && (
+            <Button
+              variant="secondary"
+              onClick={handlePrevious}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+          )}
           
-          <div>
-            {showNextButton && (
-              <Button
-                variant="primary"
-                onClick={handleNext}
-                className="flex items-center gap-2"
-              >
-                Next
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+          {showNextButton && (
+            <Button
+              variant="primary"
+              onClick={handleNext}
+              className="flex items-center gap-2 ml-auto"
+            >
+              Next
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+          
+          {showHomeButton && (
+            <Button
+              variant="primary"
+              onClick={handleHome}
+              className="flex items-center gap-2 ml-auto"
+            >
+              <HomeIcon className="h-4 w-4" />
+              Home
+            </Button>
+          )}
         </div>
       </div>
     </MainLayout>

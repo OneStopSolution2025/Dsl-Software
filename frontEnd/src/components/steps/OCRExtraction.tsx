@@ -20,15 +20,24 @@ export const OCRExtraction = () => {
   const dispatch = useDispatch();
   const { uploadedFiles, isUploading, serverFileIds } = useSelector((state: RootState) => state.files);
   const [uploadComplete, setUploadComplete] = useState(false);
+  const [hasStartedUpload, setHasStartedUpload] = useState(false);
   const { sessionId } = useSelector((state: RootState) => state.session);
 
   useEffect(() => {
-    if (uploadedFiles.length > 0 && !isUploading && !uploadComplete) {
+    // Only start upload once when component mounts and files are available
+    if (uploadedFiles.length > 0 && !isUploading && !uploadComplete && !hasStartedUpload) {
+      setHasStartedUpload(true);
       uploadFilesInBatches();
     }
-  }, [isUploading]);
+  }, []);
 
   const uploadFilesInBatches = async () => {
+    // Guard against empty files array (e.g., after state reset)
+    if (uploadedFiles.length === 0) {
+      console.log('No files to upload, skipping...');
+      return;
+    }
+
     dispatch(setIsUploading(true));
     dispatch(setUploadErrorMessage(null));
 
@@ -57,6 +66,12 @@ export const OCRExtraction = () => {
   const uploadBatch = async (batch: typeof uploadedFiles) => {
     if (!sessionId) {
       throw new Error('Session ID is required');
+    }
+
+    // Guard against empty batch (safety check)
+    if (batch.length === 0) {
+      console.log('Empty batch, skipping...');
+      return;
     }
 
     const files = batch.map(f => f.file);

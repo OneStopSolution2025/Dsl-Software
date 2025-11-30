@@ -22,13 +22,13 @@ export const StepIndicator = () => {
                 <div
                   className={clsx(
                     'w-8 md:w-10 h-8 md:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300',
-                    isActive &&
+                    isActive && !isCompleted &&
                       'bg-teal-600 text-white shadow-lg shadow-teal-600/30 scale-110',
-                    isCompleted && !isActive && 'bg-emerald-500 text-white',
+                    isCompleted && 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30',
                     !isActive && !isCompleted && 'bg-white border-2 border-gray-300 text-gray-500'
                   )}
                 >
-                  {isCompleted && !isActive ? (
+                  {isCompleted ? (
                     <Check className="h-5 w-5" />
                   ) : (
                     step.id
