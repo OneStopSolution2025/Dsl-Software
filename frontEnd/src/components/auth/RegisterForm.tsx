@@ -35,7 +35,10 @@ export const RegisterForm = () => {
       toast.success('Registration successful! Please login.');
       navigate('/login');
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Registration failed. Please try again.';
+      // Handle the detail field from API response
+      const message = error.response?.data?.detail || 
+                      error.response?.data?.message || 
+                      'Registration failed. Please try again.';
       toast.error(message);
     } finally {
       setLoading(false);
