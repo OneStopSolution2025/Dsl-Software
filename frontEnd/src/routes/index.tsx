@@ -13,10 +13,11 @@ export const AppRoutes = () => {
         {/* Public Routes */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/" element={<StaticPageRedirect/>} />
 
         {/* Protected Routes */}
         <Route
-          path="/"
+          path="/report"
           element={
             <ProtectedRoute>
               <Home />
@@ -50,3 +51,13 @@ export const AppRoutes = () => {
     </BrowserRouter>
   );
 };
+
+function StaticPageRedirect() {
+  return (
+    <iframe
+      title="Landing Page"
+      src="/landing/index.html"
+      style={{ width: "100%", height: "100vh", border: "none" }}
+    />
+  );
+}

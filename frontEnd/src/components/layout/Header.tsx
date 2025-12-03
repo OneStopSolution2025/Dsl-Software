@@ -47,7 +47,7 @@ export const Header = () => {
     if (hasActiveData()) {
       setShowResetDialog(true);
     } else {
-      navigate('/');
+      navigate('/report');
     }
   };
 
@@ -55,7 +55,7 @@ export const Header = () => {
     // Reset all state except auth
     dispatch(resetState());
     setShowResetDialog(false);
-    navigate('/');
+    navigate('/report');
   };
 
   const handleCancelReset = () => {

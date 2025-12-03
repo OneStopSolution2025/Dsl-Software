@@ -28,12 +28,5 @@
     <priority>0.8</priority>
   </url>
   
-  <!-- Map Editor (Protected - for crawlers info only) -->
-  <url>
-    <loc>https://rapidreportz.com/map-editor</loc>
-    <lastmod>2025-11-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
 
 </urlset>

@@ -61,7 +61,7 @@ export const Home = () => {
 
   const handleHome = () => {
     dispatch(resetState());
-    navigate('/');
+    navigate('/report');
   };
 
   const showBackButton = currentStep > 1 && currentStep < 6;

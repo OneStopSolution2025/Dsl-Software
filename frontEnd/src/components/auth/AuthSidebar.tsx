@@ -1,23 +1,26 @@
 import { Clock, ShieldCheck, Headphones } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthSidebar = () => {
-  const features = [
-    {
-      icon: <Clock className="h-5 w-5" />,
-      title: 'Own Your Hours, Work in Minutes',
-      description: 'Process claims in minutes, not hours',
-    },
-    {
-      icon: <ShieldCheck className="h-5 w-5" />,
-      title: 'Data Encryption, Safe Like Money in the Bank',
-      description: 'Bank-level encryption for your data',
-    },
-    {
-      icon: <Headphones className="h-5 w-5" />,
-      title: 'Convenience of 24/7 Support',
-      description: 'Expert assistance whenever you need',
-    },
-  ];
+    const navigate = useNavigate();
+
+    const features = [
+        {
+        icon: <Clock className="h-5 w-5" />,
+        title: 'Own Your Hours, Work in Minutes',
+        description: 'Process claims in minutes, not hours',
+        },
+        {
+        icon: <ShieldCheck className="h-5 w-5" />,
+        title: 'Data Encryption, Safe Like Money in the Bank',
+        description: 'Bank-level encryption for your data',
+        },
+        {
+        icon: <Headphones className="h-5 w-5" />,
+        title: 'Convenience of 24/7 Support',
+        description: 'Expert assistance whenever you need',
+        },
+    ];
 
   return (
     <div className="hidden lg:flex lg:w-2/5 bg-white p-12 flex-col justify-between relative border-r border-gray-200">
@@ -27,7 +30,7 @@ export const AuthSidebar = () => {
       <div className="relative z-10">
         {/* Logo and Brand */}
         <div className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 cursor-pointer" onClick={()=>navigate('/')}>
             <img 
               src="/images/brand-green.png" 
               alt="Rapid Reportz" 

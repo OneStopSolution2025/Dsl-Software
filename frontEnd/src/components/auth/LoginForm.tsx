@@ -54,7 +54,7 @@ export const LoginForm = () => {
       dispatch(clearFiles());
 
       toast.success('Login successful!');
-      navigate('/');
+      navigate('/report');
     } catch (error: any) {
       const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
       dispatch(loginFailure(message));
