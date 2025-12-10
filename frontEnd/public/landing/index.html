@@ -1,528 +1,631 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="RapidReportz - Transform your reporting workflow from manual to intelligent automation. Save 88% time on reporting tasks.">
-    <meta name="keywords" content="reporting automation, business efficiency, document automation, TPBI reports">
-    <meta name="author" content="DSL Solutions & Services Sdn Bhd">
-    <title>RapidReportz - Report Rapidly. Live Easily</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="RapidReportz - Transform your reporting workflow from manual to intelligent automation. Save 88% time on reporting tasks." />
+        <meta name="keywords" content="reporting automation, business efficiency, document automation, TPBI reports" />
+        <meta name="author" content="DSL Solutions & Services Sdn Bhd" />
+        <title>RapidReportz - Report Rapidly. Live Easily</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap"
+            rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+    <body>
+        <!-- Header/Navigation -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <!-- Logo -->
+                    <div class="logo">
+                        <img src="images/logo.png" alt="RapidReportz Logo" style="width: 308px; height: 80px" />
+                    </div>
 
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <!-- Header/Navigation -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <!-- Logo -->
-                <div class="logo">
-                    <img src="images/logo.png" alt="RapidReportz Logo" style="width:308px;height:80px;">
-                    
+                    <!-- CTA Buttons -->
+                    <div class="header-cta">
+                        <a href="https://rapidreportz.com/login/" target="_blank" class="btn btn-primary">Login</a>
+                    </div>
+                    <!-- Mobile Menu Toggle -->
+                    <button class="menu-toggle" id="menuToggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                 </div>
 
-               
-
-                <!-- CTA Buttons -->
-                <div class="header-cta">
-                    <a href="/login" target="_blank" class="btn btn-primary">Login</a>
-                 
-                </div>
-<!-- Mobile Menu Toggle -->
-                <button class="menu-toggle" id="menuToggle">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-
-                
-                
-            </div>
-
-            <!-- Mobile Navigation -->
-            <nav class="nav-mobile" id="mobileMenu">
-                <!--<a href="#core-features" class="nav-link">Features</a>
+                <!-- Mobile Navigation -->
+                <nav class="nav-mobile" id="mobileMenu">
+                    <!--<a href="#core-features" class="nav-link">Features</a>
                 <a href="#pricing" class="nav-link">Pricing</a>
                 <a href="#" class="nav-link">About</a>-->
-                <a href="https://test.dfixcells.com/login" class="btn btn-primary">Login</a>
-                
-            </nav>
-        </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-background"></div>
-        <div class="hero-overlay"></div>
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">Rapid Reportz</h1>
-                <h2 class="hero-title">Report Rapidly.Live Easily</h2>
-                <p class="hero-subtitle">Spending hours reporting the work you've already completed never made sense to us. Focus on your real work. Let RapidReportz handle the rest — fast and accurately.</p>
-                <div class="hero-buttons">
-                    <button class="btn btn-primary" onclick="scrollToSection('core-features')">
-                        Explore Features
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                    <button class="btn btn-outline" onclick="scrollToSection('pricing')">View Pricing</button>
-                </div>
-                <div class="hero-badge">
-                    <div class="badge-line"></div>
-                    <span>Trusted by professionals</span>
-                    <div class="badge-line"></div>
-                </div>
+                    <a href="https://rapidreportz.com/login/" target="_blank" class="btn btn-primary">Login</a>
+                </nav>
             </div>
-        </div>
-        <div class="scroll-indicator">
-            <span>Scroll</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-            </svg>
-        </div>
-    </section>
-    
-<!-- Storytelling Video Section -->
-    <section class="storytelling-video">
-        <div class="video-fullwidth">
-            <video id="storytellingVideo" class="storytelling-player">
-                <source src="images/story.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <div class="video-gradient-overlay"></div>
-            <div class="video-content">
-                <button class="play-pause-btn" id="playPauseBtn" aria-label="Play/Pause video">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Features Section -->
-    <section class="features">
-        <div class="container">
-            <div class="section-header">
-                <p class="section-tagline">How It Works</p>
-                <h2>Four Simple Steps</h2>
-                <p>Free yourself from repetitive tasks with our streamlined workflow</p>
-            </div>
+        </header>
 
-             <div class="workflow-image">
-                <img src="images/automation-workflow.png" alt="Workflow: Upload, Extract, Edit, Export">
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-step">01</div>
-                    <div class="feature-icon">📤</div>
-                    <h3>Upload</h3>
-                    <p>Upload your documents, PDFs, images, and forms in seconds</p>
-                    <div class="accent-line"></div>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-step">02</div>
-                    <div class="feature-icon">🔍</div>
-                    <h3>Extract</h3>
-                    <p>Intelligent AI extracts data automatically and accurately</p>
-                    <div class="accent-line"></div>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-step">03</div>
-                    <div class="feature-icon">✏️</div>
-                    <h3>Edit</h3>
-                    <p>Modify content with our intuitive editor and sketch map designer</p>
-                    <div class="accent-line"></div>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-step">04</div>
-                    <div class="feature-icon">📥</div>
-                    <h3>Export</h3>
-                    <p>Download instantly in DOCX or PDF format, ready to share</p>
-                    <div class="accent-line"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Core Features Section -->
-    <section id="core-features" class="core-features">
-        <div class="container">
-            <div class="section-header">
-                <p class="section-tagline">Core Capabilities</p>
-                <h2>What Can You Do with RapidReportz</h2>
-                <p>Comprehensive tools designed for professional reporting workflows</p>
-            </div>
-
-            <div class="core-features-content">
-                <div class="features-list">
-                    <div class="feature-item">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-  <path fill-rule="evenodd" d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-7Z" clip-rule="evenodd"/>
-</svg>
-
-                        <div>
-                            <h4>Document Builder</h4>
-                            <p>Build your ideal output format with our drag-and-drop document builder</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path fill="currentColor" d="M5.99997 17c-.55229 0-1 .4477-1 1s.44771 1 1 1h.01c.55228 0 1-.4477 1-1s-.44772-1-1-1h-.01ZM18 17c-.5523 0-1 .4477-1 1s.4477 1 1 1h.01c.5523 0 1-.4477 1-1s-.4477-1-1-1H18Z"/>
-  <path fill="currentColor" fill-rule="evenodd" d="M12 13c.5523 0 1 .4477 1 1v.5858l.4142-.4142c.3905-.3905 1.0237-.3905 1.4142 0 .3905.3905.3905 1.0237 0 1.4142L14.4141 16l.5859.0001c.5523 0 1 .4477 1 1s-.4478 1-1.0001 1L14.4141 18l.4143.4143c.3905.3906.3905 1.0237 0 1.4142-.3906.3906-1.0237.3905-1.4143 0L13 19.4143v.5858c0 .5522-.4477 1-1 1s-1-.4478-1-1v-.5859l-.4143.4142c-.3905.3906-1.02365.3906-1.41417 0-.39053-.3905-.39053-1.0236 0-1.4142L9.58571 18l-.58572.0001c-.55228 0-1.00001-.4477-1.00002-1-.00001-.5523.44769-1 .99998-1L9.58571 16l-.41416-.4141c-.39054-.3905-.39056-1.0237-.00005-1.4142.39052-.3905 1.0237-.3906 1.4142 0l.4143.4142V14c0-.5523.4477-1 1-1Z" clip-rule="evenodd"/>
-  <path fill="currentColor" d="M9.21869 3.96216c1.18841-.77809 2.61801-1.10041 4.02531-.90756 1.4073.19285 2.6974.88787 3.6327 1.95696.8431.96375 1.3466 2.17293 1.4406 3.44244.6029.16797 1.1584.48908 1.6088.93946C20.6137 10.0811 21 11.0137 21 11.9862c0 .9449-.3677 1.9573-1.0739 2.6636-.6417.6416-1.4561.9281-2.2516.9899-.1439-.2824-.3312-.539-.5532-.761 0-.7677-.2929-1.5355-.8787-2.1213-.5858-.5858-1.3535-.8787-2.1213-.8787-.5429-.5429-1.2929-.8786-2.1213-.8786-.8285 0-1.5785.3358-2.12139.8787-.76778 0-1.53555.2929-2.12133.8788-.58574.5857-.87861 1.3535-.87862 2.1212-.18576.1858-.34727.3958-.47938.6249-.77455-.2033-1.48895-.6091-2.06499-1.1851C3.47996 13.4642 3 12.3055 3 11.0973c0-1.1581.38455-2.34287 1.27157-3.22989.74279-.74279 1.74607-1.18271 2.75928-1.2962.45424-1.06098 1.21293-1.97073 2.18784-2.60905Z"/>
-</svg>
-
-                        <div>
-                            <h4>Intelligent AI</h4>
-                            <p>AI-Powered Document Parsing Engine that converts scanned files into structured, editable data</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z"/>
-</svg>
-                        <div>
-                            <h4>Sketch Map Designer</h4>
-                            <p>Drag-and-drop accident sketch tool for quick marking of impact points</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-</svg>
-                        <div>
-                            <h4>Content Editor</h4>
-                            <p>Flexible editor enabling users to design and manage their own templates</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/>
-</svg>
-                        <div>
-                            <h4>Template Management</h4>
-                            <p>Reuse, upload, and edit your existing templates for consistency</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-  <path fill-rule="evenodd" d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Zm2 0V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5h7.586l-.293.293a1 1 0 0 0 1.414 1.414l2-2a1 1 0 0 0 0-1.414l-2-2a1 1 0 0 0-1.414 1.414l.293.293H4V9h5a2 2 0 0 0 2-2Z" clip-rule="evenodd"/>
-</svg>
-
-
-                        <div>
-                            <h4>Multi-Format Support</h4>
-                            <p>Capture data from PDFs, images, forms, and more with ease</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="features-illustration">
-                    <img src="images/features-illustration.png" alt="TPBI Report Module Features">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Demo Video Section -->
-    <section id="demo" class="demo-section">
-        <div class="container">
-            <div class="section-header">
-                <p class="section-tagline">See It In Action</p>
-                <h2>Watch RapidReportz Transforming Your Workflows from Manual to Intelligent</h2>
-                <p> </p>
-            </div>
-
-            <!-- <div class="video-container">
-                <div class="video-wrapper">
-                    <video id="demoVideo" class="video-player" controls>
-                        <source src="images/demo.mov" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="video-overlay" id="videoOverlay">
-                        <button class="play-button" id="playButton">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-background"></div>
+            <div class="hero-overlay"></div>
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Rapid Reportz</h1>
+                    <h2 class="hero-title">Report Rapidly.Live Easily</h2>
+                    <p class="hero-subtitle">
+                        Spending hours reporting the work you've already completed never made sense to us. Focus on your
+                        real work. Let RapidReportz handle the rest.
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="scrollToSection('core-features')">
+                            Explore Features
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </button>
-                        <p class="video-placeholder-text">Click to play demo video</p>
+                        <button class="btn btn-outline" onclick="scrollToSection('pricing')">View Pricing</button>
+                    </div>
+                    <div class="hero-badge">
+                        <div class="badge-line"></div>
+                        <span>Trusted by professionals</span>
+                        <div class="badge-line"></div>
                     </div>
                 </div>
-                <div class="video-info">
-                    <h3>See How It Works</h3>
-                    <p>Our demo video shows you exactly how RapidReportz streamlines your entire reporting process from upload to export in minutes. <br>
-                    <em>Example shown is RapidReportz - TBPI Report Module</em></p>
-                    <ul class="video-highlights">
-                        <li><span class="check">✓</span> Upload documents instantly</li>
-                        <li><span class="check">✓</span> Extract data automatically</li>
-                        <li><span class="check">✓</span> Edit with ease</li>
-                        <li><span class="check">✓</span> Export in minutes</li>
-                    </ul>
-                </div>
-            </div> -->
-
-            <div class="video-cta">
-                <p>Ready to see the difference?</p>
-              
-                    <a href="https://wa.me/+60107710012?text=Hello%20Rapid%20Reportz%20team%2C%20I%E2%80%99m%20interested%20in%20your%20services%20and%20would%20like%20to%20make%20an%20enquiry.%20Kindly%20assist%20me.%20Thank%20you%21" target="_blank" class="btn btn-primary">WhatsApp Us Now</a>
-
-                   <!-- <button class="btn btn-primary" onclick="scrollToSection('pricing')">Login</button> -->
-                
             </div>
-        </div>
-    </section>
-
-    <!-- Time Savings Section -->
-    <section class="time-savings">
-        <div class="container">
-            <div class="section-header">
-                <p class="section-tagline">Efficiency Gains</p>
-                <h2>Reclaim Your Time</h2>
-                <p>Transform your workflow and redirect hours back to meaningful work</p>
+            <div class="scroll-indicator">
+                <span>Scroll</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
             </div>
+        </section>
 
-            <div class="time-savings-image">
-                <img src="images/time-savings-visual.png" alt="Time Savings: 8 Hours to 1 Hour">
-            </div>
-
-            <div class="benefits-grid">
-                <div class="benefit-card">
-                    <div class="benefit-number">75%</div>
-                    <h3>Time Reduction</h3>
-                    <p>From 4 hours of manual reporting to just 1 hour of focused editing</p>
-                </div>
-
-                <div class="benefit-card">
-                    <div class="benefit-number">∞</div>
-                    <h3>More Free Time</h3>
-                    <p>Reclaim your weekends, family time, and personal moments every week</p>
-                </div>
-
-                <div class="benefit-card">
-                    <div class="benefit-number">✓</div>
-                    <h3>Better Quality</h3>
-                    <p>Consistent, high-quality reports with fewer errors and rejections</p>
+        <!-- Storytelling Video Section -->
+        <section class="storytelling-video">
+            <div class="video-fullwidth">
+                <video id="storytellingVideo" class="storytelling-player">
+                    <source src="images/story.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-gradient-overlay"></div>
+                <div class="video-content">
+                    <button class="play-pause-btn" id="playPauseBtn" aria-label="Play/Pause video">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                    </button>
                 </div>
             </div>
+        </section>
 
-            <div class="impact-card">
-                <h3>Real-World Impact</h3>
-                <p>For a typical adjuster handling 10 TPBI cases per week, RapidReportz eliminates the need for weekend work, reduces fatigue, and increases productivity by enabling faster turnaround times while maintaining exceptional report quality.</p>
-                <div class="accent-gradient"></div>
-            </div>
-        </div>
-    </section>
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-tagline">How It Works</p>
+                    <h2>Four Simple Steps</h2>
+                    <p>Free yourself from repetitive tasks with our streamlined workflow</p>
+                </div>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing">
-        <div class="container">
-            <div class="section-header">
-                <p class="section-tagline">Transparent Pricing</p>
-                <h2>Simple, Straightforward Pricing</h2>
-                <p>Choose the plan that fits your business needs</p>
-            </div>
+                <div class="workflow-image">
+                    <img src="images/automation-workflow.png" alt="Workflow: Upload, Extract, Edit, Export" />
+                </div>
 
-            <div class="pricing-cards">
-                <div class="pricing-card highlight">
-                    <h3>TPBI Report Module</h3>
-                    <p class="pricing-description">Complete reporting automation for loss adjusters</p>
-                    <div class="pricing-amount">
-                        <span class="price">RM37</span>
-                        <span class="period">first 30 pages</span>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-step">01</div>
+                        <div class="feature-icon">📤</div>
+                        <h3>Upload</h3>
+                        <p>Upload your documents, PDFs, images, and forms in seconds</p>
+                        <div class="accent-line"></div>
                     </div>
-                    <p class="pricing-additional">RM1 per additional page</p>
 
-                    <ul class="pricing-features">
-                        <li><span class="check">✓</span> Document Builder</li>
-                        <li><span class="check">✓</span> Intelligent AI</li>
-                        <li><span class="check">✓</span> Sketch Map Designer</li>
-                        <li><span class="check">✓</span> Content Editor</li>
-                        <li><span class="check">✓</span> Template Management</li>
-                        <li><span class="check">✓</span> Multi-format Support</li>
-                        <li><span class="check">✓</span> Instant Export (DOCX/PDF)</li>
-                        <li><span class="check">✓</span> Priority Support</li>
-                    </ul>
+                    <div class="feature-card">
+                        <div class="feature-step">02</div>
+                        <div class="feature-icon">🔍</div>
+                        <h3>Extract</h3>
+                        <p>Intelligent AI extracts data automatically and accurately</p>
+                        <div class="accent-line"></div>
+                    </div>
 
-                    <!--<button class="btn btn-primary w-full">Get Started</button>-->
+                    <div class="feature-card">
+                        <div class="feature-step">03</div>
+                        <div class="feature-icon">✏️</div>
+                        <h3>Edit</h3>
+                        <p>Modify content with our intuitive editor and sketch map designer</p>
+                        <div class="accent-line"></div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-step">04</div>
+                        <div class="feature-icon">📥</div>
+                        <h3>Export</h3>
+                        <p>Download instantly in DOCX or PDF format, ready to share</p>
+                        <div class="accent-line"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Features Section -->
+        <section id="core-features" class="core-features">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-tagline">Core Capabilities</p>
+                    <h2>What Can You Do with RapidReportz</h2>
+                    <p>Comprehensive tools designed for professional reporting workflows</p>
                 </div>
 
-                <div class="pricing-card">
-                    <h3>Tailored Solutions for Operational Excellence</h3>
-                    <p class="pricing-description">We offer specialized integration and customization services designed to perfectly align with your specific workflows and existing infrastructure.</p>
-                    <!--<div class="pricing-amount">
+                <div class="core-features-content">
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-7Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+
+                            <div>
+                                <h4>Document Builder</h4>
+                                <p>Build your ideal output format with our drag-and-drop document builder</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-item">
+                            <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24">
+                                <path
+                                    fill="currentColor"
+                                    d="M5.99997 17c-.55229 0-1 .4477-1 1s.44771 1 1 1h.01c.55228 0 1-.4477 1-1s-.44772-1-1-1h-.01ZM18 17c-.5523 0-1 .4477-1 1s.4477 1 1 1h.01c.5523 0 1-.4477 1-1s-.4477-1-1-1H18Z" />
+                                <path
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    d="M12 13c.5523 0 1 .4477 1 1v.5858l.4142-.4142c.3905-.3905 1.0237-.3905 1.4142 0 .3905.3905.3905 1.0237 0 1.4142L14.4141 16l.5859.0001c.5523 0 1 .4477 1 1s-.4478 1-1.0001 1L14.4141 18l.4143.4143c.3905.3906.3905 1.0237 0 1.4142-.3906.3906-1.0237.3905-1.4143 0L13 19.4143v.5858c0 .5522-.4477 1-1 1s-1-.4478-1-1v-.5859l-.4143.4142c-.3905.3906-1.02365.3906-1.41417 0-.39053-.3905-.39053-1.0236 0-1.4142L9.58571 18l-.58572.0001c-.55228 0-1.00001-.4477-1.00002-1-.00001-.5523.44769-1 .99998-1L9.58571 16l-.41416-.4141c-.39054-.3905-.39056-1.0237-.00005-1.4142.39052-.3905 1.0237-.3906 1.4142 0l.4143.4142V14c0-.5523.4477-1 1-1Z"
+                                    clip-rule="evenodd" />
+                                <path
+                                    fill="currentColor"
+                                    d="M9.21869 3.96216c1.18841-.77809 2.61801-1.10041 4.02531-.90756 1.4073.19285 2.6974.88787 3.6327 1.95696.8431.96375 1.3466 2.17293 1.4406 3.44244.6029.16797 1.1584.48908 1.6088.93946C20.6137 10.0811 21 11.0137 21 11.9862c0 .9449-.3677 1.9573-1.0739 2.6636-.6417.6416-1.4561.9281-2.2516.9899-.1439-.2824-.3312-.539-.5532-.761 0-.7677-.2929-1.5355-.8787-2.1213-.5858-.5858-1.3535-.8787-2.1213-.8787-.5429-.5429-1.2929-.8786-2.1213-.8786-.8285 0-1.5785.3358-2.12139.8787-.76778 0-1.53555.2929-2.12133.8788-.58574.5857-.87861 1.3535-.87862 2.1212-.18576.1858-.34727.3958-.47938.6249-.77455-.2033-1.48895-.6091-2.06499-1.1851C3.47996 13.4642 3 12.3055 3 11.0973c0-1.1581.38455-2.34287 1.27157-3.22989.74279-.74279 1.74607-1.18271 2.75928-1.2962.45424-1.06098 1.21293-1.97073 2.18784-2.60905Z" />
+                            </svg>
+
+                            <div>
+                                <h4>Intelligent AI</h4>
+                                <p>
+                                    AI-Powered Document Parsing Engine that converts scanned files into structured,
+                                    editable data
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="feature-item">
+                            <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24">
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z" />
+                            </svg>
+                            <div>
+                                <h4>Sketch Map Designer</h4>
+                                <p>Drag-and-drop accident sketch tool for quick marking of impact points</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-item">
+                            <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24">
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                            </svg>
+                            <div>
+                                <h4>Content Editor</h4>
+                                <p>Flexible editor enabling users to design and manage their own templates</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-item">
+                            <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24">
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01" />
+                            </svg>
+                            <div>
+                                <h4>Template Management</h4>
+                                <p>Reuse, upload, and edit your existing templates for consistency</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-item">
+                            <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Zm2 0V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5h7.586l-.293.293a1 1 0 0 0 1.414 1.414l2-2a1 1 0 0 0 0-1.414l-2-2a1 1 0 0 0-1.414 1.414l.293.293H4V9h5a2 2 0 0 0 2-2Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+
+                            <div>
+                                <h4>Multi-Format Support</h4>
+                                <p>Capture data from PDFs, images, forms, and more with ease</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="features-illustration">
+                        <img src="images/features-illustration.png" alt="TPBI Report Module Features" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Video Section -->
+        <section id="demo" class="demo-section">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-tagline">See It In Action</p>
+                    <h2>Watch RapidReportz Transforming Work from Manual to Intelligent</h2>
+                    <p></p>
+                </div>
+
+                <div class="video-container">
+                    <div class="video-wrapper">
+                        <video id="demoVideo" class="video-player" controls>
+                            <source src="images/demo.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-overlay" id="videoOverlay">
+                            <button class="play-button" id="playButton">
+                                <svg
+                                    width="60"
+                                    height="60"
+                                    viewBox="0 0 24 24"
+                                    fill="white"
+                                    stroke="white"
+                                    stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                            </button>
+                            <p class="video-placeholder-text">Click to play demo video</p>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>See How It Works</h3>
+                        <p>
+                            Our demo video shows you exactly how RapidReportz streamlines your entire reporting process
+                            from upload to export in minutes. <br />
+                            <em>Example shown is RapidReportz - TBPI Report Module</em>
+                        </p>
+                        <ul class="video-highlights">
+                            <li><span class="check">✓</span> Upload documents instantly</li>
+                            <li><span class="check">✓</span> Extract data automatically</li>
+                            <li><span class="check">✓</span> Edit with ease</li>
+                            <li><span class="check">✓</span> Export in minutes</li>
+                        </ul>
+                        <br />
+                        <p>
+                            <i
+                                >Disclaimer: Rapid Reportz shall not be held responsible or liable for the content,
+                                context, intend of use, and compliance of any laws and regulations including within and
+                                not within Malaysia. Uploaded documents are stored on a temporary basis only and will be
+                                automatically deleted from our temporary storage upon completion of the download.</i
+                            >
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-cta">
+                    <p>Ready to see the difference?</p>
+
+                    <a
+                        href="https://wa.me/+60107710012?text=Hello%20Rapid%20Reportz%20team%2C%20I%E2%80%99m%20interested%20in%20your%20services%20and%20would%20like%20to%20make%20an%20enquiry.%20Kindly%20assist%20me.%20Thank%20you%21"
+                        target="_blank"
+                        class="btn btn-primary"
+                        >WhatsApp Us Now</a
+                    >
+
+                    <!-- <button class="btn btn-primary" onclick="scrollToSection('pricing')">Login</button> -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Time Savings Section -->
+        <section class="time-savings">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-tagline">Efficiency Gains</p>
+                    <h2>Reclaim Your Time</h2>
+                    <p>Transform your workflow and redirect hours back to meaningful work</p>
+                </div>
+
+                <div class="time-savings-image">
+                    <img src="images/time-savings-visual.png" alt="Time Savings: 8 Hours to 1 Hour" />
+                </div>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-number">75%</div>
+                        <h3>Time Reduction</h3>
+                        <p>From 4 hours of manual reporting to just 1 hour of focused editing</p>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-number">∞</div>
+                        <h3>More Free Time</h3>
+                        <p>Reclaim your weekends, family time, and personal moments every week</p>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-number">✓</div>
+                        <h3>Better Quality</h3>
+                        <p>Consistent, high-quality reports with fewer errors and rejections</p>
+                    </div>
+                </div>
+
+                <div class="impact-card">
+                    <h3>Real-World Impact</h3>
+                    <p>
+                        For a typical adjuster handling 10 TPBI cases per week, RapidReportz eliminates the need for
+                        weekend work, reduces fatigue, and increases productivity by enabling faster turnaround times
+                        while maintaining exceptional report quality.
+                    </p>
+                    <div class="accent-gradient"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="pricing">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-tagline">Transparent Pricing</p>
+                    <h2>Simple, Straightforward Pricing</h2>
+                    <p>Choose the plan that fits your business needs</p>
+                </div>
+
+                <div class="pricing-cards">
+                    <div class="pricing-card highlight">
+                        <h3>TPBI Report Module</h3>
+                        <p class="pricing-description">Complete reporting automation for loss adjusters</p>
+                        <div class="pricing-amount">
+                            <span class="price">RM37</span>
+                            <span class="period">first 30 pages</span>
+                        </div>
+                        <p class="pricing-additional">RM1 per additional page</p>
+
+                        <ul class="pricing-features">
+                            <li><span class="check">✓</span> Document Builder</li>
+                            <li><span class="check">✓</span> Intelligent AI</li>
+                            <li><span class="check">✓</span> Sketch Map Designer</li>
+                            <li><span class="check">✓</span> Content Editor</li>
+                            <li><span class="check">✓</span> Template Management</li>
+                            <li><span class="check">✓</span> Multi-format Support</li>
+                            <li><span class="check">✓</span> Instant Export (DOCX/PDF)</li>
+                            <li><span class="check">✓</span> Priority Support</li>
+                        </ul>
+
+                        <!--<button class="btn btn-primary w-full">Get Started</button>-->
+                    </div>
+
+                    <div class="pricing-card">
+                        <h3>Tailored Solutions for Operational Excellence</h3>
+                        <p class="pricing-description">
+                            We offer specialized integration and customization services designed to perfectly align with
+                            your specific workflows and existing infrastructure.
+                        </p>
+                        <!--<div class="pricing-amount">
                         <span class="price">Custom</span>
                         <span class="period">pricing</span>
                     </div>-->
-                    <h4>Key Integration &amp; Service Offerings:</h4> 
-                    <br>
+                        <h4>Key Integration &amp; Service Offerings:</h4>
+                        <br />
 
-                    <ul class="pricing-features">
-                        <li><span class="check">✓</span> System Compatibility: ERP, Service Management, and CRM</li>
-                        <li><span class="check">✓</span> Technical Access: API Access</li>
-                        <li><span class="check">✓</span> Data Intelligence: Advanced Analytics</li>
-                        <li><span class="check">✓</span> Premium Service: Dedicated Support</li>
-                        <li><span class="check">✓</span> Branding: White-label Options</li>
-                       
-                    </ul>
-                    <br>
-                     <p>Contact us today for a complimentary demo, consultation, and pricing details.</p>
+                        <ul class="pricing-features">
+                            <li>
+                                <span class="check">✓</span> System Compatibility: ERP, Service Management CRM and
+                                Accounts &amp; Billing (e-Invoicing)
+                            </li>
+                            <li><span class="check">✓</span> Technical Access: API Access</li>
+                            <li><span class="check">✓</span> Data Intelligence: Advanced Analytics</li>
+                            <li><span class="check">✓</span> Premium Service: Dedicated Support</li>
+                            <li><span class="check">✓</span> Branding: White-label Options</li>
+                        </ul>
+                        <br />
+                        <p>Contact us today for a complimentary demo, consultation, and pricing details.</p>
 
-                  <!--  <button class="btn btn-outline w-full">Request Demo</button>-->
-                </div>
-            </div>
-
-           <div class="pricing-footer">
-                <p>All plans include a free consultation and demo</p>
-                <a href="https://wa.me/+60107710012?text=Hello%20Rapid%20Reportz%20team%2C%20I%E2%80%99m%20interested%20in%20your%20services%20and%20would%20like%20to%20make%20an%20enquiry.%20Kindly%20assist%20me.%20Thank%20you%21" target="_blank" class="btn btn-primary">WhatsApp Us Now</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Integration Section -->
-    <section class="integration">
-        <div class="container">
-            <div class="section-header">
-                <p class="section-tagline">Enterprise Integration</p>
-                <h2>Take Automation Even Further</h2>
-                <p>Integrate your auto-generated reports seamlessly with customized solutions tailored to your business needs</p>
-            </div>
-
-            <div class="integration-image">
-                <img src="images/integration-ecosystem.png" alt="CRM, ERP, and Service Management Integration">
-            </div>
-
-            <div class="integration-options">
-                <div class="integration-card">
-                    <div class="integration-icon">👥</div>
-                    <h3>CRM Systems</h3>
-                    <p>Seamlessly integrate with your customer relationship management platform</p>
+                        <!--  <button class="btn btn-outline w-full">Request Demo</button>-->
+                    </div>
                 </div>
 
-                <div class="integration-card">
-                    <div class="integration-icon">⚙️</div>
-                    <h3>ERP Solutions</h3>
-                    <p>Connect with enterprise resource planning systems for unified operations</p>
-                </div>
-
-                <div class="integration-card">
-                    <div class="integration-icon">🔧</div>
-                    <h3>Service Management</h3>
-                    <p>Streamline service workflows and case management processes</p>
+                <div class="pricing-footer">
+                    <p>All plans include a free consultation and demo</p>
+                    <a
+                        href="https://wa.me/+60107710012?text=Hello%20Rapid%20Reportz%20team%2C%20I%E2%80%99m%20interested%20in%20your%20services%20and%20would%20like%20to%20make%20an%20enquiry.%20Kindly%20assist%20me.%20Thank%20you%21"
+                        target="_blank"
+                        class="btn btn-primary"
+                        >WhatsApp Us Now</a
+                    >
                 </div>
             </div>
+        </section>
 
-            <div class="cta-card">
-                <h3>Ready to Transform Your Workflow?</h3>
-                <p>Contact us now for a free demo and consultation. Our team will help you identify the perfect integration solution for your business.</p>
-                <div class="cta-buttons">
-                   <!-- <button class="btn btn-primary">Schedule a Demo</button> -->
-                    <a href="mailto:enquiry@dslsolutionz.com" class="btn btn-outline">Contact Us</a>
-                </div>
-            </div>
-
-<div class="section-header">
-                
-                
-                <hr>
-            </div>
-
-            <div class="integration-image">
-                <img src="images/roadmap.png" alt="CRM, ERP, and Service Management Integration">
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="logo">
-                    <img src="images/footerlogo.png" alt="RapidReportz Logo" style="width:308px;height:80px;">
-                    
-                </div>
-                    <p>Transforming reporting workflows from manual to intelligent through innovative automation technology.</p>
+        <!-- Integration Section -->
+        <section class="integration">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-tagline">Enterprise Integration</p>
+                    <h2>Take Automation Even Further</h2>
+                    <p>
+                        Integrate your auto-generated reports seamlessly with customized solutions tailored to your
+                        business needs
+                    </p>
                 </div>
 
-              <!--  <div class="footer-section">
-                    <h4>Product</h4>
-                    <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#pricing">Pricing</a></li>
-                        <li><a href="#">Documentation</a></li>
-                    </ul>
+                <div class="integration-image">
+                    <img src="images/integration-ecosystem.png" alt="CRM, ERP, and Service Management Integration" />
                 </div>
 
-                <div class="footer-section">
-                    <h4>Company</h4>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Careers</a></li>
-                    </ul>
-                </div> -->
+                <div class="integration-options">
+                    <div class="integration-card">
+                        <div class="integration-icon">👥</div>
+                        <h3>CRM Systems</h3>
+                        <p>Seamlessly integrate with your customer relationship management platform</p>
+                    </div>
 
-                <div class="footer-section">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li> <i class="fas fa-envelope"></i> &nbsp; <a href="mailto:enquiry@dslsolutionz.com">enquiry@dslsolutionz.com</a></li>
-                        <li> <i class="fas fa-phone"></i> &nbsp; <a href="tel:+60107710012">+60 10-771 0012</a></li>
-                    </ul>
+                    <div class="integration-card">
+                        <div class="integration-icon">⚙️</div>
+                        <h3>ERP Solutions</h3>
+                        <p>Connect with enterprise resource planning systems for unified operations</p>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-icon">🔧</div>
+                        <h3>Service Management</h3>
+                        <p>Streamline service workflows and case management processes</p>
+                    </div>
+                </div>
+
+                <div class="cta-card">
+                    <h3>Ready to Transform Your Workflow?</h3>
+                    <p>
+                        Contact us now for a free demo and consultation. Our team will help you identify the perfect
+                        integration solution for your business.
+                    </p>
+                    <div class="cta-buttons">
+                        <!-- <button class="btn btn-primary">Schedule a Demo</button> -->
+                        <a href="mailto:enquiry@dslsolutionz.com" class="btn btn-outline">Contact Us</a>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <hr />
+                </div>
+
+                <div class="integration-image">
+                    <img src="images/roadmap.png" alt="CRM, ERP, and Service Management Integration" />
                 </div>
             </div>
+        </section>
 
-            <div class="footer-divider"></div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <div class="logo">
+                            <img
+                                src="images/footerlogo.png"
+                                alt="RapidReportz Logo"
+                                style="width: 308px; height: 80px" />
+                        </div>
+                        <p>
+                            Transforming reporting workflows from manual to intelligent through innovative automation
+                            technology.
+                        </p>
+                    </div>
 
-            <div class="footer-bottom">
-                <p>&copy; <span id="year"></span> DSL Solutions &amp; Services Sdn Bhd. All rights reserved.</p>
-              <!--  <div class="footer-links">
-                    <a href="privacy-policy.html">Privacy Policy</a>
-                    <a href="terms-of-service.html">Terms of Service</a>
-                    <a href="cookie-policy.html">Cookie Policy</a>
-                </div>-->
+                    <div class="footer-section">
+                        <h4>Contact</h4>
+                        <a href="mailto:enquiry@dslsolutionz.com">enquiry@dslsolutionz.com</a>
+                    </div>
+                    <div class="footer-section">
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                            <li><a href="cookie-policy.html">Cookie Policy</a></li>
+                            <li><a href="subscription-agreement.html">Subscription Agreement</a></li>
+                            <li><a href="dpa.html">Data Processing Agreement</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; <span id="year"></span> DSL Solutions &amp; Services Sdn Bhd. All rights reserved.</p>
+                </div>
             </div>
+        </footer>
 
-        <!--    <div class="footer-registration">
-                <p>DSL Solutions & Services Sendirian Berhad [202301002173]</p>
-            </div> -->
-        </div>
-    </footer>
+        <script src="js/script.js"></script>
+        <script>
+            function scrollToSection(sectionId) {
+                const element = document.getElementById(sectionId);
 
-    <script src="js/script.js"></script>
-    <script>
-  function scrollToSection(sectionId) {
-    const element = document.getElementById(sectionId);
-    
-    if (element) {
-      // Adjust this value to match the height of your fixed header
-      const headerOffset = 80; 
-      
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
-  
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
-    }
-  }
-</script>
-</body>
+                if (element) {
+                    // Adjust this value to match the height of your fixed header
+                    const headerOffset = 80;
+
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            }
+        </script>
+    </body>
 </html>
