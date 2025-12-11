@@ -30,10 +30,7 @@ export const AutoFill = () => {
         throw new Error('Session ID is required');
       }
 
-      const templateList = await apiService.document.getTemplateList();
-      const templateFilename = templateList?.[0] || 'template_with_placeholders.docx';
-
-      const response = await apiService.document.processDocuments(sessionId, templateFilename);
+      const response = await apiService.document.processDocuments(sessionId);
 
       if (response.report_docx_gcs_uri) {
         dispatch(setDocxUrl(response.report_docx_gcs_uri));

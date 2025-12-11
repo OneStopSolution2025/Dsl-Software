@@ -1,6 +1,6 @@
 // ==================== Map Report API ====================
 export const mapReportAPI = {
-  uploadMapReport: async (sessionId: string, payload: any, templatePath = 'template_with_placeholders.docx') => {
+  uploadMapReport: async (sessionId: string, payload: any, templatePath = 'template1.docx') => {
     const response = await api.post(`/map_report/${sessionId}?template_path=${templatePath}`, payload, {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -140,13 +140,11 @@ export const documentAPI = {
     return response.data;
   },
 
-  processDocuments: async (sessionId: string, templateFilename?: string) => {
-    const defaultTemplate = 'template_with_placeholders.docx';
-
+  processDocuments: async (sessionId: string) => {
     const response = await api.get(
       `${API_ENDPOINTS.PROCESS.AUTOFILL}/${sessionId}`,
       {
-        params: { template_filename: templateFilename || defaultTemplate },
+        params: { template_filename: 'template1.docx' },
         headers: getAuthHeaders(),
         timeout: 180000, // 3 minutes
       }
@@ -156,7 +154,7 @@ export const documentAPI = {
   },
 
   saveEditedForm: async (sessionId: string, formData: any, templatePath?: string) => {
-    const defaultTemplate = 'template_with_placeholders.docx';
+    const defaultTemplate = 'template1.docx';
 
     const response = await api.post(
       `${API_ENDPOINTS.PROCESS.MAP_REPORT}/${sessionId}?template_path=${templatePath || defaultTemplate}`,
