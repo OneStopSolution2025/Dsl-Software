@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, resetState } from '@/store';
 import { nextStep, previousStep } from '@/store/slices/stepperSlice';
 import { clearMarkers } from '@/store/slices/markersSlice';
+import { initializeSession } from '@/store/slices/sessionSlice';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StepIndicator } from '@/components/steps/StepIndicator';
 import { Button } from '@/components/common/Button';
@@ -60,7 +61,11 @@ export const Home = () => {
   };
 
   const handleHome = () => {
+    // Reset all state (clears everything except auth)
     dispatch(resetState());
+    // Generate and initialize a new session ID
+    dispatch(initializeSession());
+    // Navigate back to report page
     navigate('/report');
   };
 
@@ -70,7 +75,7 @@ export const Home = () => {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         {/* Step Indicator */}
         <StepIndicator />
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
 import { Upload, X } from 'lucide-react';
@@ -8,6 +9,8 @@ import DrawingToolbar, { DrawingTool } from './DrawingToolbar';
 import ColorPicker from './ColorPicker';
 import FontSelector from './FontSelector';
 import VehicleIconPicker from './VehicleIconPicker';
+import IconPalette from './IconPalette';
+import { getIconByType } from './enhancedMapIcons';
 import {
   initializeFabricCanvas,
   createUndoRedoState,
@@ -295,7 +298,63 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
     setActiveTool('select');
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleIconDragStart = (iconType: string) => {
+    const canvas = internalCanvasRef.current;
+    if (!canvas) return;
+
+    const iconConfig = getIconByType(iconType);
+    if (!iconConfig) return;
+
+    // Create a temporary container to render the icon
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+
+    // Render the icon component
+    const root = ReactDOM.createRoot(tempDiv);
+    const IconComponent = iconConfig.component;
+    
+    root.render(<IconComponent color={iconConfig.defaultColor} size={48} />);
+    
+    // Wait for render and get SVG
+    setTimeout(() => {
+      const svgElement = tempDiv.querySelector('svg');
+      if (svgElement) {
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+        
+        // Use data URL instead of blob URL to avoid cleanup issues
+        const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+
+        fabric.Image.fromURL(svgDataUrl, (img) => {
+          // Calculate center position
+          const centerX = (canvas.width || 800) / 2;
+          const centerY = (canvas.height || 600) / 2;
+          
+          img.set({
+            left: centerX,
+            top: centerY,
+            originX: 'center',
+            originY: 'center',
+            scaleX: 1.5,
+            scaleY: 1.5,
+          });
+          canvas.add(img);
+          canvas.setActiveObject(img);
+          canvas.renderAll();
+          
+          // Cleanup DOM elements
+          root.unmount();
+          document.body.removeChild(tempDiv);
+        });
+      } else {
+        root.unmount();
+        document.body.removeChild(tempDiv);
+      }
+    }, 100);
+    
+    setActiveTool('select');
+  };  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -367,8 +426,18 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Background Image Upload Section */}
+    <div className="flex h-full gap-4">
+      {/* Left Sidebar - Icon Palette */}
+      <div className="w-64 flex-shrink-0 overflow-y-auto bg-white border-r border-gray-200 p-4">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <span>Icons Palette</span>
+        </h3>
+        <IconPalette onDragStart={handleIconDragStart} onClick={handleIconDragStart} />
+      </div>
+
+      {/* Main Canvas Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Background Image Upload Section */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3 mb-3">
         <div className="flex items-center gap-3">
           <input
@@ -382,7 +451,7 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
           {!hasBackgroundImage ? (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium"
+              className="flex items-center gap-2 px-4 py-2.5 btn-primary rounded-lg font-semibold"
             >
               <Upload size={18} />
               Upload Background Image
@@ -396,13 +465,13 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium text-sm"
+                className="px-4 py-2.5 btn-primary rounded-lg font-semibold text-sm"
               >
                 Replace
               </button>
               <button
                 onClick={handleRemoveBackground}
-                className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
+                className="p-2 bg-error-100 text-error-600 rounded-lg hover:bg-error-200 transition-colors"
                 title="Remove Background"
               >
                 <X size={18} />
@@ -461,6 +530,7 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
           onClose={() => setShowVehiclePicker(false)}
         />
       )}
+      </div>
     </div>
   );
 };

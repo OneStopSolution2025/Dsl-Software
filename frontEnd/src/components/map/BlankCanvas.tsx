@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
 import { RootState } from '@/store';
@@ -7,6 +8,8 @@ import DrawingToolbar, { DrawingTool } from './DrawingToolbar';
 import ColorPicker from './ColorPicker';
 import FontSelector from './FontSelector';
 import VehicleIconPicker from './VehicleIconPicker';
+import IconPalette from './IconPalette';
+import { getIconByType } from './enhancedMapIcons';
 import {
   initializeFabricCanvas,
   createUndoRedoState,
@@ -264,10 +267,76 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
     setActiveTool('select');
   };
 
-  return (
-    <div className="flex flex-col h-full">
-      {/* Drawing Toolbar */}
-      <DrawingToolbar
+  const handleIconDragStart = (iconType: string) => {
+    const canvas = internalCanvasRef.current;
+    if (!canvas) return;
+
+    const iconConfig = getIconByType(iconType);
+    if (!iconConfig) return;
+
+    // Create a temporary container to render the icon
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+
+    // Render the icon component
+    const root = ReactDOM.createRoot(tempDiv);
+    const IconComponent = iconConfig.component;
+    
+    root.render(<IconComponent color={iconConfig.defaultColor} size={48} />);
+    
+    // Wait for render and get SVG
+    setTimeout(() => {
+      const svgElement = tempDiv.querySelector('svg');
+      if (svgElement) {
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+        
+        // Use data URL instead of blob URL to avoid cleanup issues
+        const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+
+        fabric.Image.fromURL(svgDataUrl, (img) => {
+          // Calculate center position
+          const centerX = (canvas.width || 800) / 2;
+          const centerY = (canvas.height || 600) / 2;
+          
+          img.set({
+            left: centerX,
+            top: centerY,
+            originX: 'center',
+            originY: 'center',
+            scaleX: 1.5,
+            scaleY: 1.5,
+          });
+          canvas.add(img);
+          canvas.setActiveObject(img);
+          canvas.renderAll();
+          
+          // Cleanup DOM elements
+          root.unmount();
+          document.body.removeChild(tempDiv);
+        });
+      } else {
+        root.unmount();
+        document.body.removeChild(tempDiv);
+      }
+    }, 100);
+    
+    setActiveTool('select');
+  };  return (
+    <div className="flex h-full gap-4">
+      {/* Left Sidebar - Icon Palette */}
+      <div className="w-64 flex-shrink-0 overflow-y-auto bg-white border-r border-gray-200 p-4">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <span>Icons Palette</span>
+        </h3>
+        <IconPalette onDragStart={handleIconDragStart} onClick={handleIconDragStart} />
+      </div>
+
+      {/* Main Canvas Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Drawing Toolbar */}
+        <DrawingToolbar
         activeTool={activeTool}
         onToolChange={setActiveTool}
         onUndo={handleUndo}
@@ -313,6 +382,7 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
           onClose={() => setShowVehiclePicker(false)}
         />
       )}
+      </div>
     </div>
   );
 };

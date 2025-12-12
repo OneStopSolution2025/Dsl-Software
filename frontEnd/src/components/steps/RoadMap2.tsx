@@ -26,6 +26,7 @@ const GOOGLE_MAPS_API_KEY = 'AIzaSyCi1g0u1_0qSZ09q8bkkb-7J5cBhi7iK9s';
 
 interface RoadMapRef {
   handleNextWithScreenshot: () => Promise<void>;
+  getMapContainer: () => HTMLDivElement | null;
 }
 
 // Location Search Component with Places Autocomplete
@@ -857,7 +858,8 @@ export const RoadMap2 = forwardRef<RoadMapRef>((_, ref) => {
       } finally {
         // setIsCapturing(false);
       }
-    }
+    },
+    getMapContainer: () => mapConRef.current
   }));
 
   // Download screenshot as PNG

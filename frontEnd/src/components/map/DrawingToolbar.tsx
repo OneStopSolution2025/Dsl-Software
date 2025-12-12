@@ -82,8 +82,8 @@ const DrawingToolbar: React.FC<DrawingToolbarProps> = ({
               }}
               className={`p-2 rounded transition-colors ${
                 activeTool === tool.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary-500 text-white shadow-md'
+                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
               }`}
               title={tool.label}
             >
@@ -96,7 +96,7 @@ const DrawingToolbar: React.FC<DrawingToolbarProps> = ({
         <div className="border-r border-gray-200 pr-2">
           <button
             onClick={onColorClick}
-            className="p-2 rounded bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-2"
+            className="p-2 rounded bg-neutral-100 hover:bg-neutral-200 transition-colors flex items-center gap-2"
             title="Choose Color"
           >
             <div
@@ -114,8 +114,8 @@ const DrawingToolbar: React.FC<DrawingToolbarProps> = ({
             disabled={!canUndo}
             className={`p-2 rounded transition-colors ${
               canUndo
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                : 'bg-neutral-50 text-neutral-300 cursor-not-allowed'
             }`}
             title="Undo"
           >
@@ -126,8 +126,8 @@ const DrawingToolbar: React.FC<DrawingToolbarProps> = ({
             disabled={!canRedo}
             className={`p-2 rounded transition-colors ${
               canRedo
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                : 'bg-neutral-50 text-neutral-300 cursor-not-allowed'
             }`}
             title="Redo"
           >
@@ -138,7 +138,7 @@ const DrawingToolbar: React.FC<DrawingToolbarProps> = ({
         {/* Clear Canvas */}
         <button
           onClick={onClear}
-          className="p-2 rounded bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+          className="p-2 rounded bg-error-100 text-error-600 hover:bg-error-200 transition-colors"
           title="Clear Canvas"
         >
           <Trash2 size={20} />

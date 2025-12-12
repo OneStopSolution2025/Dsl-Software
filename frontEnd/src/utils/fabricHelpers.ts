@@ -289,14 +289,24 @@ export const setBackgroundImage = (
   callback?: () => void
 ): void => {
   fabric.Image.fromURL(imageUrl, (img) => {
-    // Scale image to fit canvas
-    const scaleX = canvas.width! / img.width!;
-    const scaleY = canvas.height! / img.height!;
-    const scale = Math.min(scaleX, scaleY);
+    // Scale image to cover canvas (maintaining aspect ratio, may crop)
+    const canvasAspect = canvas.width! / canvas.height!;
+    const imgAspect = img.width! / img.height!;
+    
+    let scale;
+    if (canvasAspect > imgAspect) {
+      // Canvas is wider than image
+      scale = canvas.width! / img.width!;
+    } else {
+      // Canvas is taller than image
+      scale = canvas.height! / img.height!;
+    }
 
     img.set({
       scaleX: scale,
       scaleY: scale,
+      left: 0,
+      top: 0,
       selectable: false,
       evented: false,
     });

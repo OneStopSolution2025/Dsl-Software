@@ -1,6 +1,7 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
+import html2canvas from 'html2canvas';
 import { RootState } from '@/store';
 import { updateImage } from '@/store/slices/formSlice';
 import { setCanProceed, nextStep } from '@/store/slices/stepperSlice';
@@ -64,13 +65,13 @@ const PreviewDialog: React.FC<PreviewDialogProps> = ({ screenshots, onConfirm, o
           <div className="flex gap-3 justify-end">
             <button
               onClick={onCancel}
-              className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors font-medium"
+              className="px-6 py-2.5 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors font-semibold"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
-              className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium"
+              className="px-6 py-2.5 btn-primary rounded-lg font-semibold"
             >
               Confirm & Continue
             </button>
@@ -88,6 +89,7 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
 
   const [activeView, setActiveView] = useState<CanvasView>('roadmap');
   const [showPreview, setShowPreview] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [capturedScreenshots, setCapturedScreenshots] = useState<{
     roadmap?: string;
     blank?: string;
@@ -116,58 +118,96 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
         return;
       }
 
+      // Switch to Road Map tab before capturing
+      setActiveView('roadmap');
+
+      // Show loader overlay
+      setIsCapturing(true);
+
+      // Wait for tab switch and UI to update
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       const screenshots: {
         roadmap?: string;
         blank?: string;
         scene?: string;
       } = {};
 
-      // Capture Road Map screenshot (from form.images if already saved)
-      // Road Map component handles its own screenshot and saves to Redux
-      // We'll get it from Redux in handleConfirmPreview
+      // Capture Road Map screenshot using html2canvas
+      if (roadMapRef.current) {
+        try {
+          const mapContainer = roadMapRef.current.getMapContainer?.();
+          if (mapContainer) {
+            const canvas = await html2canvas(mapContainer, {
+              useCORS: true,
+              allowTaint: true,
+              scale: 1,
+              width: mapContainer.offsetWidth,
+              height: mapContainer.offsetHeight,
+              backgroundColor: '#ffffff',
+              logging: false,
+              onclone: (clonedDoc) => {
+                // Ensure Google Maps renders properly in the cloned document
+                const clonedMap = clonedDoc.querySelector('.gm-style') as HTMLElement;
+                if (clonedMap) {
+                  clonedMap.style.transform = 'none';
+                  clonedMap.style.transition = 'none';
+                }
+              }
+            });
+
+            // Convert canvas to base64
+            const roadmapBase64 = canvas.toDataURL('image/png', 0.9);
+            screenshots.roadmap = roadmapBase64;
+            // Save to Redux immediately
+            dispatch(updateImage({ fieldKey: 'ROAD_MAP_SCREENSHOT', base64: roadmapBase64 }));
+          }
+        } catch (error) {
+          console.error('Error capturing Road Map:', error);
+          // Use existing if capture fails
+          if (formImages['ROAD_MAP_SCREENSHOT']) {
+            screenshots.roadmap = formImages['ROAD_MAP_SCREENSHOT'];
+          }
+        }
+      }
+
+      // Wait a bit for processing
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Capture Blank Canvas if it has changes
       if (blankCanvasRef.current && hasCanvasChanges(blankCanvasRef.current, false)) {
         const blankScreenshot = await exportCanvasToBase64(blankCanvasRef.current);
         screenshots.blank = blankScreenshot;
+        // Save to Redux immediately
+        dispatch(updateImage({ fieldKey: 'BLANK_CANVAS_SCREENSHOT', base64: blankScreenshot }));
       }
 
       // Capture Scene Canvas if it has changes
       if (sceneCanvasRef.current && hasCanvasChanges(sceneCanvasRef.current, true)) {
         const sceneScreenshot = await exportCanvasToBase64(sceneCanvasRef.current);
         screenshots.scene = sceneScreenshot;
+        // Save to Redux immediately
+        dispatch(updateImage({ fieldKey: 'SCENE_CANVAS_SCREENSHOT', base64: sceneScreenshot }));
       }
 
-      // Get Road Map screenshot from Redux if it exists
-      if (formImages['SKETCH_PLAN']) {
-        screenshots.roadmap = formImages['SKETCH_PLAN'];
-      }
+      // Wait a bit before showing preview
+      await new Promise(resolve => setTimeout(resolve, 300));
 
+      // Hide loader and show preview
+      setIsCapturing(false);
       setCapturedScreenshots(screenshots);
       setShowPreview(true);
     } catch (error) {
       console.error('Error capturing screenshots:', error);
+      setIsCapturing(false);
       toast.error('Failed to capture screenshots');
     }
   };
 
   const handleConfirmPreview = async () => {
     try {
-      // Save Blank Canvas screenshot to Redux (only if exists)
-      if (capturedScreenshots.blank) {
-        dispatch(updateImage({ fieldKey: 'SKETCH_PLAN', base64: capturedScreenshots.blank }));
-      }
-
-      // Save Scene Canvas screenshot to Redux (only if exists)
-      if (capturedScreenshots.scene) {
-        dispatch(updateImage({ fieldKey: 'SCENE_1', base64: capturedScreenshots.scene }));
-      }
-
-      // Also trigger Road Map screenshot save if not already done
-      if (roadMapRef.current?.handleNextWithScreenshot) {
-        await roadMapRef.current.handleNextWithScreenshot();
-      }
-
+      // All screenshots are already saved to Redux during capture
+      // Close the preview and proceed to next step (AutoFill)
       setShowPreview(false);
       dispatch(setCanProceed(true));
       dispatch(nextStep());
@@ -192,16 +232,16 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
   return (
     <div className="flex flex-col h-full">
       {/* Button Group Navigation */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-2 mb-4">
-        <div className="inline-flex rounded-lg bg-gray-100 p-1" role="group">
+      <div className="bg-white border border-neutral-200 rounded-lg shadow-sm p-2 mb-4">
+        <div className="inline-flex rounded-lg bg-neutral-100 p-1" role="group">
           {buttons.map((button) => (
             <button
               key={button.id}
               onClick={() => setActiveView(button.id)}
-              className={`px-6 py-2 text-sm font-medium rounded-md transition-all ${
+              className={`px-6 py-2.5 text-sm font-semibold rounded-md transition-all ${
                 activeView === button.id
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary-500 text-white shadow-md'
+                  : 'text-neutral-700 hover:bg-neutral-200'
               }`}
             >
               {button.label}
@@ -212,21 +252,21 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
 
       {/* Canvas Views */}
       <div className="flex-1 overflow-hidden">
-        {activeView === 'roadmap' && (
+        <div className={activeView === 'roadmap' ? 'block h-full' : 'hidden'}>
           <RoadMap2 ref={roadMapRef} />
-        )}
-        {activeView === 'blank' && (
+        </div>
+        <div className={activeView === 'blank' ? 'block h-full' : 'hidden'}>
           <BlankCanvas
             onCanvasChange={() => {}}
             canvasRef={blankCanvasRef}
           />
-        )}
-        {activeView === 'scene' && (
+        </div>
+        <div className={activeView === 'scene' ? 'block h-full' : 'hidden'}>
           <SceneCanvas
             onCanvasChange={() => {}}
             canvasRef={sceneCanvasRef}
           />
-        )}
+        </div>
       </div>
 
       {/* Preview Dialog */}
@@ -236,6 +276,25 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
           onConfirm={handleConfirmPreview}
           onCancel={handleCancelPreview}
         />
+      )}
+
+      {/* Loader Overlay */}
+      {isCapturing && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md mx-4">
+            <div className="flex flex-col items-center">
+              {/* Spinner */}
+              <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              {/* Message */}
+              <h3 className="text-lg font-semibold text-neutral-800 mb-2">
+                Capturing Screenshots...
+              </h3>
+              <p className="text-sm text-neutral-600 text-center">
+                Please wait while we prepare your accident diagrams
+              </p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -86,13 +86,13 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ color, onChange, onClose }) =
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors font-medium"
+            className="flex-1 px-4 py-2.5 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors font-semibold"
           >
             Cancel
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium"
+            className="flex-1 px-4 py-2.5 btn-primary rounded-lg font-semibold"
           >
             Apply
           </button>
