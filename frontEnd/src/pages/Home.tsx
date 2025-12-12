@@ -15,7 +15,7 @@ import { OCRExtraction } from '@/components/steps/OCRExtraction';
 import { AutoFill } from '@/components/steps/AutoFill';
 import { Preview } from '@/components/steps/Preview';
 import { Download } from '@/components/steps/Download';
-import { RoadMap2 } from '@/components/steps/RoadMap2';
+import { AccidentDiagram } from '@/components/steps/AccidentDiagram';
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -30,7 +30,7 @@ export const Home = () => {
       case 2:
         return <OCRExtraction />;
       case 3:
-        return <RoadMap2 ref={roadMapRef} />;
+        return <AccidentDiagram ref={roadMapRef} />;
       case 4:
         return <AutoFill />;
       case 5:
@@ -43,7 +43,7 @@ export const Home = () => {
   };
 
   const handleNext = async () => {
-    // Special handling for road Map step (step 3) - capture screenshot first
+    // Special handling for Accident Diagram step (step 3) - capture screenshot first
     if (currentStep === 3 && roadMapRef.current?.handleNextWithScreenshot) {
       await roadMapRef.current.handleNextWithScreenshot();
       return;

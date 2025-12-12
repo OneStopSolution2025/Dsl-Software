@@ -1,0 +1,286 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { fabric } from 'fabric';
+import DrawingToolbar, { DrawingTool } from './DrawingToolbar';
+import ColorPicker from './ColorPicker';
+import FontSelector from './FontSelector';
+import VehicleIconPicker from './VehicleIconPicker';
+import {
+  initializeFabricCanvas,
+  createUndoRedoState,
+  saveCanvasState,
+  undo,
+  redo,
+  clearCanvas,
+  enableDrawingMode,
+  disableDrawingMode,
+  addRectangle,
+  addCircle,
+  addArrow,
+  addText,
+  deleteSelectedObjects,
+  UndoRedoState,
+} from '@/utils/fabricHelpers';
+
+interface BlankCanvasProps {
+  onCanvasChange?: (hasChanges: boolean) => void;
+  canvasRef?: React.MutableRefObject<fabric.Canvas | null>;
+}
+
+const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: externalCanvasRef }) => {
+  const internalCanvasRef = useRef<fabric.Canvas | null>(null);
+  const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
+  const undoRedoStateRef = useRef<UndoRedoState>(createUndoRedoState());
+  
+  const [activeTool, setActiveTool] = useState<DrawingTool>('select');
+  const [currentColor, setCurrentColor] = useState('#000000');
+  const [fontSize, setFontSize] = useState(20);
+  const [fontFamily, setFontFamily] = useState('Arial');
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showFontSelector, setShowFontSelector] = useState(false);
+  const [showVehiclePicker, setShowVehiclePicker] = useState(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  // Initialize canvas
+  useEffect(() => {
+    if (!canvasElementRef.current) return;
+
+    const canvas = initializeFabricCanvas(canvasElementRef.current);
+    internalCanvasRef.current = canvas;
+    
+    // Expose canvas to parent component if needed
+    if (externalCanvasRef) {
+      externalCanvasRef.current = canvas;
+    }
+
+    // Save initial state
+    saveCanvasState(canvas, undoRedoStateRef.current);
+
+    // Setup event listeners for tracking changes
+    const handleObjectAdded = () => {
+      saveCanvasState(canvas, undoRedoStateRef.current);
+      updateUndoRedoState();
+      notifyCanvasChange();
+    };
+
+    const handleObjectModified = () => {
+      saveCanvasState(canvas, undoRedoStateRef.current);
+      updateUndoRedoState();
+      notifyCanvasChange();
+    };
+
+    const handleObjectRemoved = () => {
+      updateUndoRedoState();
+      notifyCanvasChange();
+    };
+
+    canvas.on('object:added', handleObjectAdded);
+    canvas.on('object:modified', handleObjectModified);
+    canvas.on('object:removed', handleObjectRemoved);
+
+    // Enable keyboard shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Delete key
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        deleteSelectedObjects(canvas);
+      }
+      // Undo (Cmd/Ctrl + Z)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+      // Redo (Cmd/Ctrl + Shift + Z)
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      canvas.off('object:added', handleObjectAdded);
+      canvas.off('object:modified', handleObjectModified);
+      canvas.off('object:removed', handleObjectRemoved);
+      window.removeEventListener('keydown', handleKeyDown);
+      canvas.dispose();
+    };
+  }, []);
+
+  // Handle tool changes
+  useEffect(() => {
+    const canvas = internalCanvasRef.current;
+    if (!canvas) return;
+
+    switch (activeTool) {
+      case 'select':
+        disableDrawingMode(canvas);
+        canvas.selection = true;
+        break;
+      case 'pen':
+        enableDrawingMode(canvas, currentColor, 2);
+        canvas.selection = false;
+        break;
+      case 'eraser':
+        enableDrawingMode(canvas, '#ffffff', 10);
+        canvas.selection = false;
+        break;
+      case 'rectangle':
+        disableDrawingMode(canvas);
+        addRectangle(canvas, 'transparent', currentColor);
+        setActiveTool('select');
+        break;
+      case 'circle':
+        disableDrawingMode(canvas);
+        addCircle(canvas, 'transparent', currentColor);
+        setActiveTool('select');
+        break;
+      case 'arrow':
+        disableDrawingMode(canvas);
+        addArrow(canvas, currentColor);
+        setActiveTool('select');
+        break;
+      case 'text':
+        // Text tool is handled through FontSelector dialog
+        break;
+      case 'vehicle':
+        // Vehicle tool is handled through VehicleIconPicker dialog
+        break;
+    }
+  }, [activeTool, currentColor]);
+
+  const updateUndoRedoState = () => {
+    setCanUndo(undoRedoStateRef.current.undoStack.length > 0);
+    setCanRedo(undoRedoStateRef.current.redoStack.length > 0);
+  };
+
+  const notifyCanvasChange = () => {
+    const canvas = internalCanvasRef.current;
+    if (canvas && onCanvasChange) {
+      const hasChanges = canvas.getObjects().length > 0;
+      onCanvasChange(hasChanges);
+    }
+  };
+
+  const handleUndo = () => {
+    const canvas = internalCanvasRef.current;
+    if (canvas) {
+      undo(canvas, undoRedoStateRef.current);
+      updateUndoRedoState();
+      notifyCanvasChange();
+    }
+  };
+
+  const handleRedo = () => {
+    const canvas = internalCanvasRef.current;
+    if (canvas) {
+      redo(canvas, undoRedoStateRef.current);
+      updateUndoRedoState();
+      notifyCanvasChange();
+    }
+  };
+
+  const handleClear = () => {
+    const canvas = internalCanvasRef.current;
+    if (canvas) {
+      if (confirm('Are you sure you want to clear the entire canvas?')) {
+        clearCanvas(canvas, false);
+        saveCanvasState(canvas, undoRedoStateRef.current);
+        updateUndoRedoState();
+        notifyCanvasChange();
+      }
+    }
+  };
+
+  const handleColorChange = (color: string) => {
+    setCurrentColor(color);
+    const canvas = internalCanvasRef.current;
+    if (canvas && canvas.isDrawingMode && canvas.freeDrawingBrush) {
+      canvas.freeDrawingBrush.color = color;
+    }
+  };
+
+  const handleFontChange = (newFontSize: number, newFontFamily: string) => {
+    setFontSize(newFontSize);
+    setFontFamily(newFontFamily);
+    const canvas = internalCanvasRef.current;
+    if (canvas) {
+      disableDrawingMode(canvas);
+      addText(canvas, 'Text', newFontSize, newFontFamily, currentColor);
+      setActiveTool('select');
+    }
+  };
+
+  const handleVehicleSelect = (iconUrl: string) => {
+    const canvas = internalCanvasRef.current;
+    if (!canvas) return;
+
+    fabric.Image.fromURL(iconUrl, (img) => {
+      img.set({
+        left: 100,
+        top: 100,
+        scaleX: 0.5,
+        scaleY: 0.5,
+      });
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.renderAll();
+    });
+    
+    setActiveTool('select');
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Drawing Toolbar */}
+      <DrawingToolbar
+        activeTool={activeTool}
+        onToolChange={setActiveTool}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onClear={handleClear}
+        onColorClick={() => setShowColorPicker(true)}
+        onFontClick={() => setShowFontSelector(true)}
+        onVehicleClick={() => setShowVehiclePicker(true)}
+        currentColor={currentColor}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        showFontSelector={true}
+      />
+
+      {/* Canvas Container */}
+      <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-4">
+        <div className="bg-white shadow-lg">
+          <canvas ref={canvasElementRef} />
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showColorPicker && (
+        <ColorPicker
+          color={currentColor}
+          onChange={handleColorChange}
+          onClose={() => setShowColorPicker(false)}
+        />
+      )}
+      
+      {showFontSelector && (
+        <FontSelector
+          fontSize={fontSize}
+          fontFamily={fontFamily}
+          onFontChange={handleFontChange}
+          onClose={() => setShowFontSelector(false)}
+        />
+      )}
+      
+      {showVehiclePicker && (
+        <VehicleIconPicker
+          onSelect={handleVehicleSelect}
+          onClose={() => setShowVehiclePicker(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default BlankCanvas;
