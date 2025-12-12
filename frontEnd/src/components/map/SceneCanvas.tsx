@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
 import { Upload, X } from 'lucide-react';
+import { RootState } from '@/store';
+import { setSceneCanvasJSON, setSceneBackground, clearSceneBackground } from '@/store/slices/canvasSlice';
 import DrawingToolbar, { DrawingTool } from './DrawingToolbar';
 import ColorPicker from './ColorPicker';
 import FontSelector from './FontSelector';
@@ -30,10 +33,16 @@ interface SceneCanvasProps {
 }
 
 const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: externalCanvasRef }) => {
+  const dispatch = useDispatch();
+  const sceneCanvasJSON = useSelector((state: RootState) => state.canvas.sceneCanvasJSON);
+  const sceneBackgroundImage = useSelector((state: RootState) => state.canvas.sceneBackgroundImage);
+  const sceneBackgroundFileName = useSelector((state: RootState) => state.canvas.sceneBackgroundFileName);
+  
   const internalCanvasRef = useRef<fabric.Canvas | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
   const undoRedoStateRef = useRef<UndoRedoState>(createUndoRedoState());
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const isLoadingFromRedux = useRef(false);
   
   const [activeTool, setActiveTool] = useState<DrawingTool>('select');
   const [currentColor, setCurrentColor] = useState('#000000');
@@ -47,6 +56,14 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
   const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
   const [backgroundFileName, setBackgroundFileName] = useState<string>('');
 
+  // Initialize background state from Redux
+  useEffect(() => {
+    if (sceneBackgroundImage && sceneBackgroundFileName) {
+      setHasBackgroundImage(true);
+      setBackgroundFileName(sceneBackgroundFileName);
+    }
+  }, []);
+
   // Initialize canvas
   useEffect(() => {
     if (!canvasElementRef.current) return;
@@ -59,25 +76,52 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
       externalCanvasRef.current = canvas;
     }
 
-    // Save initial state
-    saveCanvasState(canvas, undoRedoStateRef.current);
+    // Load from Redux if available
+    if (sceneCanvasJSON) {
+      isLoadingFromRedux.current = true;
+      canvas.loadFromJSON(sceneCanvasJSON, () => {
+        canvas.renderAll();
+        isLoadingFromRedux.current = false;
+        // Save initial state after loading
+        saveCanvasState(canvas, undoRedoStateRef.current);
+        updateUndoRedoState();
+        notifyCanvasChange();
+      });
+    } else if (sceneBackgroundImage) {
+      // Load background image if exists
+      isLoadingFromRedux.current = true;
+      setBackgroundImage(canvas, sceneBackgroundImage, () => {
+        isLoadingFromRedux.current = false;
+        saveCanvasState(canvas, undoRedoStateRef.current);
+        updateUndoRedoState();
+        notifyCanvasChange();
+      });
+    } else {
+      // Save initial state for new canvas
+      saveCanvasState(canvas, undoRedoStateRef.current);
+    }
 
     // Setup event listeners for tracking changes
     const handleObjectAdded = () => {
-      saveCanvasState(canvas, undoRedoStateRef.current);
-      updateUndoRedoState();
-      notifyCanvasChange();
+      if (!isLoadingFromRedux.current) {
+        saveCanvasState(canvas, undoRedoStateRef.current);
+        updateUndoRedoState();
+        notifyCanvasChange();
+        saveToRedux();
+      }
     };
 
     const handleObjectModified = () => {
       saveCanvasState(canvas, undoRedoStateRef.current);
       updateUndoRedoState();
       notifyCanvasChange();
+      saveToRedux();
     };
 
     const handleObjectRemoved = () => {
       updateUndoRedoState();
       notifyCanvasChange();
+      saveToRedux();
     };
 
     canvas.on('object:added', handleObjectAdded);
@@ -116,6 +160,14 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
       canvas.dispose();
     };
   }, []);
+
+  const saveToRedux = () => {
+    const canvas = internalCanvasRef.current;
+    if (canvas && !isLoadingFromRedux.current) {
+      const json = JSON.stringify(canvas.toJSON());
+      dispatch(setSceneCanvasJSON(json));
+    }
+  };
 
   // Handle tool changes
   useEffect(() => {
@@ -200,6 +252,7 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
         saveCanvasState(canvas, undoRedoStateRef.current);
         updateUndoRedoState();
         notifyCanvasChange();
+        saveToRedux();
       }
     }
   };
@@ -276,9 +329,11 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
         setBackgroundImage(canvas, base64, () => {
           setHasBackgroundImage(true);
           setBackgroundFileName(file.name);
+          dispatch(setSceneBackground({ image: base64, fileName: file.name }));
           saveCanvasState(canvas, undoRedoStateRef.current);
           updateUndoRedoState();
           notifyCanvasChange();
+          saveToRedux();
         });
       }
     } catch (error) {
@@ -303,9 +358,11 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
       }
       setHasBackgroundImage(false);
       setBackgroundFileName('');
+      dispatch(clearSceneBackground());
       saveCanvasState(canvas, undoRedoStateRef.current);
       updateUndoRedoState();
       notifyCanvasChange();
+      saveToRedux();
     }
   };
 

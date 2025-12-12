@@ -3,13 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
 import { RootState } from '@/store';
 import { updateImage } from '@/store/slices/formSlice';
-import { addServerFile } from '@/store/slices/filesSlice';
-import { setCanProceed } from '@/store/slices/stepperSlice';
+import { setCanProceed, nextStep } from '@/store/slices/stepperSlice';
 import BlankCanvas from '@/components/map/BlankCanvas';
 import SceneCanvas from '@/components/map/SceneCanvas';
 import { RoadMap2 } from './RoadMap2';
 import { exportCanvasToBase64, hasCanvasChanges } from '@/utils/canvasHelpers';
-import { uploadScreenshotAPI } from '@/utils/api/upload';
 import toast from 'react-hot-toast';
 
 interface AccidentDiagramRef {
@@ -29,7 +27,14 @@ interface PreviewDialogProps {
 }
 
 const PreviewDialog: React.FC<PreviewDialogProps> = ({ screenshots, onConfirm, onCancel }) => {
-  const hasAnyScreenshot = screenshots.roadmap || screenshots.blank || screenshots.scene;
+  const imagesToShow = Object.entries(screenshots).filter(([_, img]) => img);
+  const hasAnyScreenshot = imagesToShow.length > 0;
+
+  const labels: Record<string, string> = {
+    roadmap: 'Road Map',
+    blank: 'Blank Canvas',
+    scene: 'Scene Canvas',
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -42,37 +47,17 @@ const PreviewDialog: React.FC<PreviewDialogProps> = ({ screenshots, onConfirm, o
           {!hasAnyScreenshot ? (
             <p className="text-gray-600 mb-6">No diagrams captured.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {screenshots.roadmap && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Road Map</h3>
+            <div className={`grid grid-cols-1 ${imagesToShow.length === 2 ? 'md:grid-cols-2' : imagesToShow.length === 3 ? 'md:grid-cols-3' : ''} gap-4 mb-6`}>
+              {imagesToShow.map(([key, img]) => (
+                <div key={key}>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">{labels[key]}</h3>
                   <img
-                    src={screenshots.roadmap}
-                    alt="Road Map"
+                    src={img}
+                    alt={labels[key]}
                     className="w-full border border-gray-300 rounded"
                   />
                 </div>
-              )}
-              {screenshots.blank && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Blank Canvas</h3>
-                  <img
-                    src={screenshots.blank}
-                    alt="Blank Canvas"
-                    className="w-full border border-gray-300 rounded"
-                  />
-                </div>
-              )}
-              {screenshots.scene && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Scene Canvas</h3>
-                  <img
-                    src={screenshots.scene}
-                    alt="Scene Canvas"
-                    className="w-full border border-gray-300 rounded"
-                  />
-                </div>
-              )}
+              ))}
             </div>
           )}
 
@@ -96,52 +81,13 @@ const PreviewDialog: React.FC<PreviewDialogProps> = ({ screenshots, onConfirm, o
   );
 };
 
-interface EmptyCanvasConfirmationDialogProps {
-  onEdit: () => void;
-  onContinue: () => void;
-}
-
-const EmptyCanvasConfirmationDialog: React.FC<EmptyCanvasConfirmationDialogProps> = ({
-  onEdit,
-  onContinue,
-}) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-3">
-          Empty Canvas Detected
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Both the Blank Canvas and Scene Canvas are empty. Would you like to edit them or
-          continue anyway?
-        </p>
-
-        <div className="flex gap-3">
-          <button
-            onClick={onEdit}
-            className="flex-1 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium"
-          >
-            Edit Canvas
-          </button>
-          <button
-            onClick={onContinue}
-            className="flex-1 px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors font-medium"
-          >
-            Continue Anyway
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
   const dispatch = useDispatch();
-  const { sessionId } = useSelector((state: RootState) => state.files);
+  const markers = useSelector((state: RootState) => state.markers.markers);
+  const formImages = useSelector((state: RootState) => state.form.images);
 
   const [activeView, setActiveView] = useState<CanvasView>('roadmap');
   const [showPreview, setShowPreview] = useState(false);
-  const [showEmptyConfirmation, setShowEmptyConfirmation] = useState(false);
   const [capturedScreenshots, setCapturedScreenshots] = useState<{
     roadmap?: string;
     blank?: string;
@@ -161,21 +107,24 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
 
   const handleCaptureAndPreview = async () => {
     try {
+      // Check if Road Map has markers
+      if (markers.length === 0) {
+        // Show alert and switch to Road Map
+        if (confirm('Please add icons on the map to proceed.\n\nClick OK to switch to Road Map.')) {
+          setActiveView('roadmap');
+        }
+        return;
+      }
+
       const screenshots: {
         roadmap?: string;
         blank?: string;
         scene?: string;
       } = {};
 
-      // Capture Road Map screenshot (always capture if markers exist)
-      if (roadMapRef.current?.handleNextWithScreenshot) {
-        // Road Map component will handle its own screenshot and save
-        // We'll just get a reference for preview
-        const roadMapScreenshot = await captureRoadMapScreenshot();
-        if (roadMapScreenshot) {
-          screenshots.roadmap = roadMapScreenshot;
-        }
-      }
+      // Capture Road Map screenshot (from form.images if already saved)
+      // Road Map component handles its own screenshot and saves to Redux
+      // We'll get it from Redux in handleConfirmPreview
 
       // Capture Blank Canvas if it has changes
       if (blankCanvasRef.current && hasCanvasChanges(blankCanvasRef.current, false)) {
@@ -189,10 +138,9 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
         screenshots.scene = sceneScreenshot;
       }
 
-      // Check if both Blank and Scene are empty
-      if (!screenshots.blank && !screenshots.scene) {
-        setShowEmptyConfirmation(true);
-        return;
+      // Get Road Map screenshot from Redux if it exists
+      if (formImages['SKETCH_PLAN']) {
+        screenshots.roadmap = formImages['SKETCH_PLAN'];
       }
 
       setCapturedScreenshots(screenshots);
@@ -203,80 +151,36 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
     }
   };
 
-  const captureRoadMapScreenshot = async (): Promise<string | undefined> => {
-    // This is a placeholder - the RoadMap2 component handles its own screenshot
-    // We return undefined here as RoadMap saves directly
-    return undefined;
-  };
-
   const handleConfirmPreview = async () => {
     try {
-      // Upload Blank Canvas screenshot to server
+      // Save Blank Canvas screenshot to Redux (only if exists)
       if (capturedScreenshots.blank) {
-        const blob = await fetch(capturedScreenshots.blank).then((r) => r.blob());
-        const file = new File([blob], 'blank_canvas.png', { type: 'image/png' });
-        
-        if (sessionId) {
-          const response = await uploadScreenshotAPI(file, sessionId);
-          if (response.success && response.file) {
-            dispatch(addServerFile(response.file));
-          }
-        }
-        
-        // Save to Redux with SKETCH_PLAN key (priority over Road Map)
         dispatch(updateImage({ fieldKey: 'SKETCH_PLAN', base64: capturedScreenshots.blank }));
       }
 
-      // Upload Scene Canvas screenshot to server
+      // Save Scene Canvas screenshot to Redux (only if exists)
       if (capturedScreenshots.scene) {
-        const blob = await fetch(capturedScreenshots.scene).then((r) => r.blob());
-        const file = new File([blob], 'scene_canvas.png', { type: 'image/png' });
-        
-        if (sessionId) {
-          const response = await uploadScreenshotAPI(file, sessionId);
-          if (response.success && response.file) {
-            dispatch(addServerFile(response.file));
-          }
-        }
-        
-        // Save to Redux with SCENE_1 key
         dispatch(updateImage({ fieldKey: 'SCENE_1', base64: capturedScreenshots.scene }));
       }
 
-      // Also trigger Road Map screenshot save
+      // Also trigger Road Map screenshot save if not already done
       if (roadMapRef.current?.handleNextWithScreenshot) {
         await roadMapRef.current.handleNextWithScreenshot();
       }
 
       setShowPreview(false);
       dispatch(setCanProceed(true));
+      dispatch(nextStep());
       toast.success('Accident diagrams saved successfully!');
     } catch (error) {
-      console.error('Error uploading screenshots:', error);
-      toast.error('Failed to upload screenshots');
+      console.error('Error saving screenshots:', error);
+      toast.error('Failed to save screenshots');
     }
   };
 
   const handleCancelPreview = () => {
     setShowPreview(false);
     setCapturedScreenshots({});
-  };
-
-  const handleEditCanvas = () => {
-    setShowEmptyConfirmation(false);
-    setActiveView('blank');
-  };
-
-  const handleContinueAnyway = async () => {
-    setShowEmptyConfirmation(false);
-    
-    // Still capture Road Map screenshot if available
-    if (roadMapRef.current?.handleNextWithScreenshot) {
-      await roadMapRef.current.handleNextWithScreenshot();
-    }
-    
-    dispatch(setCanProceed(true));
-    toast.success('Proceeding without canvas diagrams');
   };
 
   const buttons: Array<{ id: CanvasView; label: string }> = [
@@ -331,14 +235,6 @@ export const AccidentDiagram = forwardRef<AccidentDiagramRef>((_, ref) => {
           screenshots={capturedScreenshots}
           onConfirm={handleConfirmPreview}
           onCancel={handleCancelPreview}
-        />
-      )}
-
-      {/* Empty Canvas Confirmation Dialog */}
-      {showEmptyConfirmation && (
-        <EmptyCanvasConfirmationDialog
-          onEdit={handleEditCanvas}
-          onContinue={handleContinueAnyway}
         />
       )}
     </div>

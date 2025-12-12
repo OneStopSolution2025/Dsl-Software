@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
+import { RootState } from '@/store';
+import { setBlankCanvasJSON } from '@/store/slices/canvasSlice';
 import DrawingToolbar, { DrawingTool } from './DrawingToolbar';
 import ColorPicker from './ColorPicker';
 import FontSelector from './FontSelector';
@@ -27,9 +30,13 @@ interface BlankCanvasProps {
 }
 
 const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: externalCanvasRef }) => {
+  const dispatch = useDispatch();
+  const blankCanvasJSON = useSelector((state: RootState) => state.canvas.blankCanvasJSON);
+  
   const internalCanvasRef = useRef<fabric.Canvas | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
   const undoRedoStateRef = useRef<UndoRedoState>(createUndoRedoState());
+  const isLoadingFromRedux = useRef(false);
   
   const [activeTool, setActiveTool] = useState<DrawingTool>('select');
   const [currentColor, setCurrentColor] = useState('#000000');
@@ -53,25 +60,43 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
       externalCanvasRef.current = canvas;
     }
 
-    // Save initial state
-    saveCanvasState(canvas, undoRedoStateRef.current);
+    // Load from Redux if available
+    if (blankCanvasJSON) {
+      isLoadingFromRedux.current = true;
+      canvas.loadFromJSON(blankCanvasJSON, () => {
+        canvas.renderAll();
+        isLoadingFromRedux.current = false;
+        // Save initial state after loading
+        saveCanvasState(canvas, undoRedoStateRef.current);
+        updateUndoRedoState();
+        notifyCanvasChange();
+      });
+    } else {
+      // Save initial state for new canvas
+      saveCanvasState(canvas, undoRedoStateRef.current);
+    }
 
     // Setup event listeners for tracking changes
     const handleObjectAdded = () => {
-      saveCanvasState(canvas, undoRedoStateRef.current);
-      updateUndoRedoState();
-      notifyCanvasChange();
+      if (!isLoadingFromRedux.current) {
+        saveCanvasState(canvas, undoRedoStateRef.current);
+        updateUndoRedoState();
+        notifyCanvasChange();
+        saveToRedux();
+      }
     };
 
     const handleObjectModified = () => {
       saveCanvasState(canvas, undoRedoStateRef.current);
       updateUndoRedoState();
       notifyCanvasChange();
+      saveToRedux();
     };
 
     const handleObjectRemoved = () => {
       updateUndoRedoState();
       notifyCanvasChange();
+      saveToRedux();
     };
 
     canvas.on('object:added', handleObjectAdded);
@@ -106,6 +131,14 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
       canvas.dispose();
     };
   }, []);
+
+  const saveToRedux = () => {
+    const canvas = internalCanvasRef.current;
+    if (canvas && !isLoadingFromRedux.current) {
+      const json = JSON.stringify(canvas.toJSON());
+      dispatch(setBlankCanvasJSON(json));
+    }
+  };
 
   // Handle tool changes
   useEffect(() => {
@@ -188,6 +221,7 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
         saveCanvasState(canvas, undoRedoStateRef.current);
         updateUndoRedoState();
         notifyCanvasChange();
+        saveToRedux();
       }
     }
   };
