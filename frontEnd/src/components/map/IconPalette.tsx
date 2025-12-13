@@ -4,9 +4,10 @@ import { Map } from 'lucide-react';
 
 interface IconPaletteProps {
   onDragStart: (iconType: string) => void;
+  onClick?: (iconType: string) => void;
 }
 
-export default function IconPalette({ onDragStart }: IconPaletteProps) {
+export default function IconPalette({ onDragStart, onClick }: IconPaletteProps) {
   const accordionItems = iconCategories.map((category) => {
     const icons = getIconsByCategory(category);
 
@@ -25,7 +26,8 @@ export default function IconPalette({ onDragStart }: IconPaletteProps) {
               <div key={type}
                 draggable
                 onDragStart={() => onDragStart(type)}
-                className="group flex flex-col items-center p-3 border-2 border-gray-200 rounded-xl cursor-grab 
+                onClick={() => onClick?.(type)}
+                className="group flex flex-col items-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer 
                   hover:border-primary-400 hover:bg-gradient-to-br hover:from-primary-50 hover:to-white 
                   active:cursor-grabbing active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md"
               >

@@ -50,6 +50,42 @@ const ImageUpload: React.FC = () => {
                         base64: images[fieldKey] || "" 
                     };
                 });
+
+                // Auto-fill screenshots from Accident Diagram step
+                // Find the first field in each category and map to screenshots
+                let sketchFilled = false;
+                let sceneFilled = false;
+                let canvasFilled = false;
+                
+                data.forEach((fieldKey) => {
+                    const parts = fieldKey.split('_');
+                    if (parts.length < 2) return;
+                    
+                    const category = parts[0].toUpperCase();
+                    
+                    // Auto-fill Road Map screenshot to first Sketch field
+                    if (category === 'SKETCH' && !sketchFilled && images['ROAD_MAP_SCREENSHOT'] && !filesObj[fieldKey].base64) {
+                        filesObj[fieldKey].base64 = images['ROAD_MAP_SCREENSHOT'];
+                        dispatch(updateImage({ fieldKey, base64: images['ROAD_MAP_SCREENSHOT'] }));
+                        sketchFilled = true;
+                    }
+                    
+                    // Auto-fill Scene Canvas screenshot to first Scene field
+                    if (category === 'SCENE' && !sceneFilled && images['SCENE_CANVAS_SCREENSHOT'] && !filesObj[fieldKey].base64) {
+                        filesObj[fieldKey].base64 = images['SCENE_CANVAS_SCREENSHOT'];
+                        dispatch(updateImage({ fieldKey, base64: images['SCENE_CANVAS_SCREENSHOT'] }));
+                        sceneFilled = true;
+                    }
+                    
+                    // Auto-fill Blank Canvas screenshot to first Canvas field
+                    // Check for both CANVAS and CANVA variations
+                    if ((category === 'CANVAS' || category === 'CANVA') && !canvasFilled && images['BLANK_CANVAS_SCREENSHOT'] && !filesObj[fieldKey].base64) {
+                        filesObj[fieldKey].base64 = images['BLANK_CANVAS_SCREENSHOT'];
+                        dispatch(updateImage({ fieldKey, base64: images['BLANK_CANVAS_SCREENSHOT'] }));
+                        canvasFilled = true;
+                    }
+                });
+
                 setCategoryFiles(filesObj);
 
                 // init dropdown: first category opened

@@ -5,7 +5,8 @@ import filesReducer from './slices/filesSlice';
 import mapReducer from './slices/mapSlice';
 import sessionReducer from './slices/sessionSlice';
 import formReducer from './slices/formSlice';
-import markersReducer from './slices/markersSlice'
+import markersReducer from './slices/markersSlice';
+import canvasReducer from './slices/canvasSlice';
 
 
 // Create the root reducer
@@ -17,6 +18,7 @@ const combinedReducer = combineReducers({
   session: sessionReducer,
   form: formReducer,
   markers: markersReducer,
+  canvas: canvasReducer,
 });
 
 

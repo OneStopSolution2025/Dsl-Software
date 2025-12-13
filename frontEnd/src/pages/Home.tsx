@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, resetState } from '@/store';
 import { nextStep, previousStep } from '@/store/slices/stepperSlice';
 import { clearMarkers } from '@/store/slices/markersSlice';
+import { initializeSession } from '@/store/slices/sessionSlice';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StepIndicator } from '@/components/steps/StepIndicator';
 import { Button } from '@/components/common/Button';
@@ -15,7 +16,7 @@ import { OCRExtraction } from '@/components/steps/OCRExtraction';
 import { AutoFill } from '@/components/steps/AutoFill';
 import { Preview } from '@/components/steps/Preview';
 import { Download } from '@/components/steps/Download';
-import { RoadMap2 } from '@/components/steps/RoadMap2';
+import { AccidentDiagram } from '@/components/steps/AccidentDiagram';
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ export const Home = () => {
       case 2:
         return <OCRExtraction />;
       case 3:
-        return <RoadMap2 ref={roadMapRef} />;
+        return <AccidentDiagram ref={roadMapRef} />;
       case 4:
         return <AutoFill />;
       case 5:
@@ -43,7 +44,7 @@ export const Home = () => {
   };
 
   const handleNext = async () => {
-    // Special handling for road Map step (step 3) - capture screenshot first
+    // Special handling for Accident Diagram step (step 3) - capture screenshot first
     if (currentStep === 3 && roadMapRef.current?.handleNextWithScreenshot) {
       await roadMapRef.current.handleNextWithScreenshot();
       return;
@@ -60,7 +61,11 @@ export const Home = () => {
   };
 
   const handleHome = () => {
+    // Reset all state (clears everything except auth)
     dispatch(resetState());
+    // Generate and initialize a new session ID
+    dispatch(initializeSession());
+    // Navigate back to report page
     navigate('/report');
   };
 
@@ -70,7 +75,7 @@ export const Home = () => {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         {/* Step Indicator */}
         <StepIndicator />
 
