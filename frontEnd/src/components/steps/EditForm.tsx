@@ -11,6 +11,7 @@ import apiService from '@/services/api.service';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ImageUpload from './forms/ImageUpload';
+import { RichTextEditor } from './forms/RichTextEditor';
 import { jsonToFormCategories, updateByPath } from '@/utils/formHelpers';
 
 export const EditForm = () => {
@@ -96,10 +97,16 @@ export const EditForm = () => {
       ),
     }));
 
-    // Add Image Upload as the last tab
+    // Add Image Upload tab
     dynamicTabs.push({
       label: 'Image Upload',
       content: <ImageUpload />,
+    });
+
+    // Add Rich Text Editor tab
+    dynamicTabs.push({
+      label: 'Rich Text Editor',
+      content: <RichTextEditor />,
     });
 
     return dynamicTabs;
