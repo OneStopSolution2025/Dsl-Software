@@ -7,10 +7,23 @@ interface Tab {
 
 interface TabsProps {
   tabs: Tab[];
+  activeTab?: number;
+  onTabChange?: (index: number) => void;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ tabs }) => {
-  const [activeTab, setActiveTab] = useState(0);
+export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab: controlledActiveTab, onTabChange }) => {
+  const [internalActiveTab, setInternalActiveTab] = useState(0);
+  
+  // Use controlled or internal state
+  const activeTab = controlledActiveTab !== undefined ? controlledActiveTab : internalActiveTab;
+  
+  const handleTabClick = (index: number) => {
+    if (onTabChange) {
+      onTabChange(index);
+    } else {
+      setInternalActiveTab(index);
+    }
+  };
 
   return (
     <div>
@@ -19,7 +32,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs }) => {
           {tabs.map((tab, index) => (
             <button
               key={tab.label}
-              onClick={() => setActiveTab(index)}
+              onClick={() => handleTabClick(index)}
               className={`${
                 activeTab === index
                   ? 'border-primary-500 text-primary-600'

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
+import { Download } from 'lucide-react';
 import { RootState } from '@/store';
 import { setBlankCanvasJSON } from '@/store/slices/canvasSlice';
 import DrawingToolbar, { DrawingTool } from './DrawingToolbar';
@@ -38,10 +39,12 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
   
   const internalCanvasRef = useRef<fabric.Canvas | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const undoRedoStateRef = useRef<UndoRedoState>(createUndoRedoState());
   const isLoadingFromRedux = useRef(false);
   
   const [activeTool, setActiveTool] = useState<DrawingTool>('select');
+  const [canvasDimensions, setCanvasDimensions] = useState({ width: 800, height: 600 });
   const [currentColor, setCurrentColor] = useState('#000000');
   const [fontSize, setFontSize] = useState(20);
   const [fontFamily, setFontFamily] = useState('Arial');
@@ -51,11 +54,33 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
+  // Calculate canvas dimensions based on container
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+        // Use most of the available space with minimal padding
+        const width = Math.max(600, containerWidth - 20);
+        const height = Math.max(500, containerHeight - 20);
+        setCanvasDimensions({ width, height });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
   // Initialize canvas
   useEffect(() => {
     if (!canvasElementRef.current) return;
 
-    const canvas = initializeFabricCanvas(canvasElementRef.current);
+    const canvas = initializeFabricCanvas(
+      canvasElementRef.current,
+      canvasDimensions.width,
+      canvasDimensions.height
+    );
     internalCanvasRef.current = canvas;
     
     // Expose canvas to parent component if needed
@@ -133,7 +158,19 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
       window.removeEventListener('keydown', handleKeyDown);
       canvas.dispose();
     };
-  }, []);
+  }, [canvasDimensions]);
+
+  // Update canvas size when dimensions change
+  useEffect(() => {
+    const canvas = internalCanvasRef.current;
+    if (canvas && !isLoadingFromRedux.current) {
+      canvas.setDimensions({
+        width: canvasDimensions.width,
+        height: canvasDimensions.height,
+      });
+      canvas.renderAll();
+    }
+  }, [canvasDimensions]);
 
   const saveToRedux = () => {
     const canvas = internalCanvasRef.current;
@@ -267,6 +304,24 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
     setActiveTool('select');
   };
 
+  const handleDownloadScreenshot = () => {
+    const canvas = internalCanvasRef.current;
+    if (!canvas) return;
+
+    // Export canvas to data URL
+    const dataURL = canvas.toDataURL({
+      format: 'png',
+      quality: 1,
+      multiplier: 2, // Higher resolution
+    });
+
+    // Create download link
+    const link = document.createElement('a');
+    link.download = `blank-canvas-${Date.now()}.png`;
+    link.href = dataURL;
+    link.click();
+  };
+
   const handleIconDragStart = (iconType: string) => {
     const canvas = internalCanvasRef.current;
     if (!canvas) return;
@@ -335,6 +390,18 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
 
       {/* Main Canvas Area */}
       <div className="flex-1 flex flex-col">
+        {/* Top Actions Bar */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3 mb-3 flex justify-end">
+          <button
+            onClick={handleDownloadScreenshot}
+            className="flex items-center gap-2 px-4 py-2 btn-primary rounded-lg font-semibold hover:bg-primary-600 transition-colors"
+            title="Download Screenshot"
+          >
+            <Download size={18} />
+            Take a Screenshot
+          </button>
+        </div>
+
         {/* Drawing Toolbar */}
         <DrawingToolbar
         activeTool={activeTool}
@@ -352,7 +419,7 @@ const BlankCanvas: React.FC<BlankCanvasProps> = ({ onCanvasChange, canvasRef: ex
       />
 
       {/* Canvas Container */}
-      <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-4">
+      <div ref={containerRef} className="flex-1 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-2">
         <div className="bg-white shadow-lg">
           <canvas ref={canvasElementRef} />
         </div>

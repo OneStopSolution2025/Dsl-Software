@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { setEditing, setFormData } from '@/store/slices/formSlice';
@@ -11,13 +11,35 @@ import apiService from '@/services/api.service';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ImageUpload from './forms/ImageUpload';
+import { CustomRichTextEditor } from '@/components/editor/CustomRichTextEditor';
 import { jsonToFormCategories, updateByPath } from '@/utils/formHelpers';
 
 export const EditForm = () => {
   const dispatch = useDispatch();
   const { data, images } = useSelector((state: RootState) => state.form);
   const { sessionId } = useSelector((state: RootState) => state.session);
+  const { htmlUrl } = useSelector((state: RootState) => state.files);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const [htmlContent, setHtmlContent] = useState('');
+
+  // Load HTML content from htmlUrl when component mounts
+  useEffect(() => {
+    const loadHtmlContent = async () => {
+      if (htmlUrl) {
+        try {
+          const response = await fetch(htmlUrl);
+          const html = await response.text();
+          setHtmlContent(html);
+        } catch (error) {
+          console.error('Error loading HTML content:', error);
+          toast.error('Failed to load HTML content');
+        }
+      }
+    };
+    
+    loadHtmlContent();
+  }, [htmlUrl]);
 
   // Generate dynamic form categories from JSON data
   const formCategories = useMemo(() => {
@@ -42,6 +64,40 @@ export const EditForm = () => {
     try {
       setIsSaving(true);
 
+      // Check if we're on the Rich Text Editor tab (last tab)
+      const richTextEditorTabIndex = formCategories.length + 1; // After all form categories + Image Upload
+      if (activeTab === richTextEditorTabIndex) {
+        // Handle HTML editor save
+        if (!htmlUrl) {
+          toast.error('No HTML document available to save.');
+          setIsSaving(false);
+          return;
+        }
+
+        if (!htmlContent.trim()) {
+          toast.error('HTML content cannot be empty.');
+          setIsSaving(false);
+          return;
+        }
+
+        // Extract filename from htmlUrl
+        const urlParts = htmlUrl.split('/');
+        const filename = urlParts[urlParts.length - 1];
+
+        // Create HTML file from content
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const file = new File([blob], filename, { type: 'text/html' });
+
+        // Upload to /upload-files
+        await apiService.file.uploadFiles([file], sessionId);
+        
+        toast.success('HTML file saved successfully!');
+        dispatch(setEditing(false));
+        setIsSaving(false);
+        return;
+      }
+
+      // Normal save for other tabs
       // Prepare payload with images and text
       const payload = {
         images: images,
@@ -96,21 +152,32 @@ export const EditForm = () => {
       ),
     }));
 
-    // Add Image Upload as the last tab
+    // Add Image Upload tab
     dynamicTabs.push({
       label: 'Image Upload',
       content: <ImageUpload />,
     });
 
+    // Add Rich Text Editor tab
+    dynamicTabs.push({
+      label: 'Rich Text Editor',
+      content: (
+        <CustomRichTextEditor
+          initialHtml={htmlContent}
+          onHtmlChange={setHtmlContent}
+        />
+      ),
+    });
+
     return dynamicTabs;
-  }, [formCategories, data, handleFieldChange]);
+  }, [formCategories, data, htmlContent, handleFieldChange]);
 
   return (
     <div className="bg-white p-6 sm:p-8 rounded-2xl border-2 border-neutral-200 shadow-lg">
       <h3 className="text-2xl font-bold text-neutral-900 mb-6">Edit Extracted Data</h3>
       
       {formCategories.length > 0 ? (
-        <Tabs tabs={tabs} />
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
       ) : (
         <div className="text-center py-12">
           <p className="text-gray-500">No form data available. Please complete the AutoFill step first.</p>
