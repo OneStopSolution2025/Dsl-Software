@@ -3,6 +3,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { Register } from '@/pages/Register';
 import { Login } from '@/pages/Login';
 import { Home } from '@/pages/Home';
+import { RichEditorPOC } from '@/pages/RichEditorPOC';
 // import MapEditor from '@/pages/MapEditor'; // Import the new MapEditor page
 // import TransformPOC from '@/pages/TransformPOC'; // Import Transform POC page
 
@@ -43,6 +44,16 @@ export const AppRoutes = () => {
             </ProtectedRoute>
           }
         /> */}
+
+        {/* POC: Rich Text Editor */}
+        <Route
+          path="/rich-editor-poc"
+          element={
+            <ProtectedRoute>
+              <RichEditorPOC />
+            </ProtectedRoute>
+          }
+        />
 
 
         {/* Redirect unknown routes to home */}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { fabric } from 'fabric';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Download } from 'lucide-react';
 import { RootState } from '@/store';
 import { setSceneCanvasJSON, setSceneBackground, clearSceneBackground } from '@/store/slices/canvasSlice';
 import DrawingToolbar, { DrawingTool } from './DrawingToolbar';
@@ -43,11 +43,13 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
   
   const internalCanvasRef = useRef<fabric.Canvas | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const undoRedoStateRef = useRef<UndoRedoState>(createUndoRedoState());
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const isLoadingFromRedux = useRef(false);
   
   const [activeTool, setActiveTool] = useState<DrawingTool>('select');
+  const [canvasDimensions, setCanvasDimensions] = useState({ width: 800, height: 600 });
   const [currentColor, setCurrentColor] = useState('#000000');
   const [fontSize, setFontSize] = useState(20);
   const [fontFamily, setFontFamily] = useState('Arial');
@@ -67,11 +69,33 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
     }
   }, []);
 
+  // Calculate canvas dimensions based on container
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+        // Use most of the available space with minimal padding
+        const width = Math.max(600, containerWidth - 20);
+        const height = Math.max(500, containerHeight - 20);
+        setCanvasDimensions({ width, height });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
   // Initialize canvas
   useEffect(() => {
     if (!canvasElementRef.current) return;
 
-    const canvas = initializeFabricCanvas(canvasElementRef.current);
+    const canvas = initializeFabricCanvas(
+      canvasElementRef.current,
+      canvasDimensions.width,
+      canvasDimensions.height
+    );
     internalCanvasRef.current = canvas;
     
     // Expose canvas to parent component if needed
@@ -162,7 +186,24 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
       window.removeEventListener('keydown', handleKeyDown);
       canvas.dispose();
     };
-  }, []);
+  }, [canvasDimensions]);
+
+  // Update canvas size when dimensions change
+  useEffect(() => {
+    const canvas = internalCanvasRef.current;
+    if (canvas && !isLoadingFromRedux.current) {
+      canvas.setDimensions({
+        width: canvasDimensions.width,
+        height: canvasDimensions.height,
+      });
+      canvas.renderAll();
+      
+      // Re-apply background image if exists
+      if (hasBackgroundImage && sceneBackgroundImage) {
+        setBackgroundImage(canvas, sceneBackgroundImage);
+      }
+    }
+  }, [canvasDimensions, hasBackgroundImage, sceneBackgroundImage]);
 
   const saveToRedux = () => {
     const canvas = internalCanvasRef.current;
@@ -296,6 +337,24 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
     });
     
     setActiveTool('select');
+  };
+
+  const handleDownloadScreenshot = () => {
+    const canvas = internalCanvasRef.current;
+    if (!canvas) return;
+
+    // Export canvas to data URL
+    const dataURL = canvas.toDataURL({
+      format: 'png',
+      quality: 1,
+      multiplier: 2, // Higher resolution
+    });
+
+    // Create download link
+    const link = document.createElement('a');
+    link.download = `scene-canvas-${Date.now()}.png`;
+    link.href = dataURL;
+    link.click();
   };
 
   const handleIconDragStart = (iconType: string) => {
@@ -437,51 +496,52 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
 
       {/* Main Canvas Area */}
       <div className="flex-1 flex flex-col">
-        {/* Background Image Upload Section */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3 mb-3">
-        <div className="flex items-center gap-3">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-          
-          {!hasBackgroundImage ? (
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2.5 btn-primary rounded-lg font-semibold"
-            >
-              <Upload size={18} />
-              Upload Background Image
-            </button>
-          ) : (
-            <div className="flex items-center gap-3 flex-1">
-              <div className="flex items-center gap-2 flex-1 bg-green-50 border border-green-200 rounded px-3 py-2">
-                <span className="text-sm font-medium text-green-700">
-                  Background: {backgroundFileName}
-                </span>
+        {/* Top Actions Bar */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3 mb-3 flex justify-between items-center">
+          {/* Background Image Upload Section - Compact */}
+          <div className="flex items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            
+            {hasBackgroundImage && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded px-3 py-2">
+                  <span className="text-sm font-medium text-green-700">
+                    Background: {backgroundFileName}
+                  </span>
+                </div>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-2 btn-primary rounded-lg font-semibold text-sm"
+                >
+                  Replace
+                </button>
+                <button
+                  onClick={handleRemoveBackground}
+                  className="p-2 bg-error-100 text-error-600 rounded-lg hover:bg-error-200 transition-colors"
+                  title="Remove Background"
+                >
+                  <X size={18} />
+                </button>
               </div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2.5 btn-primary rounded-lg font-semibold text-sm"
-              >
-                Replace
-              </button>
-              <button
-                onClick={handleRemoveBackground}
-                className="p-2 bg-error-100 text-error-600 rounded-lg hover:bg-error-200 transition-colors"
-                title="Remove Background"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          )}
-          
-          <p className="text-xs text-gray-500">Max 5MB</p>
+            )}
+          </div>
+
+          {/* Screenshot Button */}
+          <button
+            onClick={handleDownloadScreenshot}
+            className="flex items-center gap-2 px-4 py-2 btn-primary rounded-lg font-semibold hover:bg-primary-600 transition-colors"
+            title="Download Screenshot"
+          >
+            <Download size={18} />
+            Take a Screenshot
+          </button>
         </div>
-      </div>
 
       {/* Drawing Toolbar */}
       <DrawingToolbar
@@ -500,7 +560,33 @@ const SceneCanvas: React.FC<SceneCanvasProps> = ({ onCanvasChange, canvasRef: ex
       />
 
       {/* Canvas Container */}
-      <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-4">
+      <div ref={containerRef} className="flex-1 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-2 relative">
+        {!hasBackgroundImage && (
+          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+            <div className="bg-white/95 backdrop-blur-sm border-2 border-dashed border-primary-300 rounded-2xl shadow-xl p-8 pointer-events-auto">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
+                  <Upload size={32} className="text-primary-600" />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    Upload Background Image
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Start by adding a background image to your scene
+                  </p>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-6 py-3 btn-primary rounded-lg font-semibold hover:bg-primary-600 transition-colors"
+                  >
+                    Choose Image
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2">Max 5MB • PNG, JPG, JPEG</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="bg-white shadow-lg">
           <canvas ref={canvasElementRef} />
         </div>
