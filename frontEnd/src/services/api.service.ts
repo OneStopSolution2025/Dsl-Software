@@ -146,7 +146,7 @@ export const documentAPI = {
       {
         params: { template_filename: 'template1.docx' },
         headers: getAuthHeaders(),
-        timeout: 180000, // 3 minutes
+        timeout: 300000, // 5 minutes
       }
     );
 
