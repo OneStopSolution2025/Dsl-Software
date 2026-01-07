@@ -15,12 +15,14 @@ This application provides a streamlined workflow for insurance claim processing 
 
 ### Key Features
 
-- 🔐 **Secure Authentication** - JWT-based login/register system
-- 📁 **Multi-file Upload** - Drag & drop with validation
-- 🤖 **OCR Processing** - Automated document extraction
-- 📄 **Document Preview** - Read-only DOCX viewer
-- 🗺️ **Interactive Map** - Google Maps with draggable incident markers
-- 💾 **Download** - Final processed documents
+- 🔐 **Secure Authentication** - JWT-based login/register with Bearer token authorization
+- 📁 **Multi-file Upload** - Drag & drop with validation (PDF, JPG, PNG, DOCX)
+- 🤖 **OCR Processing** - Automated document extraction with batch upload (5 files at a time)
+- 📝 **Rich Text Editor** - Custom HTML editor for document editing with formatting tools
+- 📄 **Document Preview** - View generated DOCX documents
+- 🗺️ **Interactive Map** - Google Maps with 30+ customizable markers and color picker
+- 🎨 **Color Customization** - Change marker colors with preset or custom color picker
+- 💾 **Download** - Final processed documents with map screenshots
 - 🎨 **Modern UI** - Glassmorphism design with smooth animations
 
 ---
@@ -33,7 +35,7 @@ This application provides a streamlined workflow for insurance claim processing 
 - **Tailwind CSS 3.x** - Utility-first styling
 
 ### State Management
-- **Redux Toolkit** - Global state
+- **Redux Toolkit** - Global state management
 - **RTK Query** - API caching
 
 ### Form & Validation
@@ -48,30 +50,12 @@ This application provides a streamlined workflow for insurance claim processing 
 
 ### File & Map
 - **React Dropzone** - File uploads
-- **@react-google-maps/api** - Google Maps
+- **@react-google-maps/api** - Google Maps integration
 - **html2canvas** - Screenshot capture
 
----
-
-## 📁 Project Structure
-
-```
-src/
-├── assets/              # Static assets (icons, images, lottie)
-├── components/
-│   ├── common/          # Reusable components (Button, Input, etc.)
-│   ├── layout/          # Layout components (Header, AuthLayout)
-│   ├── auth/            # Auth forms (Login, Register)
-│   └── steps/           # Step components (Upload, OCR, etc.)
-├── pages/               # Page components (Register, Login, Home)
-├── store/               # Redux store, slices, API
-├── hooks/               # Custom hooks
-├── utils/               # Utilities (validation, helpers, constants)
-├── types/               # TypeScript type definitions
-├── routes/              # Route configuration
-├── App.tsx              # Root component
-└── main.tsx             # Entry point
-```
+### Document Editing
+- **Quill** - Rich text editing
+- **Custom HTML Editor** - Built-in HTML/text editor with formatting toolbar
 
 ---
 
@@ -85,14 +69,10 @@ src/
 ### Installation
 
 ```bash
-# Clone repository
-git clone <repository-url>
-cd Dsl-Software
-
 # Install dependencies
 npm install
 
-# Setup environment variables
+# Configure environment variables
 cp .env.example .env
 # Edit .env with your API keys
 
@@ -102,8 +82,8 @@ npm run dev
 
 ### Environment Variables
 
-```bash
-VITE_API_BASE_URL=http://localhost:3000/api
+```env
+VITE_API_BASE_URL=http://localhost:3000
 VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 VITE_APP_NAME=Insurance Claims
 VITE_MAX_FILE_SIZE=10485760
@@ -112,92 +92,173 @@ VITE_MAX_FILES=50
 
 ---
 
-## 📖 Documentation
+## 🎯 Application Workflow
 
-- **[PROJECT_PLAN.md](./PROJECT_PLAN.md)** - Complete project plan, requirements, and timeline
-- **[TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)** - System architecture and data flow
-- **[DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)** - Color palette, typography, and component styles
-- **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - Step-by-step implementation instructions
+### Authentication Flow
+```
+Register → Login → Store JWT Token → Protected Routes
+```
+
+### 6-Step Claim Workflow
+1. **Upload Documents** - Drag & drop multiple files (PDF, JPG, PNG, DOCX)
+2. **OCR Extraction** - Batch upload to server (5 files at a time) with progress tracking
+3. **AutoFill** - Backend processes documents (auto-navigates on success)
+4. **Preview** - View generated DOCX document with edit option
+5. **Road Map** - Mark incident locations with customizable markers and colors
+6. **Download** - Download final processed document
 
 ---
 
-## 🎯 Application Flow
+## 🗺️ Map Features
 
-### Authentication
-```
-Register → Success Toast → Login → Store Token → Home
-```
+### Icon System (30+ Icons)
+- **Vehicles**: Car, Bike, Pickup Truck, Lorry, Van, Bus
+- **Pedestrians**: Man, Woman, Child
+- **Direction**: Straight Arrow, Turn Arrow, Impact Blast
+- **Environment**: Tree, Grass Verge, Drain
+- **Traffic**: Traffic Light, CCTV, Pedestrian Crossing, Yellow Box, No Entry, One Way
+- **Buildings**: School, Shops, Factory, Bus Stop, Office Building
 
-### 6-Step Workflow
+### Marker Customization
+- **12 Preset Colors**: Quick selection (Black, Blue, Red, Green, etc.)
+- **Custom Color Picker**: Choose any color
+- **Transform Controls**: Rotate, scale, flip markers
+- **Drag & Drop**: Place markers on map
+- **Visual Indicators**: Color dots in marker list
+
+---
+
+## 📝 Rich Text Editor
+
+### Features
+- Built-in custom HTML editor with toolbar
+- Text formatting (bold, italic, underline, strikethrough)
+- Headers (H1, H2, H3)
+- Lists (ordered, bullet)
+- Blockquotes and code blocks
+- Text alignment
+- Color and background color
+- Links, images, tables
+- Save edited content back to server
+
+---
+
+## 📁 Project Structure
+
 ```
-1. Upload Documents → User uploads files
-2. OCR Extraction → Batch upload to server (5 at a time)
-3. AutoFill → Backend processing (auto-navigate on success)
-4. Preview → View generated DOCX
-5. Road Map → Mark incident locations on map
-6. Download → Download final document
+frontEnd/
+├── src/
+│   ├── components/
+│   │   ├── auth/           # Login/Register forms
+│   │   ├── common/         # Reusable components (Button, Input, etc.)
+│   │   ├── editor/         # Rich text editors
+│   │   ├── layout/         # Headers, layouts
+│   │   ├── map/            # Map components and markers
+│   │   └── steps/          # 6-step workflow components
+│   ├── hooks/              # Custom React hooks
+│   ├── pages/              # Page components
+│   ├── routes/             # Route configuration
+│   ├── services/           # API service layer
+│   ├── store/              # Redux store and slices
+│   ├── types/              # TypeScript type definitions
+│   └── utils/              # Helper functions and constants
+├── public/                 # Static assets
+├── .env                    # Environment variables
+└── package.json
 ```
 
 ---
 
-## 🎨 Design Highlights
+## 🔐 Authentication & API
 
-### Glassmorphism UI
-- Frosted glass effect with backdrop blur
-- Semi-transparent backgrounds
-- Subtle borders and shadows
-- Modern corporate aesthetic
+### JWT Token Authentication
+All protected endpoints require Bearer token:
+- Token obtained from `/token` endpoint on login
+- Stored in localStorage (`auth_token`)
+- Automatically added to requests via axios interceptor
+- Auto-logout on 401 (session expired)
+
+### API Endpoints
+
+```typescript
+// Authentication
+POST /register          // Register new user
+POST /token             // Login and get JWT token
+
+// File Processing (Bearer token required)
+POST /upload-files      // Upload files (max 5 per batch)
+POST /document/process/{session_id}  // Process documents
+GET /list/{session_id}  // Get final document URL
+```
+
+---
+
+## 🎨 Design System
 
 ### Color Palette
 - **Primary**: Blue spectrum (#3b82f6)
 - **Accents**: Cyan, Purple, Amber, Red, Green
-- **Glass**: White/Black with opacity
-- **Neutral**: Gray scale for text
+- **Glass Effects**: Semi-transparent with backdrop blur
+- **Neutrals**: Gray scale for text and backgrounds
 
-### Animations
-- Smooth page transitions (300-500ms)
-- Step indicator progress
-- Micro-interactions on hover
-- Lottie animations for processing states
-
----
-
-## 🔐 Security Features
-
-- JWT token authentication
-- Token stored in localStorage
-- API request interceptors
-- Protected routes
-- 401 auto-redirect to login
-- Form validation (client-side)
-- File type & size validation
+### Glassmorphism Style
+```css
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+```
 
 ---
 
-## 📱 Pages
+## 🚀 Deployment
 
-### 1. Register Page
-- Username, email, password fields
-- Real-time validation
-- Success toast on registration
-- Auto-navigate to login
+### Build for Production
+```bash
+npm run build
+```
 
-### 2. Login Page
-- Username, password fields
-- Token storage on success
-- Navigate to home
-- Token persistence check
+### Deployment Options
+1. **Vercel** (Recommended)
+   ```bash
+   npm install -g vercel
+   vercel --prod
+   ```
 
-### 3. Home Page
-**Header**
-- App logo and name
-- User menu with logout (if authenticated)
-- Login/Register CTAs (if not authenticated)
+2. **Nginx Server**
+   - Copy `dist/` folder to server
+   - Configure nginx with SSL
+   - See DEVELOPER_GUIDE.md for details
 
-**Stepper Workflow**
-- Visual step indicator (1-6)
-- Dynamic step content
-- Back/Next navigation
+---
+
+## 🐛 Troubleshooting
+
+### Google Maps not loading
+- Verify `VITE_GOOGLE_MAPS_API_KEY` in `.env`
+- Enable "Maps JavaScript API" in Google Cloud Console
+
+### File upload fails
+- Check backend CORS settings
+- Verify file size limits (default: 10MB)
+- Ensure backend is running
+
+### Token not persisting
+- Check browser localStorage for `auth_token`
+- Verify token is returned from `/token` endpoint
+
+---
+
+## 📞 Support
+
+For detailed development documentation, see [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)
+
+---
+
+## 📄 License
+
+© 2025 Insurance Claims Application. All rights reserved.
 - Step validation
 
 ---
